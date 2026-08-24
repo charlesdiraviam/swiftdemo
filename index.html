@@ -172,7 +172,7 @@
         <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" class="hover:text-teal-600" data-i18n="pricing">Pricing</a>
         <a href="#services" class="hover:text-teal-600" data-i18n="services">Services</a>
         <a href="#doctors" class="hover:text-teal-600" data-i18n="doctors">Doctors</a>
-        <a href="#checkin" onclick="SWIFT.ui.openTab('locationPanel'); return false;" class="hover:text-teal-600" data-i18n="location">Location</a>
+        <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('locationPanel'); return false;" class="hover:text-teal-600" data-i18n="location">Location</a>
         <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" class="hover:text-teal-600" data-i18n="contact">Contact</a>
       </nav>
 
@@ -193,7 +193,7 @@
         <a href="#pricing" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing</a>
         <a href="#services" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services</a>
         <a href="#doctors" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-doctor"/></svg>Doctors</a>
-        <a href="#checkin" onclick="toggleMobileNav(); SWIFT.ui.openTab('locationPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
+        <a href="#beforeYouVisit" onclick="toggleMobileNav(); SWIFT.ui.openTab('locationPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
         <a href="#checkin" onclick="toggleMobileNav(); SWIFT.ui.openTab('enquiriesPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold col-span-2 inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-mail"/></svg>Contact</a>
       </div>
     </div>
@@ -213,6 +213,7 @@
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-teal-50">Request Appointment</button>
+            <button id="heroReserveCta" onclick="SWIFT.ui.openTab('checkinPanel'); document.getElementById('checkin').scrollIntoView({behavior:'smooth', block:'start'}); return false;" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Reserve my spot</button>
             <a id="heroSecondaryCta" href="#wait" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Check Wait Times</a>
           </div>
         </div>
@@ -309,12 +310,13 @@
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Before you visit</h2>
         <p class="mt-2 text-slate-500">Everything you need to plan your visit — pick a tab.</p>
       </div>
-      <!-- Tab strip -->
-      <div role="tablist" aria-label="Before you visit" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1">
+      <!-- Tab strip (N2: Location is now the 5th tab here — was previously in Patient hub) -->
+      <div role="tablist" aria-label="Before you visit" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="triagePanel" aria-selected="true">Triage</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="pricingPanel" aria-selected="false" tabindex="-1">Pricing</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="journeyPanel" aria-selected="false" tabindex="-1">What to expect</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="amenitiesPanel" aria-selected="false" tabindex="-1">Practical info</button>
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="locationPanel" aria-selected="false" tabindex="-1">Location</button>
       </div>
 
       <!-- Panels — id on the visible ones keeps #triage / #pricing / #journey / #amenities deep links working. -->
@@ -379,6 +381,31 @@
           <p class="mt-1 text-sm text-slate-500">Everything you need for a smooth visit.</p>
           <div id="amenitiesGrid" class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
         </div>
+        <div data-panel="locationPanel" id="location" role="tabpanel" class="hidden">
+          <h3 class="text-lg font-extrabold text-slate-800">Find us</h3>
+          <p class="mt-1 text-sm text-slate-500">Plan your trip — directions, parking and contact.</p>
+          <div class="mt-5 grid md:grid-cols-2 gap-6 items-stretch">
+            <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6 sm:p-8">
+              <dl class="space-y-3 text-slate-700 text-sm">
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
+              </dl>
+              <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
+            </div>
+            <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
+              <div class="absolute inset-0 grid place-items-center text-center p-6">
+                <div>
+                  <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
+                    <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
+                  </div>
+                  <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
+                  <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -419,16 +446,15 @@
   <section id="checkin" class="bg-white border-y border-slate-200" data-tabs-root>
     <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
       <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Online Check-in</h2>
-        <p class="mt-2 text-slate-500">Reserve your spot — or jump to results, referrals, enquiries or location.</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Patient hub</h2>
+        <p class="mt-2 text-slate-500">Reserve your spot, view test results, send a referral or ask us a question.</p>
       </div>
-      <!-- Tab strip -->
-      <div role="tablist" aria-label="Check-in & Patient hub" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-selected="true">Check-in</button>
+      <!-- Tab strip (N2: Location moved to Before-you-visit; Check-in renamed to Reserve my spot) -->
+      <div role="tablist" aria-label="Patient hub" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-selected="true">Reserve my spot</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="resultsPanel" aria-selected="false" tabindex="-1">Test results</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="referralsPanel" aria-selected="false" tabindex="-1">Referrals</button>
         <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="enquiriesPanel" aria-selected="false" tabindex="-1">Enquiries</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="locationPanel" aria-selected="false" tabindex="-1">Location</button>
       </div>
 
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
@@ -481,54 +507,7 @@
             </form>
           </div>
         </div>
-        <div data-panel="locationPanel" id="location" role="tabpanel" class="hidden">
-          <div class="grid md:grid-cols-2 gap-6 items-stretch">
-            <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6 sm:p-8">
-              <h3 class="text-2xl font-extrabold text-teal-800">Find Us</h3>
-              <dl class="mt-4 space-y-3 text-slate-700 text-sm">
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
-              </dl>
-              <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
-            </div>
-            <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
-              <div class="absolute inset-0 grid place-items-center text-center p-6">
-                <div>
-                  <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
-                    <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
-                  </div>
-                  <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
-                  <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2 -->
-  <section id="doctors" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-    <div class="text-left max-w-2xl">
-      <h2 class="text-2xl font-extrabold text-slate-800">Our Doctors</h2>
-      <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
-    </div>
-    <div class="mt-6 grid lg:grid-cols-[2fr,1fr] gap-6 items-stretch">
-      <!-- 3 doctors, 3-up on lg to fill evenly; stacks 1→2→3 across breakpoints. -->
-      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      <!-- Why-choose-SWIFT aside — qualitative differentiators (NOT the numeric stats). -->
-      <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl p-6 flex-col justify-start">
-        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Why choose SWIFT</div>
-        <ul id="whyChooseList" class="space-y-3 text-sm text-slate-700">
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>On-site X-ray, ultrasound and pathology.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Open 10am–10pm, every day of the year.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Transparent facility fee &amp; Medicare rebate.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Paediatric-trained for ages 3 months +.</span></li>
-        </ul>
-      </aside>
     </div>
   </section>
 
@@ -540,41 +519,9 @@
   <!-- The previous standalone #locationMobile / #contact sections are now folded
        into the Patient hub tabs above (L2). No duplicate content here. -->
 
-  <!-- Sticky "jump to" chip bar (G4 / K3) — thumb-reachable on mobile, highlights active section -->
-  <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
-    <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
-      </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
-      </a>
-      <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
-      </a>
-      <a href="#services" data-jump-target="services" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('checkinPanel'); return false;" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('locationPanel'); return false;" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" data-jump-target="enquiries" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
-      </a>
-      <a href="#faq" data-jump-target="faq" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
-      </a>
-    </div>
-  </nav>
-
-  <!-- The previous standalone #contact section is now folded into the Patient
-       hub tabs above (L2). No duplicate content here. -->
+  <!-- N1: Jump bar relocated just before <footer> so its sticky containing block
+       extends to the end of the page, keeping the bar pinned to the viewport
+       bottom all the way through #faq. Was previously above #faq. -->
 
   <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
   <section id="faq" class="bg-white border-t border-slate-200">
@@ -587,6 +534,101 @@
       <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
     </div>
   </section>
+
+  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2/N3
+       Moved from mid-page to just above FAQ for a calmer pre-footer beat. -->
+  <section id="doctors" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+    <div class="text-left max-w-2xl">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Our Doctors</h2>
+      <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
+    </div>
+    <div class="mt-6 grid lg:grid-cols-[2fr,1fr] gap-6 items-stretch">
+      <!-- 3 doctors, 3-up on lg to fill evenly; stacks 1→2→3 across breakpoints. -->
+      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <!-- Why-choose-SWIFT aside (N3) — stock imagery + qualitative differentiators.
+           No duplicate numeric trust stats. -->
+      <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl overflow-hidden flex-col">
+        <div class="relative h-32 bg-gradient-to-br from-teal-600 to-teal-800">
+          <!-- Inline SVG illustration (no external CDN / no licence risk) — clinician at the bedside. -->
+          <svg viewBox="0 0 320 128" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="wcBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0d9488"/>
+                <stop offset="100%" stop-color="#115e59"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="128" fill="url(#wcBg)"/>
+            <!-- clinician silhouette + stethoscope (simple line illustration, teal-50 stroke) -->
+            <g fill="none" stroke="#ccfbf1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <!-- head -->
+              <circle cx="180" cy="42" r="13"/>
+              <!-- torso / shoulders -->
+              <path d="M160 70 C160 58, 200 58, 200 70 L210 110 L150 110 Z"/>
+              <!-- stethoscope -->
+              <path d="M170 70 C168 80, 168 88, 176 92"/>
+              <circle cx="176" cy="93" r="2.4"/>
+              <!-- clipboard -->
+              <rect x="118" y="76" width="22" height="30" rx="2"/>
+              <line x1="122" y1="84" x2="136" y2="84"/>
+              <line x1="122" y1="90" x2="136" y2="90"/>
+              <line x1="122" y1="96" x2="132" y2="96"/>
+            </g>
+            <!-- subtle medical-cross watermark -->
+            <g fill="#ffffff" fill-opacity="0.10">
+              <rect x="262" y="36" width="14" height="44" rx="2"/>
+              <rect x="252" y="46" width="34" height="24" rx="2"/>
+            </g>
+          </svg>
+          <div class="absolute bottom-2 left-3 text-xs font-semibold uppercase tracking-wider text-teal-50/90">Why choose SWIFT</div>
+        </div>
+        <ul id="whyChooseList" class="p-6 space-y-3 text-sm text-slate-700 flex-1">
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>On-site X-ray, ultrasound and pathology.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Open 10am–10pm, every day of the year.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Transparent facility fee &amp; Medicare rebate.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Paediatric-trained for ages 3 months +.</span></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Sticky "jump to" chip bar (G4 / K3 / N1 / N5) — moved here so its containing
+       block spans to end of page, keeping it pinned to the viewport bottom
+       through #faq and into the footer.
+       N5: Mobile shows only the 4 essentials (Triage · Wait · Check-in · Location)
+       centered with no horizontal scroll; sm+ shows the full 9-pill row with
+       horizontal scroll fallback for narrow viewports. -->
+  <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
+    <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-center sm:justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
+      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
+      </a>
+      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" data-jump-target="pricing" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
+      </a>
+      <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
+      </a>
+      <a href="#services" data-jump-target="services" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
+      </a>
+      <a href="#checkin" onclick="SWIFT.ui.openTab('checkinPanel'); return false;" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
+      </a>
+      <a href="#checkin" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
+      </a>
+      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('locationPanel'); return false;" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
+      </a>
+      <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" data-jump-target="enquiries" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
+      </a>
+      <a href="#faq" data-jump-target="faq" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
+      </a>
+    </div>
+  </nav>
 
   <!-- Footer -->
   <footer class="bg-teal-900 text-teal-100">

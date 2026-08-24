@@ -1381,9 +1381,10 @@
 
     const resolveTarget = function (key) {
       // Map panel-style keys to their owning section.
-      if (key === "triage" || key === "pricing") return "beforeYouVisit";
-      // M1: Patient hub panels now live inside #checkin (online check-in section).
-      if (key === "location" || key === "enquiries" || key === "results") return "checkin";
+      // N2: Location moved from Patient hub (#checkin) into Before-you-visit
+      // (#beforeYouVisit). enquiries + results stay inside #checkin.
+      if (key === "triage" || key === "pricing" || key === "location") return "beforeYouVisit";
+      if (key === "enquiries" || key === "results") return "checkin";
       return key;
     };
 

@@ -129,13 +129,24 @@ window.SWIFT_DATA = {
       imageAlt: "Thermometer and warm drink suggesting seasonal flu care",
     },
     {
-      id: "infusion",
-      title: "Iron Infusion Clinic",
-      badge: "By appointment",
-      body: "Skip the long ED wait — iron infusions in under an hour. Book online.",
-      image: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80&auto=format&fit=crop",
-      imageAlt: "Calm private infusion suite with modern equipment",
+      id: "sports",
+      title: "Sports Injury Saturday",
+      badge: "Weekend",
+      body: "Sprains, strains and fractures — walk in on Saturdays, no appointment needed.",
+      image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Athlete with an ankle tape, on a sunny sports field",
     },
+    {
+      id: "kids",
+      title: "Kids' Cough & Cold Clinic",
+      badge: "Paediatric",
+      body: "Calm, child-friendly assessments for ages 3 months +. Walk in any day.",
+      image: "https://images.unsplash.com/photo-1606166187734-a4cb74079037?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Smiling child being examined by a paediatrician",
+    },
+    // N4: removed the Iron Infusion Clinic promo — it duplicated the
+    // "Infusion Clinic" service card (same image, same concept).
+    // The infusion campaign still drives the hero via campaigns.infusion.
   ],
 
   // Scripted chatbot responses (fake AI) for the demo.
