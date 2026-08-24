@@ -29,6 +29,7 @@
     campaign: {},
     triage: {},
     a11y: {},
+    ai: {},
     state: { queueNumber: D.queuePosition.currentInQueue, lastCampaignId: null, lang: "en", _baseline: null },
     init: function () {},
   };
@@ -311,9 +312,11 @@
 
   function serviceTemplate(s) {
     const treatments = (s.treatments || []).map((t) => `<li class="text-sm text-slate-600 flex gap-2"><span class="text-teal-500 mt-0.5">${SWIFT.ui.icon("check", 16)}</span><span>${escapeHTML(t)}</span></li>`).join("");
+    // Phase I4: AI picked badge — shown when the active campaign features this service.
+    const aiBadge = `<span data-ai-badge="service" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
       <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
-        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div></div>
+        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
           <h3 class="text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
@@ -358,9 +361,10 @@
   }
 
   function promoTemplate(p) {
+    const aiBadge = `<span data-ai-badge="promo" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition">
-        <div class="aspect-[16/9] bg-teal-50">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}</div>
+      <div data-promo-id="${escapeHTML(p.id || "")}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition relative">
+        <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}${aiBadge}</div>
         <div class="p-6">
           <div class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
           <h3 class="mt-3 text-xl font-extrabold text-slate-800">${escapeHTML(p.title)}</h3>
@@ -458,6 +462,10 @@
     const hcw = $("headerWaitValue");
     if (hwv) hwv.textContent = label;
     if (hcw) hcw.textContent = label;
+    // Phase I3: refresh the sparkline + trend arrow.
+    if (typeof SWIFT.ai !== "undefined" && SWIFT.ai && SWIFT.ai.renderWaitTrend) {
+      SWIFT.ai.renderWaitTrend();
+    }
   };
 
   SWIFT.render.renderPromos = function () {
@@ -560,6 +568,11 @@
     if (typeof D.waitTimes.swiftBaselineMins !== "number") D.waitTimes.swiftBaselineMins = D.waitTimes.swiftCurrentMins;
     const swiftJitter = Math.round(D.waitTimes.swiftBaselineMins * 0.2 * (Math.random() * 2 - 1));
     D.waitTimes.swiftCurrentMins = Math.max(5, D.waitTimes.swiftBaselineMins + swiftJitter);
+    // Phase I3: append to the rolling trend buffer (last 7 readings).
+    if (Array.isArray(D.waitTrend)) {
+      D.waitTrend.push(D.waitTimes.swiftCurrentMins);
+      if (D.waitTrend.length > 7) D.waitTrend.shift();
+    }
     SWIFT.render.renderWaitTimes();
     const updated = $("waitUpdated");
     if (updated) updated.textContent = "just now";
@@ -578,7 +591,8 @@
     panel.classList.toggle("hidden");
     panel.classList.toggle("flex");
     if (isHidden && $("chatLog") && $("chatLog").children.length === 0) {
-      SWIFT.ui._chatAdd("bot", "Hi! I'm the SWIFT demo assistant. Ask me about wait times, fees, hours, services, or booking.");
+      SWIFT.ui._chatAdd("bot", "Hi! I'm the SWIFT demo AI assistant. Ask about wait times, fees, hours, services, or booking.");
+      SWIFT.ui._chatAdd("bot", SWIFT.ai.disclaimer());
     }
   };
 
@@ -590,9 +604,27 @@
     if (!text) return;
     SWIFT.ui._chatAdd("user", text);
     input.value = "";
-    const match = D.chatScript.find((s) => s.q.test(text));
-    const reply = match ? match.a : "Thanks — I'll pass that to the team. For anything urgent, please call (02) 8859 9099.";
-    setTimeout(() => SWIFT.ui._chatAdd("bot", reply), 300);
+    // Phase I2: grounded answer from D.aiConciergeIntents (reads SWIFT_DATA).
+    const result = SWIFT.ai.conciergeAnswer(text);
+    const reply = result.reply + " " + SWIFT.ai.disclaimer();
+    setTimeout(function () {
+      SWIFT.ui._chatAdd("bot", reply);
+      // Optional inline CTA (e.g. "Open in Google Maps" for location intent).
+      if (result.cta && typeof SWIFT.ui.runAction === "function") {
+        const btn = document.createElement("button");
+        btn.className = "mt-2 text-xs text-teal-700 underline";
+        btn.textContent = result.cta.label || "Open";
+        btn.onclick = function () { SWIFT.ui.runAction(result.cta); };
+        const log = $("chatLog");
+        if (log) {
+          const wrap = document.createElement("div");
+          wrap.className = "mr-8 max-w-[80%]";
+          wrap.appendChild(btn);
+          log.appendChild(wrap);
+          log.scrollTop = log.scrollHeight;
+        }
+      }
+    }, 300);
   };
 
   SWIFT.ui._chatAdd = function (who, text) {
@@ -983,6 +1015,15 @@
     SWIFT.state.lastHighlightService = c.highlightService || null;
     SWIFT.render.renderServices(SWIFT.state.lastHighlightService);
 
+    // Phase I4: AI-pick badge dataset. Default campaign clears it.
+    if (c.id && c.id !== "default") {
+      document.body.dataset.aiPick = c.id;
+    } else {
+      delete document.body.dataset.aiPick;
+    }
+    // Re-render promos so any AI-pick badge targeting via c.promoId reflects the new state.
+    SWIFT.render.renderPromos();
+
     // Phase H adapters — each is a no-op if the field is absent.
     SWIFT.campaign._applyServicesOrder(c.services);
     SWIFT.campaign._applyIntentsOrder(c.intentsOrder);
@@ -991,6 +1032,9 @@
     if (c.checkinService) SWIFT.campaign._applyBookingPrefill(c.checkinService);
     SWIFT.campaign._applyTriagePreset(c.triagePreset);
     SWIFT.campaign._applyPricingPreset(c.pricingPreset);
+
+    // Phase I4: stamp badges on the matching service + promo cards (one-shot DOM pass).
+    SWIFT.ai.applyBadges(c);
 
     // Update switcher active state
     SWIFT.campaign._renderSwitcher(c.id);
@@ -1127,6 +1171,203 @@
     $("a11yPanel").classList.add("hidden");
   };
 
+  // ---------- Phase I: AI features (mocked) ----------
+
+  // Shared disclaimer used by I1 (symptom checker) and I2 (chat concierge).
+  SWIFT.ai.disclaimer = function () {
+    return "AI demo — not medical advice; call 000 in an emergency.";
+  };
+
+  // ---- I1 — AI symptom checker ------------------------------------------
+  // Maps free-text symptoms to existing triage outcomes (walkin / book / call000).
+  // Reuses the existing SWIFT.triage._showOutcome() — no new template.
+  SWIFT.ai.checkSymptoms = function (text) {
+    const rules = D.aiSymptomRules;
+    const t = (text || "").trim();
+    if (!t) {
+      return { outcome: null, reply: "Try typing symptoms like 'fever' or 'sprained ankle'." };
+    }
+    if (rules.emergencies.some(function (r) { return r.pattern.test(t); })) return { outcome: "call000" };
+    if (rules.injuries.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
+    if (rules.illness.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
+    if (rules.book.some(function (r) { return r.pattern.test(t); })) return { outcome: "book" };
+    return { outcome: null, reply: rules.fallback };
+  };
+
+  SWIFT.ai.runSymptomChecker = function (e) {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    const input = $("aiSymptomInput");
+    if (!input) return;
+    const result = SWIFT.ai.checkSymptoms(input.value);
+    if (!result.outcome) {
+      SWIFT.ui.toast(result.reply || D.aiSymptomRules.fallback);
+      return;
+    }
+    // Open the triage tab (already default-open) so the existing outcome card is visible.
+    SWIFT.ui.openTab("triage");
+    const intro = $("triageIntro");
+    if (intro) intro.classList.add("hidden");
+    if (typeof SWIFT.triage._showOutcome === "function") SWIFT.triage._showOutcome(result.outcome);
+    SWIFT.ui.toast(SWIFT.ai.disclaimer());
+  };
+
+  // ---- I2 — grounded AI concierge ---------------------------------------
+  // Match user input against D.aiConciergeIntents; answer() reads SWIFT_DATA.
+  SWIFT.ai.matchIntent = function (text) {
+    const t = (text || "").toLowerCase();
+    if (!t) return null;
+    const intents = D.aiConciergeIntents || [];
+    for (let i = 0; i < intents.length; i++) {
+      const intent = intents[i];
+      if (intent.patterns.some(function (p) { return p.test(t); })) return intent;
+    }
+    return null;
+  };
+
+  SWIFT.ai.conciergeAnswer = function (text) {
+    const intent = SWIFT.ai.matchIntent(text);
+    if (!intent) {
+      return { reply: "That's outside what I can help with — try asking about hours, wait, cost, services, or booking.", cta: null };
+    }
+    let reply = "";
+    try { reply = intent.answer(D); } catch (err) { reply = "I'm having trouble right now — please try again."; }
+    return { reply: reply, cta: intent.cta || null };
+  };
+
+  // ---- I3 — AI-predicted wait chip --------------------------------------
+  // Compute trend direction from the rolling D.waitTrend buffer.
+  SWIFT.ai.waitTrendDirection = function () {
+    if (!Array.isArray(D.waitTrend) || D.waitTrend.length < 2) return "flat";
+    const prev = D.waitTrend[D.waitTrend.length - 2];
+    const last = D.waitTrend[D.waitTrend.length - 1];
+    if (last > prev) return "up";
+    if (last < prev) return "down";
+    return "flat";
+  };
+
+  SWIFT.ai.renderWaitTrend = function () {
+    const spark = $("heroWaitSparkline");
+    const arrow = $("heroWaitTrend");
+    if (!spark || !Array.isArray(D.waitTrend) || D.waitTrend.length < 2) return;
+    const max = Math.max.apply(null, D.waitTrend);
+    const min = Math.min.apply(null, D.waitTrend);
+    const range = Math.max(1, max - min);
+    const w = 60, h = 16;
+    const step = w / Math.max(1, D.waitTrend.length - 1);
+    const pts = D.waitTrend.map(function (v, i) {
+      const x = (i * step).toFixed(1);
+      const y = (h - ((v - min) / range) * h).toFixed(1);
+      return x + "," + y;
+    }).join(" ");
+    spark.innerHTML = '<polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />';
+    const dir = SWIFT.ai.waitTrendDirection();
+    const arrowGlyph = dir === "up"
+      ? '<polyline points="6 9 12 3 18 9"/>'
+      : dir === "down"
+      ? '<polyline points="6 15 12 21 18 15"/>'
+      : '<line x1="6" x2="18" y1="12" y2="12"/>';
+    arrow.innerHTML = arrowGlyph;
+    arrow.setAttribute("aria-label", "Trend " + dir);
+  };
+
+  // ---- I4 — AI picked this badge ----------------------------------------
+  // Helper for the templates to check whether a card should show the badge.
+  SWIFT.ai.isPickActive = function () {
+    return document.body.dataset.campaign && document.body.dataset.campaign !== "default";
+  };
+
+  // Hide every AI-pick badge first, then reveal only the ones that match the
+  // active campaign. The badge markup lives inside serviceTemplate / promoTemplate.
+  SWIFT.ai.applyBadges = function (campaign) {
+    const all = document.querySelectorAll('[data-ai-badge]');
+    all.forEach(function (el) { el.classList.add("hidden"); });
+    if (!campaign || campaign.id === "default") return;
+    // Featured service card
+    if (campaign.highlightService) {
+      const cards = document.querySelectorAll('[data-service="' + campaign.highlightService.replace(/"/g, '\\"') + '"] [data-ai-badge="service"]');
+      cards.forEach(function (el) { el.classList.remove("hidden"); });
+    }
+    // Featured promo card (campaigns may set promoId in a later phase)
+    if (campaign.promoId) {
+      const promo = document.querySelector('[data-promo-id="' + campaign.promoId.replace(/"/g, '\\"') + '"] [data-ai-badge="promo"]');
+      if (promo) promo.classList.remove("hidden");
+    }
+  };
+
+  // ---- I5 — JSON-LD + FAQ section ---------------------------------------
+  SWIFT.ai.buildJsonLd = function () {
+    const clinic = D.clinic || {};
+    const services = (D.services || []).map(function (s) {
+      return {
+        "@type": "MedicalProcedure",
+        name: s.name,
+        description: s.summary,
+      };
+    });
+    // Naive split of the address: "G38, 32 Civic Way, Rouse Hill, NSW 2155"
+    const parts = (clinic.address || "").split(",").map(function (s) { return s.trim(); });
+    const streetAddress = parts[0] || "";
+    const addressLocality = parts[2] || "";
+    const statePostcode = (parts[3] || "").split(" ");
+    const addressRegion = statePostcode[0] || "";
+    const postalCode = statePostcode[1] || "";
+
+    const clinicJson = {
+      "@context": "https://schema.org",
+      "@type": "MedicalClinic",
+      name: clinic.name,
+      description: clinic.tagline,
+      url: window.location.origin,
+      telephone: clinic.phone,
+      email: clinic.email,
+      image: clinic.heroImage,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: streetAddress,
+        addressLocality: addressLocality,
+        addressRegion: addressRegion,
+        postalCode: postalCode,
+        addressCountry: "AU",
+      },
+      openingHours: ["Mo-Su 10:00-22:00"],
+      priceRange: clinic.facilityFee,
+      medicalSpecialty: "Emergency",
+      availableService: services,
+    };
+
+    const faqJson = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: (D.faq || []).map(function (f) {
+        return { "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } };
+      }),
+    };
+
+    return { clinic: JSON.stringify(clinicJson), faq: JSON.stringify(faqJson) };
+  };
+
+  SWIFT.ai.renderJsonLd = function () {
+    const pair = SWIFT.ai.buildJsonLd();
+    const c = $("jsonld-clinic"); if (c) c.textContent = pair.clinic;
+    const f = $("jsonld-faq"); if (f) f.textContent = pair.faq;
+  };
+
+  SWIFT.ai.renderFaq = function () {
+    const root = $("faqList");
+    if (!root || !Array.isArray(D.faq)) return;
+    root.innerHTML = D.faq.map(function (f) {
+      return [
+        '<details class="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-teal-200 transition">',
+          '<summary class="cursor-pointer list-none flex items-center justify-between gap-2">',
+            '<span class="font-semibold text-slate-800 text-sm">' + escapeHTML(f.q) + '</span>',
+            '<span class="text-teal-600 shrink-0 group-open:rotate-180 transition-transform">' + SWIFT.ui.icon("chevron-down", 18) + '</span>',
+          '</summary>',
+          '<p class="mt-3 text-sm text-slate-600 leading-relaxed">' + escapeHTML(f.a) + '</p>',
+        '</details>',
+      ].join("");
+    }).join("");
+  };
+
   // ---------- Init ----------
 
   SWIFT.init = function () {
@@ -1185,6 +1426,14 @@
     SWIFT.render.renderTriageCards();
     // Services rendered again by campaign.apply() to support highlight; render default first so highlight can be added
     SWIFT.render.renderServices(null);
+
+    // Phase I — AI surfaces
+    SWIFT.ai.renderJsonLd();
+    SWIFT.ai.renderFaq();
+    SWIFT.ai.renderWaitTrend();
+    // Hook the AI symptom-checker form
+    const aiForm = $("aiSymptomForm");
+    if (aiForm) aiForm.onsubmit = SWIFT.ai.runSymptomChecker;
 
     // Wire the "Before you visit" tab buttons (delegated so dynamically
     // inserted campaigns still work).

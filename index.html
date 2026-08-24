@@ -57,6 +57,10 @@
     img { background: #ccfbf1; }
     .img-fallback { background: #ccfbf1; opacity: 0.85; }
   </style>
+
+  <!-- SEO-for-AI structured data (Phase I5). Populated at runtime by SWIFT.ai.buildJsonLd(). -->
+  <script id="jsonld-clinic" type="application/ld+json"></script>
+  <script id="jsonld-faq" type="application/ld+json"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
@@ -204,8 +208,14 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
           <div id="heroWaitIcon" class="text-teal-200"></div>
-          <div class="mt-2 text-sm text-teal-100">Current urgent care wait</div>
-          <div id="heroWait" class="text-2xl font-bold"><span id="heroWaitValue">~12 min</span></div>
+          <div class="mt-2 text-sm text-teal-100 flex items-center gap-1.5">
+            <span>AI-predicted wait</span>
+            <svg id="heroWaitTrend" width="12" height="12" aria-hidden="true" class="text-teal-200"></svg>
+          </div>
+          <div id="heroWait" class="text-2xl font-bold flex items-center gap-2">
+            <span id="heroWaitValue">~12 min</span>
+            <svg id="heroWaitSparkline" width="60" height="16" viewBox="0 0 60 16" aria-hidden="true" class="text-teal-200"></svg>
+          </div>
         </div>
         <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
           <div class="text-teal-200">
@@ -228,6 +238,19 @@
           <div class="mt-2 text-sm text-teal-100">Location</div>
           <div class="text-lg font-bold">Rouse Hill</div>
         </div>
+      </div>
+
+      <!-- AI symptom checker (Phase I1) -->
+      <div id="aiSymptomCard" class="mt-4 bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+        <div class="flex items-center gap-2 text-teal-200">
+          <svg width="20" height="20" aria-hidden="true"><use href="#i-chat"/></svg>
+          <span class="text-xs uppercase tracking-widest font-bold">AI symptom check</span>
+        </div>
+        <form id="aiSymptomForm" class="mt-3 flex flex-col sm:flex-row gap-2">
+          <input id="aiSymptomInput" type="text" placeholder="Describe symptoms — e.g. 'chest pain' or 'sprained ankle'" class="flex-1 px-3 py-2 rounded-lg text-slate-800 placeholder-slate-400 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400" />
+          <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg">Ask AI</button>
+        </form>
+        <div id="aiSymptomHint" class="mt-2 text-[11px] text-teal-100/80">AI demo — not medical advice; call 000 in an emergency.</div>
       </div>
     </div>
   </section>
@@ -543,6 +566,18 @@
           <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
+  <section id="faq" class="bg-white border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+      <div class="text-left max-w-2xl">
+        <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
+        <h2 class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-800">Common questions</h2>
+        <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, location, and results. For anything urgent, call 000.</p>
+      </div>
+      <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
     </div>
   </section>
 

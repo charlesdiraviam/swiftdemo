@@ -121,6 +121,7 @@ window.SWIFT_DATA = {
 
   promotions: [
     {
+      id: "flu",
       title: "Winter Flu & Fever Care",
       badge: "Seasonal",
       body: "Walk in for rapid assessment of flu-like symptoms — no appointment needed.",
@@ -128,6 +129,7 @@ window.SWIFT_DATA = {
       imageAlt: "Thermometer and warm drink suggesting seasonal flu care",
     },
     {
+      id: "infusion",
       title: "Iron Infusion Clinic",
       badge: "By appointment",
       body: "Skip the long ED wait — iron infusions in under an hour. Book online.",
@@ -337,6 +339,69 @@ window.SWIFT_DATA = {
       { date: "2026-07-15", test: "COVID-19 PCR", result: "Negative", status: "Reviewed" },
     ],
   },
+
+  // ---- Phase I: AI surfaces (all mocked, grounded in SWIFT_DATA) ----
+
+  // I1 — AI symptom checker: keyword maps → triage outcome keys.
+  aiSymptomRules: {
+    emergencies: [
+      { pattern: /(chest pain|stroke|severe bleeding|can'?t breathe|unconscious|seizure)/i, label: "emergency" },
+    ],
+    injuries: [
+      { pattern: /(sprain|strain|fracture|broken|twisted|wrist|ankle|knee|back|cut|wound|burn)/i, label: "injury" },
+    ],
+    illness: [
+      { pattern: /(fever|flu|cold|cough|sore throat|vomit|nausea|infection|ear|sinus|rash|diarrh)/i, label: "illness" },
+    ],
+    book: [
+      { pattern: /(infusion|iron|referral|follow[- ]?up|repeat script|script|medication)/i, label: "planned care" },
+    ],
+    fallback: "Sorry, I couldn't match that. Tap 'Can we treat this?' for the step-by-step checker.",
+  },
+
+  // I2 — grounded AI concierge: regex patterns → answer functions that read SWIFT_DATA.
+  aiConciergeIntents: [
+    { id: "hours", patterns: [/open|hours|close|today|tomorrow/i],
+      answer: function (D) { return "We're open " + D.clinic.hours + "."; } },
+    { id: "wait", patterns: [/wait|busy|queue|long/i],
+      answer: function (D) {
+        const others = D.waitTimes.hospitals.slice(1).map(function (h) { return h.name + " " + h.mins + "m"; }).join(", ");
+        return "Current urgent care wait is about " + D.waitTimes.swiftCurrentMins + " min. Hospital EDs for comparison: " + others + ".";
+      } },
+    { id: "cost", patterns: [/cost|price|fee|pay|medicare|insurance|gap|rebate/i],
+      answer: function (D) {
+        const items = D.pricingScenarios.items.map(function (i) { return i.label + " " + i.outOfPocket; }).join("; ");
+        return D.clinic.facilityFee + " Out-of-pocket by scenario: " + items + ".";
+      } },
+    { id: "treat", patterns: [/treat|service|offer|child|kid|paediatric|infusion|x-?ray|sport|physio|fracture/i],
+      answer: function (D) { return "We treat: " + D.services.map(function (s) { return s.name; }).join(", ") + ". Ages 3 months +."; } },
+    { id: "book", patterns: [/book|appointment|appt|reserve|slot/i],
+      answer: function () { return "For planned therapies like iron infusions, tap Book Now. For minor emergencies, just walk in."; } },
+    { id: "location", patterns: [/where|location|address|direction|parking|find/i],
+      answer: function (D) { return D.clinic.address + ". Free parking on-site."; },
+      cta: { label: "Open in Google Maps", action: "getDirections" } },
+    { id: "triage", patterns: [/triage|should i come|what.*wrong|symptoms/i],
+      answer: function () { return "Try 'Can we treat this?' in the Before-you-visit hub — three questions and we'll tell you walk in, book, or call 000."; } },
+    { id: "results", patterns: [/results|test|x-?ray|scan|portal/i],
+      answer: function () { return "Demo test results are under 'More — Test results & Referrals'. Use demo / demo."; } },
+    { id: "queue", patterns: [/queue|wait list|reserve|online check/i],
+      answer: function () { return "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait."; } },
+  ],
+
+  // I3 — wait-time sparkline history (rolling buffer of last 7 readings).
+  waitTrend: [10, 13, 11, 12, 14, 11, 12],
+
+  // I5 — FAQ entries feed both the JSON-LD FAQPage and the visible accordion.
+  faq: [
+    { q: "Do I need an appointment?", a: "No — walk in for minor emergencies. For planned therapies (iron infusions, follow-ups) tap Book Now." },
+    { q: "How much does it cost?", a: "$396 facility fee + Medicare charges (reimbursed with a valid Medicare card). Insured patients typically pay $0–$50 out-of-pocket." },
+    { q: "What ages do you treat?", a: "Children 3 months and older, and adults of any age. In-house paediatricians for kids." },
+    { q: "How long is the wait?", a: "Median urgent care wait is about 12 minutes, versus 2–4 hours in hospital EDs. Live wait times refresh every minute." },
+    { q: "Where are you located?", a: "G38, 32 Civic Way, Rouse Hill NSW 2155. Free parking on-site. Tap 'Open in Google Maps' for directions." },
+    { q: "Do you do X-rays and imaging?", a: "Yes — on-site X-ray and ultrasound. Interventional radiology and image-guided pain management available." },
+    { q: "Can I get my test results online?", a: "Yes — under More → Test results & Referrals. Sign in with demo / demo for the demo." },
+    { q: "What if it's a life-threatening emergency?", a: "Call 000 immediately or go to your nearest hospital ED. Our triage checker is for non-life-threatening concerns only." },
+  ],
 
   // Tier 2 — accessibility translations (small key-value map; falls back to English)
   translations: {
