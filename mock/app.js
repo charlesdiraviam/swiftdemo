@@ -29,8 +29,61 @@
     campaign: {},
     triage: {},
     a11y: {},
-    state: { queueNumber: D.queuePosition.currentInQueue, lastCampaignId: null, lang: "en" },
+    state: { queueNumber: D.queuePosition.currentInQueue, lastCampaignId: null, lang: "en", _baseline: null },
     init: function () {},
+  };
+
+  // ---------- Inline SVG icon map (Lucide-style, currentColor) ----------
+  SWIFT.ui.icon = function (name, size) {
+    size = size || 24;
+    const paths = {
+      // services / intents / journey
+      stethoscope: `<path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .2.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/>`,
+      bone: `<path d="M17 10c.7-.7 1-1.6 1-2.7a4 4 0 0 0-7-2.6c-.3.4-.7.6-1.2.4a4 4 0 1 0-2.6 7c.5-.2 1-.2 1.2.4a4 4 0 0 0 7 2.6c.4-.5.4-1 .2-1.4Z"/><path d="m13.5 9.5-5 5"/><path d="m9.5 13.5 5-5"/>`,
+      baby: `<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5 0 .6-.4 1-1 1H14a2 2 0 0 0-2 2v.5"/>`,
+      syringe: `<path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/>`,
+      scan: `<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8"/><path d="M11 8v8"/><path d="M15 8v8"/><path d="M17 8v8"/>`,
+      activity: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.5.5 0 0 1-.96 0L12 12 9.49 2.18a.5.5 0 0 0-.96 0L6.18 14.46A2 2 0 0 1 4.25 16H2"/>`,
+      // amenities
+      parking: `<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>`,
+      wifi: `<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/>`,
+      wheelchair: `<circle cx="12" cy="4" r="2"/><path d="M19 13a7 7 0 1 1-14 0"/><path d="M12 6v5l3 1"/><path d="m9 17 3-3 3 3"/>`,
+      coffee: `<path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/>`,
+      lift: `<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 8h.01"/><path d="M9 12h.01"/><path d="M9 16h.01"/><path d="M15 8h.01"/><path d="M15 12h.01"/><path d="M15 16h.01"/><path d="M12 8v8"/><path d="m9 11 3-3 3 3"/><path d="m9 13 3 3 3-3"/>`,
+      // intents
+      ambulance: `<path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M6 10h4"/><path d="M8 8v4"/>`,
+      // journey / bring
+      clipboard: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/>`,
+      doctor: `<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/><path d="M12 6v6"/><path d="m9 9 3-3 3 3"/>`,
+      pill: `<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>`,
+      check: `<path d="M20 6 9 17l-5-5"/>`,
+      id: `<rect width="18" height="14" x="3" y="5" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M12 10h5"/><path d="M12 14h5"/>`,
+      card: `<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>`,
+      wallet: `<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/><path d="M3 7h18"/><path d="M16 12h.01"/>`,
+      // trust stats
+      star: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+      clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+      users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+      shield: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>`,
+      // contact
+      phone: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+      mail: `<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>`,
+      map: `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
+    };
+    const p = paths[name];
+    if (!p) return "";
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  };
+
+  // Render an <img> with lazy loading and graceful fallback (data-URI SVG if remote errors).
+  SWIFT.ui.img = function (url, alt) {
+    if (!url) return "";
+    const safeAlt = escapeHTML(alt || "");
+    const safeUrl = escapeHTML(url);
+    const fallback = `data:image/svg+xml;utf8,${encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='#cffaf1'/><text x='2' y='1.8' text-anchor='middle' font-family='sans-serif' font-size='0.6' fill='#0f766e'>${safeAlt.replace(/[<>&]/g, '')}</text></svg>`
+    )}`;
+    return `<img src="${safeUrl}" alt="${safeAlt}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallback}';this.classList.add('img-fallback');" class="w-full h-full object-cover" />`;
   };
 
   // ---------- Generic render helpers ----------
@@ -78,7 +131,7 @@
           <div class="shrink-0 w-10 h-10 rounded-full bg-teal-500 text-white grid place-items-center font-extrabold">${i + 1}</div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <span class="text-2xl">${escapeHTML(item.icon || "")}</span>
+              <span class="text-teal-600">${SWIFT.ui.icon(item.icon, 20)}</span>
               <h4 class="font-extrabold text-slate-800">${escapeHTML(item.title)}</h4>
             </div>
             <p class="mt-1 text-sm text-slate-600">${escapeHTML(item.body)}</p>
@@ -93,7 +146,7 @@
           <input type="checkbox" class="mt-1 w-5 h-5 accent-teal-500 shrink-0" />
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <span class="text-2xl">${escapeHTML(item.icon || "")}</span>
+              <span class="text-teal-600">${SWIFT.ui.icon(item.icon, 20)}</span>
               <h4 class="font-extrabold text-slate-800">${escapeHTML(item.title)}</h4>
             </div>
             <p class="mt-1 text-sm text-slate-600">${escapeHTML(item.body)}</p>
@@ -115,8 +168,8 @@
     el.innerHTML = items.map((item, i) => `
       <details class="bg-slate-50 border border-slate-200 rounded-xl p-4 group" ${i === 0 && opts.openFirst ? "open" : ""}>
         <summary class="cursor-pointer font-semibold text-slate-800 flex items-center justify-between gap-2 list-none min-h-[44px]">
-          <span class="flex items-center gap-2"><span class="text-2xl">${escapeHTML(item.icon || "")}</span><span>${escapeHTML(item.title)}</span></span>
-          <span class="text-teal-600 group-open:rotate-180 transition-transform">▾</span>
+          <span class="flex items-center gap-2"><span class="text-teal-600">${SWIFT.ui.icon(item.icon, 20)}</span><span>${escapeHTML(item.title)}</span></span>
+          <span class="text-teal-600 group-open:rotate-180 transition-transform">${SWIFT.ui.icon("check", 18)}</span>
         </summary>
         <p class="mt-2 text-sm text-slate-600">${escapeHTML(item.body)}</p>
       </details>
@@ -155,35 +208,137 @@
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
+    if (action.action === "openTab" && action.target) {
+      SWIFT.ui.openTab(action.target);
+      const el = $(action.target);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (action.href) {
+      const el = $(action.href.replace(/^#/, ""));
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+  };
+
+  // Activate a deep-link hash if it matches a panel id (e.g. #pricing lands
+  // on the hidden pricingPanel inside #beforeYouVisit). Falls through to the
+  // default scroll behaviour if the hash doesn't match anything.
+  SWIFT.ui.handleHash = function (hash) {
+    const id = (hash || window.location.hash || "").replace(/^#/, "");
+    if (!id) return false;
+    const el = $(id);
+    if (!el) return false;
+    // 1) Hidden data-panel inside a tabs root? Activate the tab first.
+    const panel = el.matches('[data-panel]') ? el : el.closest('[data-panel]');
+    if (panel) {
+      SWIFT.ui.openTab(panel.getAttribute("data-panel"));
+    }
+    // 2) Scroll the section / element into view (use the tabs root so the
+    // user lands on the active panel rather than on the hidden one).
+    const scrollTarget = (panel && panel.closest('[data-tabs-root]')) || el;
+    scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
+  };
+
+  // ---------- Tab controller for the "Before you visit" hub ----------
+  // A tab is identified by a panel id (e.g. "triagePanel"). Buttons sharing
+  // data-tab="<id>" toggle their parent .tab-button group's active state and
+  // reveal the matching [data-panel="<id>"] while hiding the others.
+  SWIFT.ui.openTab = function (panelId) {
+    // Accept the panel id either bare ("pricing") or with the "Panel" suffix
+    // (matches both data-panel attrs in markup and action DSLs).
+    const rawId = String(panelId || "");
+    const target = rawId.replace(/Panel$/, "");
+    // Find the root that owns this panel.
+// Match if the root has any panel/button whose "Panel"-stripped name equals
+// `target`. "Panel"-suffixed input is more selective so callers can pin to
+// one root when names collide across roots.
+    const inputHasPanelSuffix = rawId !== target;
+    const matchInRoot = (r) => {
+      const panels = $$("[data-panel]", r);
+      for (const p of panels) {
+        const pn = (p.getAttribute("data-panel") || "").replace(/Panel$/, "");
+        if (pn === target) {
+          if (!inputHasPanelSuffix) return true;
+          const raw = p.getAttribute("data-panel") || "";
+          if (raw === rawId) return true;
+        }
+      }
+      const btns = $$(".tab-button", r);
+      for (const b of btns) {
+        const tstrip = (b.getAttribute("data-tab") || "").replace(/Panel$/, "");
+        if (tstrip === target) {
+          if (!inputHasPanelSuffix) return true;
+          const traw = b.getAttribute("data-tab") || "";
+          if (traw === rawId) return true;
+        }
+      }
+      return false;
+    };
+    const root = $$("[data-tabs-root]").find(matchInRoot);
+    if (!root) return;
+    const buttons = $$(".tab-button", root);
+    const panels = $$("[data-panel]", root);
+    buttons.forEach((b) => {
+      const t = (b.getAttribute("data-tab") || "").replace(/Panel$/, "");
+      const isActive = inputHasPanelSuffix
+        ? ((b.getAttribute("data-tab") || "") === rawId)
+        : (t === target);
+      b.classList.toggle("bg-teal-500", isActive);
+      b.classList.toggle("text-white", isActive);
+      b.classList.toggle("bg-white", !isActive);
+      b.classList.toggle("text-slate-700", !isActive);
+      b.setAttribute("aria-selected", isActive ? "true" : "false");
+      b.setAttribute("tabindex", isActive ? "0" : "-1");
+    });
+    panels.forEach((p) => {
+      const pn = (p.getAttribute("data-panel") || "").replace(/Panel$/, "");
+      const isActive = inputHasPanelSuffix
+        ? ((p.getAttribute("data-panel") || "") === rawId)
+        : (pn === target);
+      p.classList.toggle("hidden", !isActive);
+    });
+    // Sync deep-link anchor id onto the active panel so #triage/#pricing/etc still resolve.
+    const active = panels.find((p) => {
+      const pn = p.getAttribute("data-panel") || "";
+      return inputHasPanelSuffix ? pn === rawId : (pn === rawId || pn === target);
+    });
+    if (active && !active.id) active.id = target;
   };
 
   // ---------- Section templates ----------
 
   function serviceTemplate(s) {
-    const treatments = (s.treatments || []).map((t) => `<li class="text-sm text-slate-600">• ${escapeHTML(t)}</li>`).join("");
+    const treatments = (s.treatments || []).map((t) => `<li class="text-sm text-slate-600 flex gap-2"><span class="text-teal-500 mt-0.5">${SWIFT.ui.icon("check", 16)}</span><span>${escapeHTML(t)}</span></li>`).join("");
     return `
-      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 p-6 transition hover:shadow-md">
-        <div class="text-4xl">${escapeHTML(s.icon)}</div>
-        <h3 class="mt-3 text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
-        <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
-        <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
-        <ul class="mt-3 space-y-1">${treatments}</ul>
-        <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Book this service</button>
+      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
+        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div></div>
+        <div class="p-6">
+          <h3 class="text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
+          <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
+          <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
+          <ul class="mt-3 space-y-1.5">${treatments}</ul>
+          <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Book this service</button>
+        </div>
       </div>`;
   }
 
   function doctorTemplate(d) {
     return `
-      <div class="bg-white rounded-2xl border border-slate-200 p-6">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-full bg-teal-500 text-white grid place-items-center font-extrabold text-lg shrink-0">${escapeHTML(d.initials)}</div>
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-800">${escapeHTML(d.name)}</h3>
-            <p class="text-sm text-teal-600 font-semibold">${escapeHTML(d.role)}</p>
-            <p class="text-xs text-slate-400">${escapeHTML(d.specialty)}</p>
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(d.image, d.imageAlt || d.name)}<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-teal-700 text-[10px] font-semibold px-2 py-1 rounded-full">Representative</div></div>
+        <div class="p-6">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-teal-500 text-white grid place-items-center font-extrabold text-sm shrink-0">${escapeHTML(d.initials)}</div>
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-800">${escapeHTML(d.name)}</h3>
+              <p class="text-sm text-teal-600 font-semibold">${escapeHTML(d.role)}</p>
+              <p class="text-xs text-slate-400">${escapeHTML(d.specialty)}</p>
+            </div>
           </div>
+          <p class="mt-4 text-slate-600 text-sm">${escapeHTML(d.bio)}</p>
         </div>
-        <p class="mt-4 text-slate-600 text-sm">${escapeHTML(d.bio)}</p>
       </div>`;
   }
 
@@ -204,28 +359,46 @@
 
   function promoTemplate(p) {
     return `
-      <div class="bg-gradient-to-br from-teal-500 to-teal-700 text-white rounded-2xl p-6">
-        <div class="inline-block bg-white/20 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
-        <h3 class="mt-3 text-xl font-extrabold">${escapeHTML(p.title)}</h3>
-        <p class="mt-2 text-teal-50/90">${escapeHTML(p.body)}</p>
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition">
+        <div class="aspect-[16/9] bg-teal-50">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}</div>
+        <div class="p-6">
+          <div class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
+          <h3 class="mt-3 text-xl font-extrabold text-slate-800">${escapeHTML(p.title)}</h3>
+          <p class="mt-2 text-slate-600">${escapeHTML(p.body)}</p>
+        </div>
       </div>`;
   }
 
   function trustTemplate(s) {
     return `
-      <div class="text-center p-4">
-        <div class="text-2xl sm:text-3xl font-extrabold text-teal-700">${escapeHTML(s.value)}</div>
+      <div class="text-center p-4 bg-white rounded-2xl border border-slate-200">
+        <div class="w-10 h-10 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>
+        <div class="mt-2 text-2xl sm:text-3xl font-extrabold text-teal-700">${escapeHTML(s.value)}</div>
         <div class="mt-1 text-sm font-semibold text-slate-700">${escapeHTML(s.label)}</div>
         <div class="text-xs text-slate-400">${escapeHTML(s.sub || "")}</div>
       </div>`;
   }
 
+  // Compact horizontal layout used in the Doctors aside panel (desktop only).
+  function trustRowTemplate(s) {
+    return `
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center shrink-0">${SWIFT.ui.icon(s.icon, 18)}</div>
+        <div class="min-w-0">
+          <div class="text-lg font-extrabold text-teal-700 leading-tight">${escapeHTML(s.value)}</div>
+          <div class="text-xs font-semibold text-slate-700">${escapeHTML(s.label)}</div>
+          <div class="text-[11px] text-slate-400">${escapeHTML(s.sub || "")}</div>
+        </div>
+      </div>`;
+  }
+
+
   function intentTemplate(i) {
     const label = i.action && (i.action.label || i.action.ctaLabel) || "Go";
     const onclick = `SWIFT.ui.runAction(${JSON.stringify(i.action || {}).replace(/"/g, "&quot;")})`;
     return `
-      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-teal-300 transition">
-        <div class="text-4xl">${escapeHTML(i.icon)}</div>
+      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-teal-300 transition group">
+        <div class="w-12 h-12 rounded-full bg-teal-50 text-teal-700 grid place-items-center group-hover:bg-teal-100 transition">${SWIFT.ui.icon(i.icon, 24)}</div>
         <div class="mt-3 text-lg font-extrabold text-slate-800">${escapeHTML(i.title)}</div>
         <div class="mt-1 text-sm text-slate-500">${escapeHTML(i.sub)}</div>
         <div class="mt-4 text-teal-600 font-semibold text-sm">→ ${escapeHTML(label)}</div>
@@ -235,7 +408,7 @@
   function amenityTemplate(a) {
     return `
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-        <div class="text-3xl">${escapeHTML(a.icon)}</div>
+        <div class="w-10 h-10 mx-auto rounded-full bg-white text-teal-700 grid place-items-center">${SWIFT.ui.icon(a.icon, 22)}</div>
         <div class="mt-2 text-sm font-semibold text-slate-700">${escapeHTML(a.label)}</div>
       </div>`;
   }
@@ -257,9 +430,10 @@
 
   function triageOutcomeTemplate(o, key) {
     const onclick = `SWIFT.ui.runAction(${JSON.stringify(o.cta || {}).replace(/"/g, "&quot;")})`;
+    const iconName = o.icon || "check";
     return `
       <div class="triage-card hidden bg-white border-2 border-teal-300 rounded-2xl p-6 text-center" data-triage-outcome="${escapeHTML(key)}">
-        <div class="text-5xl">${escapeHTML(o.icon)}</div>
+        <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(iconName, 28)}</div>
         <h3 class="mt-3 text-2xl font-extrabold text-slate-800">${escapeHTML(o.title)}</h3>
         <p class="mt-2 text-slate-600">${escapeHTML(o.body)}</p>
         <button onclick='${onclick}' class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">${escapeHTML(o.cta.label)}</button>
@@ -291,6 +465,9 @@
   };
 
   SWIFT.render.renderTrust = function () {
+    // J6: render the numeric trust bar once, into the canonical #trust strip
+    // near the hero. The Doctors aside now hosts qualitative differentiators
+    // (no duplicate numbers).
     SWIFT.render.renderStatGrid("trustGrid", D.trustStats, trustTemplate);
   };
 
@@ -643,6 +820,104 @@
     return null;
   };
 
+  // ---- Campaign-driven sections (Phase H) -----------------------------
+  // Helpers transform a campaign's optional fields into concrete page changes.
+  // Every helper is a no-op if the field is absent, so "default" stays untouched
+  // and adding a new campaign is purely data.
+  SWIFT.campaign._applyServicesOrder = function (orderArr) {
+    if (!Array.isArray(orderArr) || !orderArr.length) return;
+    if (!Array.isArray(D.services)) return;
+    const byName = {};
+    D.services.forEach(function (s) { byName[s.name] = s; });
+    const next = [];
+    orderArr.forEach(function (n) { if (byName[n]) { next.push(byName[n]); delete byName[n]; } });
+    Object.keys(byName).forEach(function (k) { next.push(byName[k]); });
+    D.services = next;
+    SWIFT.render.renderServices(SWIFT.state.lastHighlightService || null);
+  };
+
+  SWIFT.campaign._applyIntentsOrder = function (orderArr) {
+    if (!Array.isArray(orderArr) || !orderArr.length) return;
+    if (!Array.isArray(D.intents)) return;
+    const byId = {};
+    D.intents.forEach(function (i) { byId[i.id] = i; });
+    const next = [];
+    orderArr.forEach(function (id) { if (byId[id]) { next.push(byId[id]); delete byId[id]; } });
+    Object.keys(byId).forEach(function (k) { next.push(byId[k]); });
+    D.intents = next;
+    if (typeof SWIFT.render.renderIntents === "function") SWIFT.render.renderIntents();
+  };
+
+  SWIFT.campaign._applySections = function (hideArr) {
+    // Restore everything first (idempotent for the default campaign).
+    const known = ["intents", "promo", "results", "referrals", "amenities", "doctors"];
+    known.forEach(function (k) {
+      const sec = $("section-" + k) || $(k) || document.getElementById(k);
+      if (sec && sec.classList) sec.classList.remove("hidden");
+    });
+    if (!Array.isArray(hideArr) || !hideArr.length) return;
+    hideArr.forEach(function (k) {
+      // Try #k, then any descendant with id="k".
+      const sec = $(k) || document.getElementById(k);
+      if (sec && sec.classList) sec.classList.add("hidden");
+    });
+  };
+
+  SWIFT.campaign._applyBookingPrefill = function (serviceName) {
+    if (!serviceName) return;
+    const sel = $("bookingService");
+    if (sel) {
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === serviceName || sel.options[i].text === serviceName) {
+          sel.value = sel.options[i].value;
+          break;
+        }
+      }
+    }
+    const csel = $("queueService");
+    if (csel) {
+      for (let i = 0; i < csel.options.length; i++) {
+        if (csel.options[i].value === serviceName || csel.options[i].text === serviceName) {
+          csel.value = csel.options[i].value;
+          break;
+        }
+      }
+    }
+  };
+
+  SWIFT.campaign._applyTriagePreset = function (preset) {
+    if (!preset || !preset.answer || !preset.option) return;
+    // Defer to next tick so DOM (question cards) is ready.
+    setTimeout(function () {
+      try {
+        if (typeof SWIFT.triage !== "object" || !SWIFT.triage) return;
+        if (typeof SWIFT.triage.start === "function") SWIFT.triage.start();
+        // Find the question card by data-triage-q="<answer>" and click the option button.
+        const q = document.querySelector('[data-triage-q="' + preset.answer + '"]');
+        if (!q) return;
+        const btns = q.querySelectorAll('button');
+        for (let i = 0; i < btns.length; i++) {
+          if ((btns[i].textContent || "").trim() === preset.option) {
+            btns[i].click();
+            break;
+          }
+        }
+      } catch (e) { /* no-op */ }
+    }, 0);
+  };
+
+  SWIFT.campaign._applyPricingPreset = function (preset) {
+    if (!preset) return;
+    setTimeout(function () {
+      const m = $("pricingMedicare");
+      const i = $("pricingInsurance");
+      const w = $("pricingWorkcover");
+      if (m && typeof preset.medicare !== "undefined") m.value = preset.medicare;
+      if (i && typeof preset.insurance !== "undefined") i.value = preset.insurance;
+      if (w && typeof preset.workcover !== "undefined") w.value = preset.workcover;
+    }, 0);
+  };
+
   SWIFT.campaign.apply = function (id) {
     const c = D.campaigns[id] || D.campaigns.default;
     if (!c) return;
@@ -655,6 +930,16 @@
     if (eyebrow) eyebrow.textContent = c.eyebrow;
     if (headline) headline.innerHTML = c.headlineHTML;
     if (sub) sub.textContent = c.subtext;
+
+    // Hero background image (clinic photo)
+    const heroBg = $("heroBg");
+    if (heroBg && D.clinic && D.clinic.heroImage) {
+      heroBg.style.backgroundImage = `url("${D.clinic.heroImage}")`;
+    }
+
+    // Hero wait-card icon
+    const heroWaitIcon = $("heroWaitIcon");
+    if (heroWaitIcon) heroWaitIcon.innerHTML = SWIFT.ui.icon("clock", 28);
 
     // Primary CTA
     const pCta = $("heroPrimaryCta");
@@ -694,8 +979,18 @@
       else sticky.classList.add("hidden");
     }
 
-    // Highlight matching service card
-    SWIFT.render.renderServices(c.highlightService);
+    // Highlight matching service card (remember for re-renders)
+    SWIFT.state.lastHighlightService = c.highlightService || null;
+    SWIFT.render.renderServices(SWIFT.state.lastHighlightService);
+
+    // Phase H adapters — each is a no-op if the field is absent.
+    SWIFT.campaign._applyServicesOrder(c.services);
+    SWIFT.campaign._applyIntentsOrder(c.intentsOrder);
+    SWIFT.campaign._applySections(c.hideSections);
+    if (c.bookingService) SWIFT.campaign._applyBookingPrefill(c.bookingService);
+    if (c.checkinService) SWIFT.campaign._applyBookingPrefill(c.checkinService);
+    SWIFT.campaign._applyTriagePreset(c.triagePreset);
+    SWIFT.campaign._applyPricingPreset(c.pricingPreset);
 
     // Update switcher active state
     SWIFT.campaign._renderSwitcher(c.id);
@@ -703,6 +998,13 @@
 
   SWIFT.campaign.reset = function () {
     sessionStorage.removeItem("swiftCampaign");
+    // Restore the original services/intents order so a campaign re-order doesn't persist.
+    if (SWIFT.state._baseline && SWIFT.state._baseline.services) {
+      D.services = SWIFT.state._baseline.services.slice();
+    }
+    if (SWIFT.state._baseline && SWIFT.state._baseline.intents) {
+      D.intents = SWIFT.state._baseline.intents.slice();
+    }
     SWIFT.campaign.apply("default");
     SWIFT.ui.toast("Reset to default view");
     const home = $("home");
@@ -828,6 +1130,12 @@
   // ---------- Init ----------
 
   SWIFT.init = function () {
+    // Snapshot the original services/intents ordering so campaign re-orders can be undone.
+    SWIFT.state._baseline = {
+      services: D.services.slice(),
+      intents: Array.isArray(D.intents) ? D.intents.slice() : [],
+    };
+
     // Wire all global window.* handlers required by inline onclick
     window.openBooking = function (svc) { SWIFT.ui.openBooking(svc); };
     window.closeBooking = SWIFT.ui.closeBooking;
@@ -877,6 +1185,40 @@
     SWIFT.render.renderTriageCards();
     // Services rendered again by campaign.apply() to support highlight; render default first so highlight can be added
     SWIFT.render.renderServices(null);
+
+    // Wire the "Before you visit" tab buttons (delegated so dynamically
+    // inserted campaigns still work).
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest(".tab-button");
+      if (!btn) return;
+      const id = btn.getAttribute("data-tab");
+      if (id) SWIFT.ui.openTab(id);
+    });
+    // Keyboard navigation between tabs (left/right arrows).
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const btn = e.target.closest && e.target.closest(".tab-button");
+      if (!btn) return;
+      const buttons = Array.from(btn.parentElement.querySelectorAll(".tab-button"));
+      const idx = buttons.indexOf(btn);
+      const next = e.key === "ArrowRight" ? (idx + 1) % buttons.length : (idx - 1 + buttons.length) % buttons.length;
+      const target = buttons[next];
+      if (target) {
+        target.focus();
+        SWIFT.ui.openTab(target.getAttribute("data-tab"));
+      }
+    });
+    // Default-open the first tab so deep-link #triage/#pricing/#journey/#amenities
+    // still scroll-resolve to the right pane.
+    const firstTab = document.querySelector(".tab-button");
+    if (firstTab) SWIFT.ui.openTab(firstTab.getAttribute("data-tab"));
+
+    // Deep-link hash → activate hidden tabs (e.g. #pricing lands on pricingPanel).
+    // Handles initial load + later hashchange.
+    if (window.location.hash) SWIFT.ui.handleHash();
+    window.addEventListener("hashchange", function () {
+      SWIFT.ui.handleHash();
+    });
 
     // Apply campaign (URL or default)
     SWIFT.campaign.init();

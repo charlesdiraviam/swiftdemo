@@ -11,13 +11,20 @@ clamps around a per-hospital baseline (#5); section order redone; header live-wa
 mobile action bar + quick-nav (Check-in / Wait / Pricing) added.
 
 **Still open (new priorities):**
-- **P1 — Scroll is still too long** (client feedback). Reordering wasn't enough; we need to
-  *collapse* secondary sections, not just move them. See "Long scroll" below.
-- **P1 — Replace emojis with stock images** for a professional, medical look. See "Imagery" below.
+- **P1 — Scroll length: DONE (Phase G).** Collapsed into a tabbed "Get care" band + "Before you
+  visit" hub. ⚠️ The consolidation introduced anchor / duplication / alignment regressions — see
+  **New bugs** at the bottom.
+- **P1 — Imagery: mostly DONE (Phase F).** Stock photos added for services/doctors/promotions with
+  an Unsplash attribution ribbon; small affordances are now inline SVG. Remaining: one smiley-style
+  icon still reads as an emoji (New bug 1).
 - **P1 — Campaign-driven dynamic sections:** when a campaign is active (URL param or preview), the
   whole page should adapt — feature the relevant service(s), filter promotions, reorder intent cards,
   pre-select booking/check-in, steer triage/pricing, and collapse irrelevant sections so the campaign
   landing is short and focused. Details in [fixes_ui.md](fixes_ui.md) **Phase H**.
+- **P1 — AI features (mocked):** the mock has no AI surface yet (chat/triage are rule-based). Add an AI
+  symptom checker, a grounded AI concierge (answers from `SWIFT_DATA`), AI-predicted wait times, an
+  "AI picked this" campaign badge, and real SEO-for-AI (JSON-LD + FAQ per [spec.md](../spec.md)). All
+  client-side with "not medical advice" disclaimers. Details in [fixes_ui.md](fixes_ui.md) **Phase I**.
 - **P2 — Campaign persistence:** a clean-URL visit still shows the last previewed campaign
   (sessionStorage). Fresh loads should default unless a UTM/param is present (#4).
 - **P3 — Minor:** booking date is free text (#6); two pricing scenarios share the same figure (#7);
@@ -150,3 +157,69 @@ Measured against [spec.md](../spec.md). Overall: **strong, modern, on-brand** an
 
 ### Verdict
 Look & feel: **meets the modern, medical, patient-centric, on-brand expectations.** Flow: **80% there** — fix the long-scroll/navigation/order issues so the rebuild doesn't inherit the current site's two biggest problems, and it will fully land the brief.
+
+
+#### new bugs
+
+Reviewed live at `localhost:5176` (post Phase F/G) + traced to source. Root cause + fix for each.
+Most are **side-effects of the Phase G consolidation** (tabbed hubs), so they cluster together.
+
+**1. Smiley icon on "We treat ages / 3 months +" reads as an emoji** 🔴 confirmed
+- The hero quick-info card uses a **smiley-face** SVG ([index.html](../index.html) ~L216) which looks
+  informal/childish for a clinical site. (No literal emoji remain in the data — the 3mo+ trust stat
+  uses `icon:"shield"`.)
+- **Fix:** swap the smiley path for a clinical child/family line-icon from the icon map (teal
+  `currentColor`); keep the stat icon consistent.
+
+**2. `#pricing` and `#location` nav links don't work** 🔴 confirmed (root cause found)
+- `#pricing` — the `id="pricing"` sits on the **hidden** pricing tab panel
+  (`data-panel="pricingPanel" class="hidden"`, [index.html](../index.html):300) inside `#beforeYouVisit`.
+  Clicking nav “Pricing” scrolls to a hidden element → nothing appears. Same latent bug for `#journey`
+  and `#amenities` (also ids on hidden tab panels).
+- `#location` — `<section id="location" … lg:hidden>` ([index.html](../index.html):425) is **hidden on
+  desktop**; the desktop location lives in `#contact` as a compact card with **no** `id="location"`.
+  So nav “Location” is dead on desktop.
+- **Fix:** add a global `hashchange`→`openTab` handler so a deep link to a panel id activates its tab
+  (and make nav “Pricing” call `SWIFT.ui.openTab('pricingPanel')` + scroll to `#beforeYouVisit`). Give
+  the **desktop** contact location card `id="location"` (single canonical anchor) or retarget nav
+  “Location” to `#contact` on desktop.
+
+**3. Triage is duplicated** 🔴 confirmed
+- “Can we treat this?” appears as a **tab in the Get-care band** (`data-tab="triage"`,
+  [index.html](../index.html):254) *and* as the **Triage tab/panel** in `#beforeYouVisit`
+  ([index.html](../index.html):296). The band's tab only deep-links into the hub.
+- **Fix:** remove the “Can we treat this?” tab from the Get-care band (band = **Check-in + Book
+  online**); triage lives solely in “Before you visit”.
+
+**4. “Our Doctors” + “Why choose us” misaligned** 🔴 confirmed
+- `#doctors` is `grid lg:grid-cols-[2fr,1fr]` with a `doctorsGrid` of **3** cards in an
+  `sm:grid-cols-2 lg:grid-cols-2` grid (leaves an empty 4th cell) next to a `hidden lg:block` trust
+  aside — uneven columns + mismatched baselines make it look misaligned.
+- **Fix:** even the layout (e.g., doctors 3-up on `lg`, or fill the empty cell), keep `items-start`,
+  and size the aside to align with the grid top.
+
+**5. Trust stats duplicated 2–3× on one page** 🟡 new finding
+- The same four numbers (4.9★ / 12 min / 20,000+ / 3 mo+) render in `#trust` (mobile strip near the
+  hero), **and** in `#doctors` as both the desktop “Why choose SWIFT” aside (`trustAsideGrid`) and the
+  `trustMobile` strip. On mobile the stats can show twice in one scroll.
+- **Fix:** show the numeric trust bar **once**; make the Doctors “Why choose SWIFT” aside qualitative
+  (differentiators/copy), not a repeat of the four stats.
+
+**6. “Reserve my spot” opens the wrong tab** 🟡 new finding
+- In the Get-care **Check-in** panel the CTA calls `SWIFT.ui.openTab('pricing')` before scrolling to
+  `#checkinForm` ([index.html](../index.html):262) — wrong tab id (a copy-paste artefact; it flips the
+  Before-you-visit hub to Pricing on the way down).
+- **Fix:** drop the `openTab('pricing')` call; just scroll to `#checkinForm`.
+
+**7. Get-care band mostly duplicates existing sections** 🟡 new finding (design)
+- The band's Check-in tab deep-links to the standalone `#checkin` section, Book online opens the
+  booking modal, and (before fix 3) Triage jumped to the hub — i.e., it repeats content already on
+  the page, adding perceived length/duplication.
+- **Fix:** keep the band as a compact **launcher** only (no repeated headings), or drop the
+  standalone duplicate; don't present both with the same titles.
+
+### Fix order (new bugs)
+1. Anchors (2) — broken nav is highest-visibility; add the `hashchange`→tab handler + fix `#location`.
+2. Triage duplication (3) + Reserve-my-spot tab (6) — both in the Get-care band; fix together.
+3. Doctors/why-choose alignment (4) + trust-stat dedupe (5).
+4. Smiley icon (1); Get-care band cleanup (7).

@@ -11,56 +11,70 @@ window.SWIFT_DATA = {
     address: "G38, 32 Civic Way, Rouse Hill, NSW 2155",
     hours: "Open every day, 10:00am – 10:00pm (last registration 9:00pm)",
     facilityFee: "$396 facility fee + Medicare charges (reimbursed with a valid Medicare card).",
+    heroImage: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=1600&q=80&auto=format&fit=crop",
+    heroAlt: "Calm, modern urgent-care clinic reception (representative photo)",
   },
 
   services: [
     {
-      icon: "🏃",
+      icon: "stethoscope",
       name: "Sports Injury",
       cost: "From $396 facility fee",
       summary:
         "Ankle, wrist, knee or back injuries managed by trained Emergency Physicians for a swift recovery.",
       treatments: ["Sprains & strains", "Joint injuries", "On-site imaging"],
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Therapist supporting a patient's ankle during rehabilitation",
     },
     {
-      icon: "🦴",
+      icon: "bone",
       name: "Fracture Clinic",
       cost: "From $396 facility fee",
       summary:
         "Fractures followed up with specialist Orthopaedic surgeons within 24 hours.",
       treatments: ["Casting & splinting", "Ortho referral < 24h", "Follow-up review"],
+      image: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Clinical X-ray films being reviewed on a light box",
     },
     {
-      icon: "🧒",
+      icon: "baby",
       name: "Paediatrics",
       cost: "From $396 facility fee",
       summary:
         "In-house paediatricians for quick treatment when children fall sick or are injured (age > 3 months).",
       treatments: ["Child-friendly care", "Fever & infections", "Minor injuries"],
+      image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Paediatrician examining a young child in a friendly clinic room",
     },
     {
-      icon: "💉",
+      icon: "syringe",
       name: "Infusion Clinic",
       cost: "From $396 facility fee",
       summary:
         "Iron infusions completed in under an hour instead of long ED waits. Book an appointment.",
       treatments: ["Iron infusion", "Planned therapy", "By appointment"],
+      image: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Comfortable modern infusion suite with recliner chair",
     },
     {
-      icon: "🩻",
+      icon: "scan",
       name: "Interventional Radiology",
       cost: "From $396 facility fee",
       summary:
         "Back, shoulder or joint pain tended to quickly with seasoned radiologists on hand.",
       treatments: ["Image-guided care", "Pain management", "Rapid imaging"],
+      image: "https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Radiology scan monitor displaying medical imaging",
     },
     {
-      icon: "🤸",
+      icon: "activity",
       name: "Physiotherapy",
       cost: "From $396 facility fee",
       summary:
         "Highly trained physiotherapists for fast recovery and a quick return to daily activity.",
       treatments: ["Post-procedure rehab", "Movement recovery", "Injury prevention"],
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Physiotherapist guiding a patient through recovery exercises",
     },
   ],
 
@@ -71,6 +85,8 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "VM",
       bio: "Emergency Physician trained in acute care, leading SWIFT's clinical vision.",
+      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&q=80&auto=format&fit=crop",
+      imageAlt: "Representative photo of an emergency physician in scrubs",
     },
     {
       name: "Dr Gopinath Betarayappa",
@@ -78,6 +94,8 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "GB",
       bio: "Emergency Physician focused on efficient, patient-centred urgent care.",
+      image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&q=80&auto=format&fit=crop",
+      imageAlt: "Representative photo of an emergency physician consulting a patient",
     },
     {
       name: "Dr Stephen Madden",
@@ -85,6 +103,8 @@ window.SWIFT_DATA = {
       specialty: "Acute Care",
       initials: "SM",
       bio: "Senior Emergency Doctor experienced in minor injuries and non-life-threatening illness.",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=80&auto=format&fit=crop",
+      imageAlt: "Representative photo of a senior doctor reviewing notes",
     },
   ],
 
@@ -104,11 +124,15 @@ window.SWIFT_DATA = {
       title: "Winter Flu & Fever Care",
       badge: "Seasonal",
       body: "Walk in for rapid assessment of flu-like symptoms — no appointment needed.",
+      image: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Thermometer and warm drink suggesting seasonal flu care",
     },
     {
       title: "Iron Infusion Clinic",
       badge: "By appointment",
       body: "Skip the long ED wait — iron infusions in under an hour. Book online.",
+      image: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80&auto=format&fit=crop",
+      imageAlt: "Calm private infusion suite with modern equipment",
     },
   ],
 
@@ -150,6 +174,10 @@ window.SWIFT_DATA = {
       highlightService: "Paediatrics",
       ribbonText: "You're viewing our Flu & Fever info",
       stickyCta: { label: "Check wait now", href: "#wait" },
+      services: ["Paediatrics", "Sports Injury", "Infusion Clinic", "Fracture Clinic", "Interventional Radiology", "Physiotherapy"],
+      intentsOrder: ["now", "imaging", "infusion"],
+      bookingService: "Paediatrics",
+      hideSections: [],
     },
     sports: {
       id: "sports",
@@ -162,6 +190,12 @@ window.SWIFT_DATA = {
       highlightService: "Sports Injury",
       ribbonText: "You're viewing our Sports Injury info",
       stickyCta: { label: "Online check-in", href: "#checkin" },
+      services: ["Sports Injury", "Physiotherapy", "Fracture Clinic", "Interventional Radiology", "Paediatrics", "Infusion Clinic"],
+      intentsOrder: ["now", "imaging", "infusion"],
+      bookingService: "Sports Injury",
+      checkinService: "Sports Injury",
+      triagePreset: { answer: "category", option: "Injury (sprain, fracture, wound)" },
+      hideSections: [],
     },
     infusion: {
       id: "infusion",
@@ -174,6 +208,11 @@ window.SWIFT_DATA = {
       highlightService: "Infusion Clinic",
       ribbonText: "You're viewing our Infusion Clinic info",
       stickyCta: { label: "Book infusion", action: "openBooking", service: "Infusion Clinic" },
+      services: ["Infusion Clinic", "Paediatrics", "Sports Injury", "Fracture Clinic", "Interventional Radiology", "Physiotherapy"],
+      intentsOrder: ["infusion", "now", "imaging"],
+      bookingService: "Infusion Clinic",
+      pricingPreset: { medicare: "no", insurance: "no", workcover: "no" },
+      hideSections: ["intents"],
     },
     kids: {
       id: "kids",
@@ -186,52 +225,58 @@ window.SWIFT_DATA = {
       highlightService: "Paediatrics",
       ribbonText: "You're viewing our Paediatric info",
       stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" },
+      services: ["Paediatrics", "Fracture Clinic", "Sports Injury", "Infusion Clinic", "Interventional Radiology", "Physiotherapy"],
+      intentsOrder: ["now", "imaging", "infusion"],
+      bookingService: "Paediatrics",
+      checkinService: "Paediatrics",
+      triagePreset: { answer: "age", option: "Yes" },
+      hideSections: [],
     },
-    paeds: { id: "paeds", name: "Kids / Paediatrics", eyebrow: "Ages 3 months +", headlineHTML: 'Sick child? <span class="text-teal-200">In-house paediatricians.</span>', subtext: "Calm, child-friendly care by paediatric-trained Emergency Physicians.", primaryCta: { label: "Book / Walk in", action: "openBooking", service: "Paediatrics" }, secondaryCta: { label: "What we treat", href: "#triage" }, highlightService: "Paediatrics", ribbonText: "You're viewing our Paediatric info", stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" } },
+    paeds: { id: "paeds", name: "Kids / Paediatrics", eyebrow: "Ages 3 months +", headlineHTML: 'Sick child? <span class="text-teal-200">In-house paediatricians.</span>', subtext: "Calm, child-friendly care by paediatric-trained Emergency Physicians.", primaryCta: { label: "Book / Walk in", action: "openBooking", service: "Paediatrics" }, secondaryCta: { label: "What we treat", href: "#triage" }, highlightService: "Paediatrics", ribbonText: "You're viewing our Paediatric info", stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" }, services: ["Paediatrics", "Fracture Clinic", "Sports Injury", "Infusion Clinic", "Interventional Radiology", "Physiotherapy"], intentsOrder: ["now", "imaging", "infusion"], bookingService: "Paediatrics", hideSections: [] },
   },
   campaignPreviewOrder: ["default", "flu", "sports", "infusion", "kids"],
 
   // Tier 1 — trust bar stats
   trustStats: [
-    { value: "4.9★", label: "Google rating", sub: "from 1,200+ reviews" },
-    { value: "12 min", label: "Median urgent care wait", sub: "vs 2–4 hrs in hospital EDs" },
-    { value: "20,000+", label: "Patients treated", sub: "since opening" },
-    { value: "3 mo+", label: "Ages seen", sub: "children welcome" },
+    { value: "4.9★", label: "Google rating", sub: "from 1,200+ reviews", icon: "star" },
+    { value: "12 min", label: "Median urgent care wait", sub: "vs 2–4 hrs in hospital EDs", icon: "clock" },
+    { value: "20,000+", label: "Patients treated", sub: "since opening", icon: "users" },
+    { value: "3 mo+", label: "Ages seen", sub: "children welcome", icon: "shield" },
   ],
 
   // Tier 2 — intent-based entry cards
   intents: [
-    { id: "now", icon: "🚑", title: "I need care now", sub: "Walk in for minor emergencies", action: { href: "#wait" } },
-    { id: "imaging", icon: "🩻", title: "Imaging & x-ray", sub: "X-ray, ultrasound on-site", action: { href: "#services" } },
-    { id: "infusion", icon: "💉", title: "Iron infusion", sub: "Book a private suite", action: { action: "openBooking", service: "Infusion Clinic" } },
+    { id: "now", icon: "ambulance", title: "I need care now", sub: "Walk in for minor emergencies", action: { href: "#wait" } },
+    { id: "imaging", icon: "scan", title: "Imaging & x-ray", sub: "X-ray, ultrasound on-site", action: { href: "#services" } },
+    { id: "infusion", icon: "syringe", title: "Iron infusion", sub: "Book a private suite", action: { action: "openBooking", service: "Infusion Clinic" } },
   ],
 
   // Tier 2 — amenities
   amenities: [
-    { icon: "🅿️", label: "Free parking" },
-    { icon: "📶", label: "Free WiFi" },
-    { icon: "♿", label: "Wheelchair access" },
-    { icon: "🧸", label: "Kids' corner" },
-    { icon: "☕", label: "Coffee nearby" },
-    { icon: "🛗", label: "Lift access" },
+    { icon: "parking", label: "Free parking" },
+    { icon: "wifi", label: "Free WiFi" },
+    { icon: "wheelchair", label: "Wheelchair access" },
+    { icon: "baby", label: "Kids' corner" },
+    { icon: "coffee", label: "Coffee nearby" },
+    { icon: "lift", label: "Lift access" },
   ],
 
   // Tier 2 — what to expect (journey)
   journeySteps: [
-    { icon: "📋", title: "Check in", body: "Front-desk paperwork and Medicare details (~2 min)." },
-    { icon: "🩺", title: "Triage", body: "Nurse takes vitals and sets your priority." },
-    { icon: "👨‍⚕️", title: "See the doctor", body: "Emergency Physician assesses and orders any imaging or tests." },
-    { icon: "💊", title: "Treatment & plan", body: "On-site care, prescriptions, referrals or follow-up booked." },
-    { icon: "✅", title: "Discharge", body: "Clear written plan, scripts and any follow-up appointments." },
+    { icon: "clipboard", title: "Check in", body: "Front-desk paperwork and Medicare details (~2 min)." },
+    { icon: "stethoscope", title: "Triage", body: "Nurse takes vitals and sets your priority." },
+    { icon: "doctor", title: "See the doctor", body: "Emergency Physician assesses and orders any imaging or tests." },
+    { icon: "pill", title: "Treatment & plan", body: "On-site care, prescriptions, referrals or follow-up booked." },
+    { icon: "check", title: "Discharge", body: "Clear written plan, scripts and any follow-up appointments." },
   ],
 
   // Tier 2 — what to bring
   bringItems: [
-    { icon: "🪪", title: "Photo ID & Medicare card", body: "Required for the facility fee rebate." },
-    { icon: "💳", title: "Private health fund card", body: "If applicable — we'll process on the spot." },
-    { icon: "💊", title: "Current medications list", body: "Or bring the bottles themselves." },
-    { icon: "🩻", title: "Any prior imaging or results", body: "Helps the doctor compare and avoid repeats." },
-    { icon: "💵", title: "Payment method", body: "EFTPOS, credit card or cash for the facility fee." },
+    { icon: "id", title: "Photo ID & Medicare card", body: "Required for the facility fee rebate." },
+    { icon: "card", title: "Private health fund card", body: "If applicable — we'll process on the spot." },
+    { icon: "pill", title: "Current medications list", body: "Or bring the bottles themselves." },
+    { icon: "scan", title: "Any prior imaging or results", body: "Helps the doctor compare and avoid repeats." },
+    { icon: "wallet", title: "Payment method", body: "EFTPOS, credit card or cash for the facility fee." },
   ],
 
   // Tier 1 — triage questions and outcomes
@@ -263,9 +308,9 @@ window.SWIFT_DATA = {
     },
   ],
   triageOutcomes: {
-    walkin: { icon: "🚶", title: "Walk in now", body: "Average wait ~12 min. Bring ID and Medicare card. No appointment needed.", cta: { label: "Get directions", href: "#location" } },
-    book: { icon: "📅", title: "Book an appointment", body: "Use Book Now for the fastest slot. Referrals welcome.", cta: { label: "Book now", action: "openBooking" } },
-    call000: { icon: "🚨", title: "Call 000 now", body: "This sounds like an emergency. Don't wait — call 000 or go to your nearest ED.", cta: { label: "Get directions to nearest ED", href: "#location" } },
+    walkin: { icon: "ambulance", title: "Walk in now", body: "Average wait ~12 min. Bring ID and Medicare card. No appointment needed.", cta: { label: "Get directions", href: "#location" } },
+    book: { icon: "clipboard", title: "Book an appointment", body: "Use Book Now for the fastest slot. Referrals welcome.", cta: { label: "Book now", action: "openBooking" } },
+    call000: { icon: "phone", title: "Call 000 now", body: "This sounds like an emergency. Don't wait — call 000 or go to your nearest ED.", cta: { label: "Get directions to nearest ED", href: "#location" } },
   },
 
   // Tier 1 — pricing scenarios

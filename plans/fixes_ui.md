@@ -205,6 +205,38 @@ campaign landing becomes short + focused (reinforces Phase G).
    focused, shorter campaign landing; **`reset()` restores full default order/content**.
 8. Keep everything data-driven and null-safe so `default` and unknown campaigns behave exactly as now.
 
+### Modularity & maintainability (add a campaign = data only; removing must never break)
+Design rules so a new campaign is one data object and removing one is safe:
+1. **Registry, not scattered config** — campaigns live in one keyed map `campaigns[id]` in
+   [mock/data.js](../mock/data.js). Adding a campaign = add one self-contained object; **no code change**.
+2. **Merge over `default`** — `resolve(id) = { ...campaigns.default, ...campaigns[id] }`. Omitted fields
+   inherit the default; an **unknown/removed id resolves to `default`** (fail-open, non-breaking).
+3. **Reference items by `id`, resolve null-safe** — campaign `services`/`promoId`/etc. point at existing
+   `service.id` / `promo.id`. Missing ids are filtered out with a dev-only `console.warn`, never a throw —
+   so deleting a service/promo can't crash a campaign.
+4. **`apply()` pure & idempotent from baseline** — every `apply()` first resets the page to the default
+   state, then layers the resolved campaign (never diff-from-previous). `reset()` is just `apply('default')`.
+   This is what makes switching **and** removing campaigns clean and residue-free.
+5. **Derive UI from the registry** — the preview switcher, `campaignPreviewOrder`, and URL/`utm` handling
+   all read `Object.keys(campaigns)`. A new campaign auto-appears; a removed one auto-disappears. No
+   parallel list to maintain.
+6. **Section-adapter pattern** — instead of per-campaign DOM code, register a fixed list of adapters
+   (`services`, `promos`, `intents`, `booking`, `triage`, `pricing`, `visibility`). Each reads exactly one
+   campaign field and **no-ops when absent**. Adding a new *kind* of personalization = one adapter;
+   adding a campaign = still just data.
+7. **Dev-only validation on init** — walk each campaign's referenced ids and `console.warn` on dangling
+   refs; catches typos when authoring a new campaign without affecting production behaviour.
+
+**Add-a-campaign checklist:** add one object to `campaigns` (+ optional image) → done.
+**Remove-a-campaign checklist:** delete the object → references fall back to `default`, switcher drops it,
+any stale URL/sessionStorage id resolves to `default`.
+
+**Maintainability tests**
+- [ ] Adding a campaign object (no JS changes) makes it appear in the switcher and work end-to-end.
+- [ ] Deleting a campaign object: switcher drops it; a saved/URL id for it falls back to `default`; no errors.
+- [ ] A campaign referencing a non-existent service/promo id logs a dev warning and skips it (no crash).
+- [ ] Rapidly switching campaigns A→B→default leaves no residue (state equals a fresh load of each).
+
 **Tests (per campaign: flu / sports / infusion / kids)**
 - [ ] Featured service(s) appear first; correct promo(s) shown; intent card order matches campaign.
 - [ ] Booking modal + Check-in open with the campaign service pre-selected.
@@ -212,6 +244,105 @@ campaign landing becomes short + focused (reinforces Phase G).
 - [ ] Hidden sections are collapsed and the campaign landing is noticeably shorter; nav still resolves.
 - [ ] `See all services` / ribbon **reset** restores the full default page (order, promos, sections).
 - [ ] URL param and the preview switcher produce identical results; no console errors.
+
+---
+
+## Phase I — AI features (all mocked, in-browser)  🔴
+
+The mock is currently rule-based (scripted chat, decision-tree triage). Add AI-flavoured surfaces that
+run entirely client-side against `SWIFT_DATA` — no backend, clear "not medical advice" disclaimers.
+
+### I1. AI symptom checker (hero AI moment)
+**Implementation:** natural-language box ("describe your symptoms") that maps keywords → a mocked
+recommendation (walk-in / book / call 000) with a typing indicator; reuses the triage outcome cards.
+Upgrades the existing button-based triage into a conversational entry point.
+**Tests**
+- [ ] Typical inputs ("chest pain", "sprained ankle", "fever") return a sensible mocked outcome + disclaimer.
+- [ ] Emergency keywords route to **call 000**; empty/gibberish input handled gracefully.
+
+### I2. Grounded AI concierge (replace scripted FAB)
+**Implementation:** mocked assistant answering hours / pricing / services / location by reading `SWIFT_DATA`
+(so replies look intelligent and stay accurate); keep scripted fallbacks for unknowns.
+**Tests**
+- [ ] "Are you open now?", "How much for X?", "Do you treat sprains?" return data-grounded answers.
+- [ ] Unknown questions fall back politely; no console errors; "AI demo" label present.
+
+### I3. AI wait-time prediction (reframe existing chip)
+**Implementation:** relabel the wait chip as "AI-predicted wait ~N min, trending ↑/↓" with a mini sparkline;
+still uses the mocked/clamped values from Phase E1.
+**Tests**
+- [ ] Chip shows a trend + sparkline; value matches Live Wait Times; updates on Refresh.
+
+### I4. "AI picked this for you" (ties to Phase H)
+**Implementation:** when a campaign is active, show a mocked recommendation badge on the featured
+service/promo.
+**Tests**
+- [ ] Badge appears only when a campaign is active and clears on reset.
+
+### I5. SEO-for-AI (real, from [spec.md](../spec.md))
+**Implementation:** add JSON-LD structured data (`MedicalClinic` + hours/geo/services, and `FAQPage`) plus
+a short FAQ section so AI answer-engines can cite the clinic.
+**Tests**
+- [ ] JSON-LD validates (Rich Results / schema.org); FAQ renders; values match `SWIFT_DATA`.
+
+> All AI copy must carry a visible "AI assistant — not medical advice; call 000 in an emergency" disclaimer.
+
+---
+
+## Phase J — Post-consolidation fixes (Phase F/G regressions)  🔴
+
+Phases **F (imagery)** and **G (scroll reduction)** are implemented, but the tabbed-hub consolidation
+introduced regressions found in the `localhost:5176` review. Full root causes in
+[fixes.md](fixes.md) → **New bugs**.
+
+### J1. Deep-link anchors land on hidden tab panels  🔴
+**Cause:** `#pricing` (and `#journey`, `#amenities`) ids sit on hidden `data-panel`s inside
+`#beforeYouVisit`, so nav/deep links scroll to invisible content.
+**Implementation**
+1. Add a global handler: on `hashchange`/load, if the hash matches a `[data-panel]` id, call
+   `SWIFT.ui.openTab(panelId)` on its `[data-tabs-root]`, then scroll the section into view.
+2. Point nav **Pricing** at `#beforeYouVisit` + `openTab('pricingPanel')` (not the hidden `#pricing`).
+**Tests**
+- [ ] Nav Pricing/What-to-expect/Practical each open the correct tab and are visible after click.
+- [ ] Direct URL `…/#pricing` (fresh load) opens the Pricing tab, not a blank scroll target.
+
+### J2. `#location` dead on desktop  🔴
+**Cause:** `<section id="location" … lg:hidden>`; desktop location card in `#contact` has no id.
+**Implementation:** move `id="location"` onto the desktop contact location card (single canonical
+anchor), or retarget nav **Location** to `#contact` on `lg`. Ensure only one `id="location"` exists.
+**Tests**
+- [ ] Nav Location scrolls to a **visible** location block on desktop **and** mobile; no duplicate ids.
+
+### J3. Remove duplicated triage from the Get-care band  🔴
+**Implementation:** delete the **"Can we treat this?"** tab + panel from `#getCare` (leave Check-in +
+Book online). Triage stays only in `#beforeYouVisit`.
+**Tests**
+- [ ] Get-care band shows exactly two tabs; triage appears once on the page; no dead tab controls.
+
+### J4. "Reserve my spot" opens the wrong tab  🟡
+**Implementation:** in the Get-care Check-in CTA, remove `SWIFT.ui.openTab('pricing')`; just
+`scrollIntoView` to `#checkinForm`.
+**Tests**
+- [ ] Clicking Reserve my spot scrolls to the check-in form and does **not** flip the hub to Pricing.
+
+### J5. Doctors + "Why choose us" alignment  🔴
+**Implementation:** even the doctors grid (3-up on `lg`, or fill the empty cell), keep `items-start`,
+and size the trust aside to align with the grid's top edge.
+**Tests**
+- [ ] At `lg`, doctor cards and the aside top-align; no orphaned empty cell; holds at 1280/1440px.
+
+### J6. De-duplicate trust stats  🟡
+**Implementation:** render the numeric trust bar once (keep `#trust` near the hero); convert the
+Doctors `trustAside` to qualitative "Why choose SWIFT" points and drop `trustMobile` if it repeats
+`#trust`.
+**Tests**
+- [ ] The four numbers appear once per viewport; Doctors aside reads as differentiators, not a repeat.
+
+### J7. Get-care band = launcher only (optional)  🟢
+**Implementation:** ensure the band only *links* to existing sections/modal without repeating their
+headings; or remove it if it adds no shortcut value.
+**Tests**
+- [ ] No section heading is shown twice; band clearly acts as a shortcut.
 
 ---
 
@@ -226,6 +357,8 @@ campaign landing becomes short + focused (reinforces Phase G).
 - [ ] Full mobile pass at 375px: nav, sticky bar, tables→cards, full-screen sheets, tap targets.
 
 ## Suggested execution order
-A1 → B1/B2 → C1 → D1 → D2 → D3 → E1 → E2 → **F (imagery) → G (scroll reduction) → H (campaign-driven sections)** → (E3 optional).
+A1 → B1/B2 → C1 → D1 → D2 → D3 → E1 → E2 → **F (imagery ✅) → G (scroll reduction ✅) → J (fix G/F regressions) → H (campaign-driven sections) → I (AI features)** → (E3 optional).
+Do **J next** — it repairs broken nav anchors and duplication from the G consolidation before more is layered on.
 G and H are complementary — build the tabbed hubs (G) first so H can simply show/hide/reorder within them.
+Within I, do **I5 (JSON-LD/FAQ)** early (cheap, real SEO value) and **I1/I2** as the headline AI demo.
 Commit per phase so each is independently testable.
