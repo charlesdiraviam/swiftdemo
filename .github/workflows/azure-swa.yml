@@ -1,0 +1,54 @@
+name: Deploy to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write        # required so SWA can post PR comments
+      id-token: write             # required for OIDC token exchange with Azure
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build static site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r mock _site/
+          echo "--- contents of _site/ ---"
+          ls -la _site/
+          ls -la _site/mock/
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "upload"
+          app_location: "/_site"          # built site root
+          output_location: ""             # no framework build output
+          skip_app_build: true            # we already copied files into _site
+
+      - name: Smoke test (HTTP 200)
+        if: github.event_name == 'push'
+        run: |
+          # The default hostname pattern is <env-name>-<id>.azurestaticapps.net
+          # We pull it from the deployment output via the Actions API.
+          url="${{ steps.deploy.outputs.static_web_app_url }}"
+          echo "GET $url"
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+            echo "attempt $i → $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 6
+          done
+          echo "ERROR: $url did not return 200 after 60s"
+          exit 1
