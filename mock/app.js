@@ -1378,8 +1378,9 @@
     if (!pills.length || typeof IntersectionObserver === "undefined") return;
 
     const resolveTarget = function (key) {
-      // Map panel-style keys to their owning section (#beforeYouVisit).
+      // Map panel-style keys to their owning section (L2: Patient hub).
       if (key === "triage" || key === "pricing") return "beforeYouVisit";
+      if (key === "location" || key === "enquiries" || key === "results") return "patientHub";
       return key;
     };
 

@@ -60,6 +60,14 @@
     .jump-pill { transition: background-color 120ms, color 120ms, border-color 120ms; }
     .jump-pill.is-active { background-color: #159595; color: #ffffff; border-color: #0c5f5f; }
     .jump-pill.is-active:hover { background-color: #0e7676; }
+    /* Horizontal-scrolling content rows (L3) — used for Services + Promotions. */
+    .scroll-row { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
+    .scroll-row > * { flex: 0 0 280px; scroll-snap-align: start; }
+    @media (min-width: 640px) { .scroll-row > * { flex-basis: 320px; } }
+    @media (min-width: 1024px) { .scroll-row > * { flex-basis: 360px; } }
+    .scroll-row::-webkit-scrollbar { height: 6px; }
+    .scroll-row::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .scroll-row { scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }
   </style>
 
   <!-- SEO-for-AI structured data (Phase I5). Populated at runtime by SWIFT.ai.buildJsonLd(). -->
@@ -164,8 +172,8 @@
         <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" class="hover:text-teal-600" data-i18n="pricing">Pricing</a>
         <a href="#services" class="hover:text-teal-600" data-i18n="services">Services</a>
         <a href="#doctors" class="hover:text-teal-600" data-i18n="doctors">Doctors</a>
-        <a href="#location" class="hover:text-teal-600" data-i18n="location">Location</a>
-        <a href="#contact" class="hover:text-teal-600" data-i18n="contact">Contact</a>
+        <a href="#patientHub" onclick="SWIFT.ui.openTab('locationPanel'); return false;" class="hover:text-teal-600" data-i18n="location">Location</a>
+        <a href="#patientHub" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" class="hover:text-teal-600" data-i18n="contact">Contact</a>
       </nav>
 
       <div class="flex items-center gap-2">
@@ -185,8 +193,8 @@
         <a href="#pricing" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing</a>
         <a href="#services" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services</a>
         <a href="#doctors" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-doctor"/></svg>Doctors</a>
-        <a href="#location" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
-        <a href="#contact" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold col-span-2 inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-mail"/></svg>Contact</a>
+        <a href="#patientHub" onclick="toggleMobileNav(); SWIFT.ui.openTab('locationPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
+        <a href="#patientHub" onclick="toggleMobileNav(); SWIFT.ui.openTab('enquiriesPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold col-span-2 inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-mail"/></svg>Contact</a>
       </div>
     </div>
   </header>
@@ -195,67 +203,69 @@
   <section id="home" class="relative bg-gradient-to-br from-teal-600 to-teal-800 text-white overflow-hidden">
     <div id="heroBg" aria-hidden="true" class="absolute inset-0 opacity-25 bg-cover bg-center"></div>
     <div class="absolute inset-0 bg-gradient-to-br from-teal-600/85 to-teal-800/90" aria-hidden="true"></div>
-    <div class="relative max-w-6xl mx-auto px-4 py-12 sm:py-14 grid md:grid-cols-2 gap-6 items-center min-h-[420px] md:min-h-[460px]">
-      <div>
-        <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-4">Emergency Physician led · Walk-in</span>
-        <h1 id="heroHeadline" class="text-4xl sm:text-5xl font-extrabold leading-tight">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
-        <p id="heroSubtext" class="mt-4 text-teal-50/90 text-lg max-w-md">
-          Best-practice urgent care in a calm, modern environment. Minor emergencies — no appointment needed, just walk in.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-teal-50">Request Appointment</button>
-          <a id="heroSecondaryCta" href="#wait" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Check Wait Times</a>
+    <div class="relative max-w-6xl mx-auto px-4 py-12 sm:py-14">
+      <div class="grid md:grid-cols-2 gap-6 items-center min-h-[420px] md:min-h-[460px]">
+        <div>
+          <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-4">Emergency Physician led · Walk-in</span>
+          <h1 id="heroHeadline" class="text-4xl sm:text-5xl font-extrabold leading-tight">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
+          <p id="heroSubtext" class="mt-4 text-teal-50/90 text-lg max-w-md">
+            Best-practice urgent care in a calm, modern environment. Minor emergencies — no appointment needed, just walk in.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-teal-50">Request Appointment</button>
+            <a id="heroSecondaryCta" href="#wait" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Check Wait Times</a>
+          </div>
+        </div>
+
+        <!-- Quick info cards -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+            <div id="heroWaitIcon" class="text-teal-200"></div>
+            <div class="mt-2 text-sm text-teal-100 flex items-center gap-1.5">
+              <span>AI-predicted wait</span>
+              <svg id="heroWaitTrend" width="12" height="12" aria-hidden="true" class="text-teal-200"></svg>
+            </div>
+            <div id="heroWait" class="text-2xl font-bold flex items-center gap-2">
+              <span id="heroWaitValue">~12 min</span>
+              <svg id="heroWaitSparkline" width="60" height="16" viewBox="0 0 60 16" aria-hidden="true" class="text-teal-200"></svg>
+            </div>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+            <div class="text-teal-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="mt-2 text-sm text-teal-100">Open daily</div>
+            <div class="text-2xl font-bold">10am–10pm</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+            <div class="text-teal-200">
+              <svg width="28" height="28" aria-hidden="true"><use href="#i-family"/></svg>
+            </div>
+            <div class="mt-2 text-sm text-teal-100">We treat ages</div>
+            <div class="text-2xl font-bold">3 months +</div>
+            <a href="#faq" class="mt-1 inline-block text-[11px] text-teal-200 underline">See who's eligible</a>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+            <div class="text-teal-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="mt-2 text-sm text-teal-100">Location</div>
+            <div class="text-lg font-bold">Rouse Hill</div>
+          </div>
         </div>
       </div>
 
-      <!-- Quick info cards -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
-          <div id="heroWaitIcon" class="text-teal-200"></div>
-          <div class="mt-2 text-sm text-teal-100 flex items-center gap-1.5">
-            <span>AI-predicted wait</span>
-            <svg id="heroWaitTrend" width="12" height="12" aria-hidden="true" class="text-teal-200"></svg>
+      <!-- AI symptom checker (Phase I1 / L1) — full-width bar -->
+      <div id="aiSymptomCard" class="mt-6 bg-white/10 backdrop-blur rounded-2xl p-4 sm:p-5 border border-white/15">
+        <form id="aiSymptomForm" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="flex items-center gap-2 text-teal-200 sm:shrink-0">
+            <svg width="22" height="22" aria-hidden="true"><use href="#i-chat"/></svg>
+            <span class="text-xs uppercase tracking-widest font-bold whitespace-nowrap">AI symptom check</span>
           </div>
-          <div id="heroWait" class="text-2xl font-bold flex items-center gap-2">
-            <span id="heroWaitValue">~12 min</span>
-            <svg id="heroWaitSparkline" width="60" height="16" viewBox="0 0 60 16" aria-hidden="true" class="text-teal-200"></svg>
-          </div>
-        </div>
-        <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
-          <div class="text-teal-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div class="mt-2 text-sm text-teal-100">Open daily</div>
-          <div class="text-2xl font-bold">10am–10pm</div>
-        </div>
-        <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
-          <div class="text-teal-200">
-            <svg width="28" height="28" aria-hidden="true"><use href="#i-family"/></svg>
-          </div>
-          <div class="mt-2 text-sm text-teal-100">We treat ages</div>
-          <div class="text-2xl font-bold">3 months +</div>
-          <a href="#faq" class="mt-1 inline-block text-[11px] text-teal-200 underline">See who's eligible</a>
-        </div>
-        <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
-          <div class="text-teal-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div class="mt-2 text-sm text-teal-100">Location</div>
-          <div class="text-lg font-bold">Rouse Hill</div>
-        </div>
-      </div>
-
-      <!-- AI symptom checker (Phase I1) -->
-      <div id="aiSymptomCard" class="mt-4 bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
-        <div class="flex items-center gap-2 text-teal-200">
-          <svg width="20" height="20" aria-hidden="true"><use href="#i-chat"/></svg>
-          <span class="text-xs uppercase tracking-widest font-bold">AI symptom check</span>
-        </div>
-        <form id="aiSymptomForm" class="mt-3 flex flex-col sm:flex-row gap-2">
           <input id="aiSymptomInput" type="text" placeholder="Describe symptoms — e.g. 'chest pain' or 'sprained ankle'" class="flex-1 px-3 py-2 rounded-lg text-slate-800 placeholder-slate-400 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400" />
-          <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg">Ask AI</button>
+          <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-5 py-2 rounded-lg sm:shrink-0">Ask AI</button>
         </form>
-        <div id="aiSymptomHint" class="mt-2 text-[11px] text-teal-100/80">AI demo — not medical advice; call 000 in an emergency.</div>
+        <div id="aiSymptomHint" class="mt-2 text-[11px] text-teal-100/80 sm:text-center">AI demo — not medical advice; call 000 in an emergency.</div>
       </div>
     </div>
   </section>
@@ -401,7 +411,7 @@
       <h2 class="text-3xl font-extrabold text-slate-800">Our Services</h2>
       <p class="mt-3 text-slate-500">Purpose-built emergency care for non-life-threatening injuries and illness.</p>
     </div>
-    <div id="servicesGrid" class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="servicesGrid" class="mt-8 scroll-row"></div>
   </section>
 
   <!-- Online check-in / queue -->
@@ -447,73 +457,93 @@
 
   <!-- Promotions -->
   <section class="max-w-6xl mx-auto px-4 py-8">
-    <div id="promoGrid" class="grid sm:grid-cols-2 gap-6"></div>
+    <div id="promoGrid" class="scroll-row"></div>
   </section>
 
-  <!-- Location (mobile-only map fallback — desktop users get the canonical #location inside #contact) -->
-  <section id="locationMobile" class="bg-white border-y border-slate-200 lg:hidden">
+  <!-- The previous standalone #locationMobile / #contact sections are now folded
+       into the Patient hub tabs above (L2). No duplicate content here. -->
+
+  <!-- Patient hub (L2): tabbed — Test results, Referrals, Enquiries, Location.
+       Replaces the previous <details> "More" roll-up. Uses the same tab pattern
+       as the Before-you-visit hub above so it feels consistent. -->
+  <section id="patientHub" class="bg-white border-y border-slate-200" data-tabs-root>
     <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-      <div class="grid md:grid-cols-2 gap-8 items-stretch">
-        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-8">
-          <h2 class="text-2xl font-extrabold text-slate-800">Find Us</h2>
-          <dl class="mt-6 space-y-4 text-slate-600">
-            <div class="flex gap-3"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill, NSW 2155</span></div>
-            <div class="flex gap-3"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open every day, 10:00am – 10:00pm<br/><span class="text-sm text-slate-400">Last registration 9:00pm</span></span></div>
-            <div class="flex gap-3"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-600">(02) 8859 9099 · 1300 ESWIFT</a></div>
-            <div class="flex gap-3"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span><a href="mailto:info@swifteuc.com.au" class="hover:text-teal-600">info@swifteuc.com.au</a></div>
-          </dl>
-          <button onclick="getDirections()" class="mt-8 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Get Directions (Google Maps)</button>
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Patient hub</h2>
+        <p class="mt-2 text-slate-500">Test results, referrals, enquiries and location — pick a tab.</p>
+      </div>
+      <!-- Tab strip -->
+      <div role="tablist" aria-label="Patient hub" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="resultsPanel" aria-selected="true">Test results</button>
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="referralsPanel" aria-selected="false" tabindex="-1">Referrals</button>
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="enquiriesPanel" aria-selected="false" tabindex="-1">Enquiries</button>
+        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="locationPanel" aria-selected="false" tabindex="-1">Location</button>
+      </div>
+
+      <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+        <div data-panel="resultsPanel" id="results" role="tabpanel">
+          <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl p-6 sm:p-8 text-center">
+            <div class="w-12 h-12 mx-auto rounded-full bg-teal-100 text-teal-700 grid place-items-center">
+              <svg width="24" height="24" aria-hidden="true"><use href="#i-scan" /></svg>
+            </div>
+            <h3 class="mt-3 text-2xl font-extrabold text-slate-800">Test &amp; imaging results</h3>
+            <p class="mt-2 text-slate-500 max-w-md mx-auto">Access your SWIFT results securely online. (Demo login below.)</p>
+            <button onclick="openResults()" class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Open test results</button>
+            <p class="mt-3 text-xs text-slate-400">DEMO ONLY · sample data · use <code>demo</code> / <code>demo</code></p>
+          </div>
         </div>
-        <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
-          <!-- Mock map -->
-          <div class="absolute inset-0 grid place-items-center text-center p-6">
-            <div>
-              <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
-                <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
+        <div data-panel="referralsPanel" id="referrals" role="tabpanel" class="hidden">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+            <h3 class="text-2xl font-extrabold text-slate-800">Refer a patient</h3>
+            <p class="mt-2 text-slate-500 text-sm">GPs, specialists and WorkCover — send us a referral.</p>
+            <form onsubmit="submitReferral(event)" class="mt-5 space-y-3">
+              <input required placeholder="Your name" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+              <input required type="email" placeholder="Email" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+              <input required placeholder="Clinic / practice" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+              <textarea required placeholder="Referral details" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none"></textarea>
+              <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send referral</button>
+            </form>
+          </div>
+        </div>
+        <div data-panel="enquiriesPanel" id="enquiries" role="tabpanel" class="hidden">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+            <h3 class="text-2xl font-extrabold text-slate-800">Enquiries &amp; Bookings</h3>
+            <p class="mt-2 text-slate-500">Send us a message — we'll email you back. (Mock form for demo.)</p>
+            <form onsubmit="submitEnquiry(event)" class="mt-5 grid sm:grid-cols-2 gap-3">
+              <input required placeholder="Full name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+              <input required type="email" placeholder="Email" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+              <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
+              <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
+              <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send Enquiry</button>
+            </form>
+          </div>
+        </div>
+        <div data-panel="locationPanel" id="location" role="tabpanel" class="hidden">
+          <div class="grid md:grid-cols-2 gap-6 items-stretch">
+            <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6 sm:p-8">
+              <h3 class="text-2xl font-extrabold text-teal-800">Find Us</h3>
+              <dl class="mt-4 space-y-3 text-slate-700 text-sm">
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
+                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
+              </dl>
+              <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
+            </div>
+            <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
+              <div class="absolute inset-0 grid place-items-center text-center p-6">
+                <div>
+                  <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
+                    <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
+                  </div>
+                  <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
+                  <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
+                </div>
               </div>
-              <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
-              <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- Test results + Referrals behind a More disclosure (G4) -->
-  <section id="more" class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
-    <details class="group bg-white border border-slate-200 rounded-2xl overflow-hidden">
-      <summary class="cursor-pointer list-none flex items-center justify-between gap-3 px-5 py-4 hover:bg-slate-50">
-        <span class="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <svg width="18" height="18" aria-hidden="true" class="text-teal-600"><use href="#i-chevron-down" /></svg>
-          More — Test results &amp; Referrals
-        </span>
-        <span class="text-xs text-slate-500 group-open:hidden">Show</span>
-        <span class="text-xs text-slate-500 hidden group-open:inline">Hide</span>
-      </summary>
-      <div id="results" class="grid md:grid-cols-2 gap-6 p-5 sm:p-6 items-stretch border-t border-slate-200">
-        <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl p-6 sm:p-8 text-center">
-          <div class="w-12 h-12 mx-auto rounded-full bg-teal-100 text-teal-700 grid place-items-center">
-            <svg width="24" height="24" aria-hidden="true"><use href="#i-scan" /></svg>
-          </div>
-          <h2 class="mt-3 text-2xl font-extrabold text-slate-800">Test &amp; imaging results</h2>
-          <p class="mt-2 text-slate-500 max-w-md mx-auto">Access your SWIFT results securely online. (Demo login below.)</p>
-          <button onclick="openResults()" class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Open test results</button>
-          <p class="mt-3 text-xs text-slate-400">DEMO ONLY · sample data · use <code>demo</code> / <code>demo</code></p>
-        </div>
-        <div id="referrals" class="bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8">
-          <h2 class="text-2xl font-extrabold text-slate-800">Refer a patient</h2>
-          <p class="mt-2 text-slate-500 text-sm">GPs, specialists and WorkCover — send us a referral.</p>
-          <form onsubmit="submitReferral(event)" class="mt-5 space-y-3">
-            <input required placeholder="Your name" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-            <input required type="email" placeholder="Email" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-            <input required placeholder="Clinic / practice" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-            <textarea required placeholder="Referral details" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none"></textarea>
-            <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send referral</button>
-          </form>
-        </div>
-      </div>
-    </details>
   </section>
 
   <!-- Sticky "jump to" chip bar (G4 / K3) — thumb-reachable on mobile, highlights active section -->
@@ -534,11 +564,14 @@
       <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>
-      <a href="#location" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#patientHub" onclick="SWIFT.ui.openTab('locationPanel'); return false;" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
       </a>
-      <a href="#contact" data-jump-target="contact" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#patientHub" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" data-jump-target="enquiries" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
+      </a>
+      <a href="#patientHub" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
       </a>
       <a href="#faq" data-jump-target="faq" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
@@ -546,39 +579,8 @@
     </div>
   </nav>
 
-  <!-- Contact / enquiry -->
-  <section id="contact" class="bg-white border-t border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-      <div class="grid lg:grid-cols-2 gap-8 items-stretch">
-        <!-- Enquiry / enquiries column -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 lg:p-8 order-2 lg:order-1">
-          <div>
-            <h2 class="text-2xl font-extrabold text-slate-800">Enquiries &amp; Bookings</h2>
-            <p class="mt-2 text-slate-500">Send us a message — we'll email you back. (Mock form for demo.)</p>
-          </div>
-          <form onsubmit="submitEnquiry(event)" class="mt-5 grid sm:grid-cols-2 gap-3">
-            <input required placeholder="Full name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-            <input required type="email" placeholder="Email" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-            <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
-            <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
-            <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send Enquiry</button>
-          </form>
-        </div>
-        <!-- Compact location card (canonical #location anchor — J2) -->
-        <div id="location" class="bg-teal-50 border border-teal-100 rounded-2xl p-6 lg:p-8 order-1 lg:order-2 flex flex-col justify-between">
-          <div>
-            <h2 class="text-2xl font-extrabold text-teal-800">Find Us</h2>
-            <dl class="mt-4 space-y-3 text-slate-700 text-sm">
-              <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
-              <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
-              <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
-            </dl>
-          </div>
-          <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- The previous standalone #contact section is now folded into the Patient
+       hub tabs above (L2). No duplicate content here. -->
 
   <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
   <section id="faq" class="bg-white border-t border-slate-200">
@@ -603,7 +605,7 @@
         <a href="#services" class="block hover:text-white">Services</a>
         <a href="#doctors" class="block hover:text-white">Our Doctors</a>
         <a href="#wait" class="block hover:text-white">Wait Times</a>
-        <a href="#contact" class="block hover:text-white">Contact</a>
+        <a href="#patientHub" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" class="block hover:text-white">Contact</a>
       </div>
       <div class="text-sm">
         <p>1300 ESWIFT / (02) 8859 9099</p>
