@@ -549,14 +549,14 @@
   <!-- Sticky "jump to" chip bar (G4 / K3) — thumb-reachable on mobile, highlights active section -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
     <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
-      <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
-      </a>
       <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
       </a>
       <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
+      </a>
+      <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
       </a>
       <a href="#services" data-jump-target="services" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
@@ -564,14 +564,14 @@
       <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>
+      <a href="#patientHub" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
+      </a>
       <a href="#patientHub" onclick="SWIFT.ui.openTab('locationPanel'); return false;" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
       </a>
       <a href="#patientHub" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" data-jump-target="enquiries" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
-      </a>
-      <a href="#patientHub" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
       </a>
       <a href="#faq" data-jump-target="faq" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
