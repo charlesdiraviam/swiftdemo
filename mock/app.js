@@ -700,7 +700,9 @@
     SWIFT.state.queueNumber += 1;
     const n = SWIFT.state.queueNumber;
     const mins = n * D.queuePosition.avgMinsPerPatient;
-    const container = $("checkinForm");
+    // M1: #checkinForm is now a tab panel div; write into the inner content slot
+    // so we don't clobber the panel's data-panel / role attributes.
+    const container = $("checkinFormInner") || $("checkinForm");
     container.innerHTML = `
       <div class="text-center py-6">
         <div class="text-sm text-slate-500">${escapeHTML(D.queuePosition.prefix)}<span class="font-extrabold text-teal-700">${n}</span></div>
@@ -718,8 +720,8 @@
   SWIFT.forms.cancelQueue = function () {
     SWIFT.state.queueNumber = Math.max(D.queuePosition.currentInQueue, SWIFT.state.queueNumber - 1);
     SWIFT.ui.toast("Your place was cancelled.");
-    // Restore the form
-    const container = $("checkinForm");
+    // Restore the form inside the panel's inner slot.
+    const container = $("checkinFormInner") || $("checkinForm");
     container.innerHTML = `
       <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
         <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
@@ -1378,9 +1380,10 @@
     if (!pills.length || typeof IntersectionObserver === "undefined") return;
 
     const resolveTarget = function (key) {
-      // Map panel-style keys to their owning section (L2: Patient hub).
+      // Map panel-style keys to their owning section.
       if (key === "triage" || key === "pricing") return "beforeYouVisit";
-      if (key === "location" || key === "enquiries" || key === "results") return "patientHub";
+      // M1: Patient hub panels now live inside #checkin (online check-in section).
+      if (key === "location" || key === "enquiries" || key === "results") return "checkin";
       return key;
     };
 
