@@ -1,0 +1,17 @@
+# Planning / dev tooling — never deploy these to the public site
+.claude/
+plans/
+plan.md
+spec.md
+implementation.md
+
+# Build/deploy artifacts
+*.zip
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+*.log
+*.swp
+.idea/
+.vscode/
