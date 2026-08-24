@@ -223,3 +223,10 @@ Most are **side-effects of the Phase G consolidation** (tabbed hubs), so they cl
 2. Triage duplication (3) + Reserve-my-spot tab (6) — both in the Get-care band; fix together.
 3. Doctors/why-choose alignment (4) + trust-stat dedupe (5).
 4. Smiley icon (1); Get-care band cleanup (7).
+
+
+####
+1. Live wait times ux can be better instead of a huge banner
+2. why choose swift and doctors seems misligned.
+3.  Make the lower bar highlighting the pill based on which section the scroll is on. 
+4. What ages do you treat is missing content. FAQ missing in the bottom bar. 

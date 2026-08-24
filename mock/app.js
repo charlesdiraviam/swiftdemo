@@ -348,14 +348,13 @@
   function waitTemplate(h) {
     const isSwift = h.distanceKm === 0;
     return `
-      <div class="flex items-center justify-between bg-white/10 rounded-xl p-4 border border-white/15">
-        <div>
-          <div class="font-semibold">${escapeHTML(h.name)}</div>
-          <div class="text-xs text-slate-300">${h.distanceKm === 0 ? "On-site" : escapeHTML(h.distanceKm) + " km away"}</div>
+      <div class="flex items-center justify-between bg-white/10 rounded-lg px-3 py-2 border border-white/10">
+        <div class="min-w-0 pr-2">
+          <div class="font-semibold text-sm truncate">${escapeHTML(h.name)}</div>
+          <div class="text-[11px] text-slate-300">${h.distanceKm === 0 ? "On-site" : escapeHTML(h.distanceKm) + " km"}</div>
         </div>
-        <div class="text-right">
-          <div class="text-2xl font-extrabold ${isSwift ? "text-teal-300" : "text-white"}">${h.mins} min</div>
-          <div class="text-[10px] uppercase tracking-wider text-slate-300">wait</div>
+        <div class="text-right shrink-0">
+          <div class="text-lg font-extrabold leading-none ${isSwift ? "text-teal-300" : "text-white"}">${h.mins}<span class="text-xs font-semibold ml-0.5">min</span></div>
         </div>
       </div>`;
   }
@@ -1370,6 +1369,59 @@
 
   // ---------- Init ----------
 
+  // ---- Phase K3 — jump-bar scroll-spy -----------------------------
+  // Map `data-jump-target` values to either a section id or a tab-panel id.
+  // For tab-panel targets (triage, pricing) we watch the parent `[data-tabs-root]`.
+  // For section ids we watch the section directly.
+  SWIFT.ui.initJumpSpy = function () {
+    const pills = document.querySelectorAll('[data-jump-target]');
+    if (!pills.length || typeof IntersectionObserver === "undefined") return;
+
+    const resolveTarget = function (key) {
+      // Map panel-style keys to their owning section (#beforeYouVisit).
+      if (key === "triage" || key === "pricing") return "beforeYouVisit";
+      return key;
+    };
+
+    const active = new Set();
+    const apply = function () {
+      pills.forEach(function (pill) {
+        if (active.has(pill.getAttribute("data-jump-target"))) {
+          pill.classList.add("is-active");
+        } else {
+          pill.classList.remove("is-active");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        const id = e.target.id;
+        if (!id) return;
+        // Section is active when its top is within the top half of the viewport.
+        if (e.isIntersecting && e.intersectionRatio > 0) {
+          pills.forEach(function (pill) {
+            const key = pill.getAttribute("data-jump-target");
+            if (resolveTarget(key) === id) active.add(key);
+          });
+        } else {
+          pills.forEach(function (pill) {
+            const key = pill.getAttribute("data-jump-target");
+            if (resolveTarget(key) === id) active.delete(key);
+          });
+        }
+      });
+      apply();
+    }, { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.01, 0.5] });
+
+    pills.forEach(function (pill) {
+      const key = pill.getAttribute("data-jump-target");
+      const id = resolveTarget(key);
+      const target = document.getElementById(id);
+      if (target) observer.observe(target);
+    });
+  };
+
   SWIFT.init = function () {
     // Snapshot the original services/intents ordering so campaign re-orders can be undone.
     SWIFT.state._baseline = {
@@ -1434,6 +1486,9 @@
     // Hook the AI symptom-checker form
     const aiForm = $("aiSymptomForm");
     if (aiForm) aiForm.onsubmit = SWIFT.ai.runSymptomChecker;
+
+    // Phase K3 — jump-bar scroll-spy
+    SWIFT.ui.initJumpSpy();
 
     // Wire the "Before you visit" tab buttons (delegated so dynamically
     // inserted campaigns still work).

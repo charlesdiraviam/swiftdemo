@@ -56,6 +56,10 @@
     /* Imagery: lazy <img> safety net — neutral background while loading */
     img { background: #ccfbf1; }
     .img-fallback { background: #ccfbf1; opacity: 0.85; }
+    /* Jump-bar active-pill highlight (K3) — teal pill when its section is in view. */
+    .jump-pill { transition: background-color 120ms, color 120ms, border-color 120ms; }
+    .jump-pill.is-active { background-color: #159595; color: #ffffff; border-color: #0c5f5f; }
+    .jump-pill.is-active:hover { background-color: #0e7676; }
   </style>
 
   <!-- SEO-for-AI structured data (Phase I5). Populated at runtime by SWIFT.ai.buildJsonLd(). -->
@@ -230,6 +234,7 @@
           </div>
           <div class="mt-2 text-sm text-teal-100">We treat ages</div>
           <div class="text-2xl font-bold">3 months +</div>
+          <a href="#faq" class="mt-1 inline-block text-[11px] text-teal-200 underline">See who's eligible</a>
         </div>
         <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
           <div class="text-teal-200">
@@ -369,19 +374,24 @@
   </section>
 
   <!-- Wait times widget -->
-  <section id="wait" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-    <div class="bg-gradient-to-br from-slate-800 to-teal-900 text-white rounded-3xl p-8">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 class="text-2xl font-extrabold">Live Wait Times</h2>
-          <p class="text-slate-300 text-sm mt-1">Nearby hospital EDs vs SWIFT — mock NSW Health data</p>
+  <section id="wait" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+    <div class="bg-gradient-to-br from-slate-800 to-teal-900 text-white rounded-2xl p-5 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-500/20 grid place-items-center text-teal-200">
+            <svg width="20" height="20" aria-hidden="true"><use href="#i-clock"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold leading-tight">Live Wait Times</h2>
+            <p class="text-slate-300 text-xs">Mock NSW Health data · refreshes every minute</p>
+          </div>
         </div>
-        <button onclick="refreshWaitTimes()" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
-          <svg id="refreshSpin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Refresh
+        <button onclick="refreshWaitTimes()" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-sm">
+          <svg id="refreshSpin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Refresh
         </button>
       </div>
-      <div id="waitList" class="mt-6 space-y-3"></div>
-      <p class="text-xs text-slate-400 mt-4">Updated <span id="waitUpdated">just now</span> · demo data, not real hospital figures.</p>
+      <div id="waitList" class="mt-4 grid sm:grid-cols-2 gap-2"></div>
+      <p class="text-[11px] text-slate-400 mt-3">Updated <span id="waitUpdated">just now</span> · demo data, not real hospital figures.</p>
     </div>
   </section>
 
@@ -412,19 +422,17 @@
     </div>
   </section>
 
-  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6 -->
+  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2 -->
   <section id="doctors" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-    <div class="grid lg:grid-cols-[2fr,1fr] gap-8 items-start">
-      <div>
-        <div class="text-left max-w-2xl">
-          <h2 class="text-2xl font-extrabold text-slate-800">Our Doctors</h2>
-          <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
-        </div>
-        <!-- 3 doctors, 3-up on lg to fill evenly; stacks 1→2→3 across breakpoints. -->
-        <div id="doctorsGrid" class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </div>
+    <div class="text-left max-w-2xl">
+      <h2 class="text-2xl font-extrabold text-slate-800">Our Doctors</h2>
+      <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
+    </div>
+    <div class="mt-6 grid lg:grid-cols-[2fr,1fr] gap-6 items-stretch">
+      <!-- 3 doctors, 3-up on lg to fill evenly; stacks 1→2→3 across breakpoints. -->
+      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       <!-- Why-choose-SWIFT aside — qualitative differentiators (NOT the numeric stats). -->
-      <aside id="whyChooseAside" class="hidden lg:block bg-white border border-slate-200 rounded-2xl p-6">
+      <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl p-6 flex-col justify-start">
         <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Why choose SWIFT</div>
         <ul id="whyChooseList" class="space-y-3 text-sm text-slate-700">
           <li class="flex gap-2"><span class="text-teal-500 mt-0.5"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
@@ -508,29 +516,32 @@
     </details>
   </section>
 
-  <!-- Sticky "jump to" chip bar (G4) — thumb-reachable on mobile, content-led on desktop -->
+  <!-- Sticky "jump to" chip bar (G4 / K3) — thumb-reachable on mobile, highlights active section -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
     <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
-      <a href="#wait" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold border border-teal-100">
+      <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
       </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold border border-teal-100">
+      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
       </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold border border-teal-100">
+      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
       </a>
-      <a href="#services" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200">
+      <a href="#services" data-jump-target="services" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
       </a>
-      <a href="#checkinForm" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200">
+      <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>
-      <a href="#location" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200">
+      <a href="#location" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
       </a>
-      <a href="#contact" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200">
+      <a href="#contact" data-jump-target="contact" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
+      </a>
+      <a href="#faq" data-jump-target="faq" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
       </a>
     </div>
   </nav>
