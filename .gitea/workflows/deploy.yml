@@ -1,0 +1,60 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Required for OIDC token exchange with Azure.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build deploy artifact
+        run: |
+          mkdir -p artifact
+          cp index.html artifact/
+          cp -r mock artifact/
+          # Defence-in-depth: never ship dev notes or backups
+          rm -f artifact/index.html.bak
+          # Zip layout must put index.html at the zip root — Kudu extracts
+          # straight into /site/wwwroot/ and expects wwwroot/index.html.
+          (cd artifact && zip -r ../site.zip .)
+          ls -la site.zip
+          echo "--- contents ---"
+          unzip -l site.zip
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
+
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          package: site.zip
+          runtime-stack: NODE:20-lts
+
+      - name: Smoke test (HTTP 200)
+        run: |
+          url="https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net/"
+          echo "GET $url"
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+            echo "attempt $i → $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 6
+          done
+          echo "ERROR: $url did not return 200 after 60s"
+          exit 1
