@@ -327,28 +327,37 @@
     </div>
   </header>
 
-  <!-- Hero -->
-  <section id="home" class="relative bg-gradient-to-br from-teal-600 to-teal-800 text-white overflow-hidden">
-    <div id="heroBg" aria-hidden="true" class="absolute inset-0 opacity-25 bg-cover bg-center"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-teal-600/85 to-teal-800/90" aria-hidden="true"></div>
-    <div class="relative max-w-6xl mx-auto px-4 py-8 sm:py-10">
-      <div class="grid md:grid-cols-2 gap-6 items-center">
+  <!-- Hero — Heltro uplift Phase 7: full-bleed photograph, tight-tracked
+       display headline, exactly ONE CTA (closes defect C10), glass quick-info
+       cards and the trust stats overlaid as white cards on the photo. -->
+  <section id="home" class="relative bg-teal-900 text-white overflow-hidden">
+    <div id="heroBg" aria-hidden="true" class="absolute inset-0 bg-cover bg-center"></div>
+    <!-- Scrim: flat base for global legibility + left bias behind the headline.
+         The photo dominates (opacity-25 wash removed). -->
+    <div class="absolute inset-0 bg-slate-900/55" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/30 to-slate-900/10" aria-hidden="true"></div>
+    <div class="relative max-w-6xl mx-auto px-4 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:pt-24 lg:pb-24">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div>
-          <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-4">Emergency Physician led · Walk-in</span>
-          <h1 id="heroHeadline" class="text-display font-extrabold">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
-          <p id="heroSubtext" class="mt-4 text-teal-50/90 text-lg max-w-md">
+          <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-5">Emergency Physician led · Walk-in</span>
+          <h1 id="heroHeadline" class="text-display font-extrabold">Emergency? <span class="text-teal-100">Think SWIFT.</span></h1>
+          <p id="heroSubtext" class="mt-5 text-teal-50/90 text-lg max-w-lg">
             Best-practice urgent care in a calm, modern environment. Minor emergencies — no appointment needed, just walk in.
           </p>
-          <!-- C10 / D3: one primary CTA per section — the solid button. The other
-               two destinations are quiet text links, not competing buttons. -->
-          <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <!-- C10: one primary CTA per section — the solid button. Campaign
+               variants re-label it via campaign.apply; the previous reserve /
+               wait-times links are gone (apply() guards them with if (sCta)). -->
+          <div class="mt-8">
             <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-6 py-3 rounded-xl shadow-btn hover:bg-teal-50">Request Appointment</button>
-            <a id="heroReserveCta" href="#checkinForm" class="text-teal-100 text-sm font-semibold underline underline-offset-4 decoration-teal-300/60 hover:text-white inline-flex items-center">Reserve my spot</a>
-            <a id="heroSecondaryCta" href="#wait" class="text-teal-100 text-sm font-semibold underline underline-offset-4 decoration-teal-300/60 hover:text-white inline-flex items-center">Check Wait Times</a>
+          </div>
+          <!-- Avatar-stack social proof — reuses D.doctors[].image -->
+          <div class="mt-8 flex items-center gap-3">
+            <div id="heroAvatars" class="flex -space-x-2.5 shrink-0"></div>
+            <p class="text-sm text-teal-50/90">Trusted by <span class="font-semibold text-white">20,000+</span> patients · <span class="font-semibold text-white">4.9★</span> Google rating</p>
           </div>
         </div>
 
-        <!-- Quick info cards -->
+        <!-- Quick info cards (glass over the photo) -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
             <div id="heroWaitIcon" class="text-teal-200"></div>
@@ -386,13 +395,9 @@
         </div>
       </div>
 
-    </div>
-  </section>
-
-  <!-- Trust bar — visible on all viewports (desktop gets the numeric strip here; Doctors aside stays qualitative) -->
-  <section id="trust" class="bg-white border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 py-4">
-      <div id="trustGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      <!-- Trust stats — moved from the former #trust strip; white cards
+           overlapping the photo (reuses D.trustStats + trustTemplate) -->
+      <div id="trustGrid" class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
     </div>
   </section>
 

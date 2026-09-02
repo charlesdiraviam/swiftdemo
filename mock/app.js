@@ -435,10 +435,18 @@
   };
 
   SWIFT.render.renderTrust = function () {
-    // J6: render the numeric trust bar once, into the canonical #trust strip
-    // near the hero. The Doctors aside now hosts qualitative differentiators
-    // (no duplicate numbers).
+    // J6: render the numeric trust bar into #trustGrid — moved into the hero
+    // in the Heltro uplift, where the white cards overlap the photo.
     SWIFT.render.renderStatGrid("trustGrid", D.trustStats, trustTemplate);
+  };
+
+  // Hero avatar-stack social proof (Phase 7) — reuses D.doctors[].image.
+  SWIFT.render.renderHeroAvatars = function () {
+    const el = $("heroAvatars");
+    if (!el || !Array.isArray(D.doctors)) return;
+    el.innerHTML = D.doctors.map((d) =>
+      `<img src="${escapeHTML(d.image)}" alt="${escapeHTML(d.imageAlt || d.name)}" width="36" height="36" loading="lazy" decoding="async" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/70" />`
+    ).join("");
   };
 
   SWIFT.render.renderIntents = function () {
@@ -1275,6 +1283,7 @@
     SWIFT.a11y._apply(SWIFT.a11y.load());
 
     // Render data-driven sections
+    SWIFT.render.renderHeroAvatars();
     SWIFT.render.renderTrust();
     SWIFT.render.renderIntents();
     SWIFT.render.renderDoctors();
