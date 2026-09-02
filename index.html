@@ -197,7 +197,7 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-        <a href="#checkin" class="hover:text-teal-600" data-i18n="checkIn">Check-in</a>
+        <a href="#checkinForm" class="hover:text-teal-600" data-i18n="checkIn">Check-in</a>
         <a href="#wait" class="hover:text-teal-600" data-i18n="waitTimes">Wait Times</a>
         <a href="#pricing" class="hover:text-teal-600" data-i18n="pricing">Pricing</a>
         <a href="#services" class="hover:text-teal-600" data-i18n="services">Services</a>
@@ -218,7 +218,7 @@
     <!-- Mobile nav -->
     <div id="mobileNav" class="md:hidden hidden border-t border-slate-200 bg-white">
       <div class="px-4 py-3 grid grid-cols-2 gap-3 text-slate-700 text-sm">
-        <a href="#checkin" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Check-in</a>
+        <a href="#checkinForm" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Check-in</a>
         <a href="#wait" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-clock"/></svg>Wait Times</a>
         <a href="#pricing" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing</a>
         <a href="#services" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services</a>
@@ -325,19 +325,33 @@
     <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
       <div class="text-center max-w-2xl mx-auto">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Before you visit</h2>
-        <p class="mt-2 text-slate-500">Everything you need to plan your visit — pick a tab.</p>
+        <p class="mt-2 text-slate-500">Reserve your spot, check costs, and plan your visit.</p>
       </div>
       <!-- Tab strip (T1: Location moved out to its own section — this hub is
-           strictly visit-prep: Pricing · What to expect · Practical info) -->
+           strictly visit-prep: Check-in · Pricing · What to expect · Practical info.
+           Check-in moved in from its own standalone section, now the default tab) -->
       <div role="tablist" aria-label="Before you visit" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button id="tab-pricing" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="pricingPanel" aria-controls="pricing" aria-selected="true">Pricing</button>
+        <button id="tab-checkin" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-controls="checkinForm" aria-selected="true">Check-in</button>
+        <button id="tab-pricing" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="pricingPanel" aria-controls="pricing" aria-selected="false" tabindex="-1">Pricing</button>
         <button id="tab-journey" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="journeyPanel" aria-controls="journey" aria-selected="false" tabindex="-1">What to expect</button>
         <button id="tab-amenities" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="amenitiesPanel" aria-controls="amenities" aria-selected="false" tabindex="-1">Practical info</button>
       </div>
 
-      <!-- Panels — id on the visible ones keeps #pricing / #journey / #amenities deep links working. -->
+      <!-- Panels — id on the visible ones keeps #checkinForm / #pricing / #journey / #amenities deep links working. -->
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
-        <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing">
+        <div data-panel="checkinPanel" id="checkinForm" role="tabpanel" aria-labelledby="tab-checkin">
+          <div class="max-w-3xl mx-auto">
+            <div id="checkinFormInner">
+              <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
+                <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
+                <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
+                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
+              </form>
+              <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
+            </div>
+          </div>
+        </div>
+        <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
           <h3 class="text-lg font-extrabold text-slate-800">Pricing &amp; cost estimator</h3>
           <p class="mt-1 text-sm text-slate-500">Quick estimate — exact costs depend on your treatment.</p>
           <form id="pricingForm" onsubmit="submitPricing(event)" class="mt-5 grid sm:grid-cols-2 gap-4 bg-white border border-slate-200 rounded-xl p-5">
@@ -453,35 +467,9 @@
     <div id="servicesGrid" class="mt-6 scroll-row lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0 gap-4"></div>
   </section>
 
-  <!-- Online check-in (M1 / T4): one destination, one name — header nav, jump
-       pill, tab and H2 all say "Check-in". Referrals and Enquiries moved out
-       to the Contact section below (T1). -->
-  <section id="checkin" class="bg-white border-y border-slate-200" data-tabs-root>
-    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
-      <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Check-in</h2>
-        <p class="mt-2 text-slate-500">Reserve your spot in the queue.</p>
-      </div>
-      <div role="tablist" aria-label="Check-in" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button id="tab-checkin" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-controls="checkinForm" aria-selected="true">Check-in</button>
-      </div>
-
-      <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
-        <div data-panel="checkinPanel" id="checkinForm" role="tabpanel" aria-labelledby="tab-checkin">
-          <div class="max-w-3xl mx-auto">
-            <div id="checkinFormInner">
-              <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
-                <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
-                <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
-                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
-              </form>
-              <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Online check-in (M1 / T4): folded into the "Before you visit" hub above
+       as its default tab — one destination, one name. Enquiries live in the
+       Contact section below (T1). -->
 
   <!-- Contact (T1: out of Patient hub). -->
   <section id="enquiries" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
@@ -510,7 +498,7 @@
     <div id="promoGrid" class="scroll-row"></div>
   </section>
 
-  <!-- Location now has its own section above; Contact & Referrals live in the
+  <!-- Location now has its own section above; Contact lives in the
        #enquiries section. No duplicate content here. -->
 
   <!-- N1: Jump bar relocated just before <footer> so its sticky containing block

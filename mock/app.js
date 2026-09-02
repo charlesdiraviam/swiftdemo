@@ -203,7 +203,7 @@
       return;
     }
     if (action.action === "openCheckIn") {
-      const el = $("checkin");
+      const el = $("checkinForm");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
