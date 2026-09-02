@@ -191,6 +191,10 @@
   SWIFT.ui.runAction = function (action, fallbackEl) {
     if (!action) return;
     if (action.href) {
+      if (/^https?:\/\//i.test(action.href)) {
+        window.open(action.href, '_blank', 'noopener');
+        return;
+      }
       const target = document.querySelector(action.href);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
@@ -228,6 +232,16 @@
   SWIFT.ui.handleHash = function (hash) {
     const id = (hash || window.location.hash || "").replace(/^#/, "");
     if (!id) return false;
+    // FAQ detail deep-link (e.g. #faq-2) — open the specific question, then scroll to #faq.
+    if (/^faq-\d+$/.test(id)) {
+      const details = $(id);
+      if (details) details.open = true;
+      const faqSection = $("faq");
+      if (faqSection) {
+        faqSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        return true;
+      }
+    }
     const el = $(id);
     if (!el) return false;
     // 1) Hidden data-panel inside a tabs root? Activate the tab first.
@@ -316,7 +330,7 @@
     const aiBadge = `<span data-ai-badge="service" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
       <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
-        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
+        <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
           <h3 class="text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
@@ -740,9 +754,14 @@
     let scenarioId;
     if (workcover === "yes") scenarioId = "workcover";
     else if (medicare === "yes") scenarioId = insurance === "yes" ? "insured" : "medicareOnly";
-    else scenarioId = "uninsured";
+    // C13: private cover is no longer ignored when Medicare is absent.
+    else scenarioId = insurance === "yes" ? "privateNoMedicare" : "uninsured";
     const scenario = D.pricingScenarios.items.find((x) => x.id === scenarioId);
     const result = $("pricingResult");
+    // C13: no Medicare rebate line for WorkCover — the visit is billed
+    // directly to the insurer, so itemising a rebate under a $0 total is wrong.
+    const medicareLine = medicare === "yes" && scenarioId !== "workcover" ? `
+      <div class="flex justify-between"><dt>Medicare rebate</dt><dd class="font-semibold">− $${D.pricingScenarios.medicareRebate.toFixed(2)}</dd></div>` : "";
     result.classList.remove("hidden");
     result.innerHTML = `
       <div class="bg-teal-50 border border-teal-200 rounded-2xl p-6">
@@ -753,7 +772,7 @@
         <hr class="my-4 border-teal-200" />
         <dl class="space-y-1 text-sm text-slate-700">
           <div class="flex justify-between"><dt>Facility fee</dt><dd class="font-semibold">$${D.pricingScenarios.facilityFee}</dd></div>
-          <div class="flex justify-between"><dt>Medicare rebate</dt><dd class="font-semibold">− $${D.pricingScenarios.medicareRebate.toFixed(2)}</dd></div>
+          ${medicareLine}
         </dl>
         <button onclick="SWIFT.forms.resetPricing()" class="mt-5 text-teal-700 underline text-sm">Try another scenario</button>
       </div>`;
@@ -882,17 +901,17 @@
   };
 
   SWIFT.campaign._applySections = function (hideArr) {
-    // Restore everything first (idempotent for the default campaign).
-    const known = ["intents", "promo", "results", "referrals", "amenities", "doctors"];
+    // Restore only real page sections first (idempotent for the default campaign).
+    // Tab panels are controlled by the tab system, not by this helper.
+    const known = ['intents', 'promotions', 'doctors', 'trust', 'getCare', 'wait', 'services', 'faq'];
     known.forEach(function (k) {
-      const sec = $("section-" + k) || $(k) || document.getElementById(k);
-      if (sec && sec.classList) sec.classList.remove("hidden");
+      const sec = $(k) || document.getElementById(k);
+      if (sec && sec.classList) sec.classList.remove('hidden');
     });
     if (!Array.isArray(hideArr) || !hideArr.length) return;
     hideArr.forEach(function (k) {
-      // Try #k, then any descendant with id="k".
       const sec = $(k) || document.getElementById(k);
-      if (sec && sec.classList) sec.classList.add("hidden");
+      if (sec && sec.classList) sec.classList.add('hidden');
     });
   };
 
@@ -1174,42 +1193,9 @@
 
   // ---------- Phase I: AI features (mocked) ----------
 
-  // Shared disclaimer used by I1 (symptom checker) and I2 (chat concierge).
+  // Shared disclaimer used by the chat concierge.
   SWIFT.ai.disclaimer = function () {
     return "AI demo — not medical advice; call 000 in an emergency.";
-  };
-
-  // ---- I1 — AI symptom checker ------------------------------------------
-  // Maps free-text symptoms to existing triage outcomes (walkin / book / call000).
-  // Reuses the existing SWIFT.triage._showOutcome() — no new template.
-  SWIFT.ai.checkSymptoms = function (text) {
-    const rules = D.aiSymptomRules;
-    const t = (text || "").trim();
-    if (!t) {
-      return { outcome: null, reply: "Try typing symptoms like 'fever' or 'sprained ankle'." };
-    }
-    if (rules.emergencies.some(function (r) { return r.pattern.test(t); })) return { outcome: "call000" };
-    if (rules.injuries.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
-    if (rules.illness.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
-    if (rules.book.some(function (r) { return r.pattern.test(t); })) return { outcome: "book" };
-    return { outcome: null, reply: rules.fallback };
-  };
-
-  SWIFT.ai.runSymptomChecker = function (e) {
-    if (e && typeof e.preventDefault === "function") e.preventDefault();
-    const input = $("aiSymptomInput");
-    if (!input) return;
-    const result = SWIFT.ai.checkSymptoms(input.value);
-    if (!result.outcome) {
-      SWIFT.ui.toast(result.reply || D.aiSymptomRules.fallback);
-      return;
-    }
-    // Open the triage tab (already default-open) so the existing outcome card is visible.
-    SWIFT.ui.openTab("triage");
-    const intro = $("triageIntro");
-    if (intro) intro.classList.add("hidden");
-    if (typeof SWIFT.triage._showOutcome === "function") SWIFT.triage._showOutcome(result.outcome);
-    SWIFT.ui.toast(SWIFT.ai.disclaimer());
   };
 
   // ---- I2 — grounded AI concierge ---------------------------------------
@@ -1263,10 +1249,10 @@
     spark.innerHTML = '<polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />';
     const dir = SWIFT.ai.waitTrendDirection();
     const arrowGlyph = dir === "up"
-      ? '<polyline points="6 9 12 3 18 9"/>'
+      ? '<polyline points="6 9 12 3 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
       : dir === "down"
-      ? '<polyline points="6 15 12 21 18 15"/>'
-      : '<line x1="6" x2="18" y1="12" y2="12"/>';
+      ? '<polyline points="6 15 12 21 18 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      : '<line x1="6" x2="18" y1="12" y2="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
     arrow.innerHTML = arrowGlyph;
     arrow.setAttribute("aria-label", "Trend " + dir);
   };
@@ -1356,9 +1342,9 @@
   SWIFT.ai.renderFaq = function () {
     const root = $("faqList");
     if (!root || !Array.isArray(D.faq)) return;
-    root.innerHTML = D.faq.map(function (f) {
+    root.innerHTML = D.faq.map(function (f, i) {
       return [
-        '<details class="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-teal-200 transition">',
+        '<details id="faq-' + i + '" class="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-teal-200 transition">',
           '<summary class="cursor-pointer list-none flex items-center justify-between gap-2">',
             '<span class="font-semibold text-slate-800 text-sm">' + escapeHTML(f.q) + '</span>',
             '<span class="text-teal-600 shrink-0 group-open:rotate-180 transition-transform">' + SWIFT.ui.icon("chevron-down", 18) + '</span>',
@@ -1380,22 +1366,56 @@
     if (!pills.length || typeof IntersectionObserver === "undefined") return;
 
     const resolveTarget = function (key) {
-      // Map panel-style keys to their owning section.
-      // N2: Location moved from Patient hub (#checkin) into Before-you-visit
-      // (#beforeYouVisit). enquiries + results stay inside #checkin.
-      if (key === "triage" || key === "pricing" || key === "location") return "beforeYouVisit";
-      if (key === "enquiries" || key === "results") return "checkin";
-      return key;
+      // Map each pill to the actual element id it should observe. Tab panels are
+      // observed directly; only the active (non-hidden) panel intersects, so pills
+      // in the same hub don't light up together.
+      const map = {
+        triage: 'triage',
+        pricing: 'pricing',
+        journey: 'journey',
+        amenities: 'amenities',
+        location: 'location',
+        checkin: 'checkinForm',
+        results: 'results',
+        referrals: 'referrals',
+        enquiries: 'enquiries',
+        wait: 'wait',
+        services: 'services',
+        faq: 'faq',
+        doctors: 'doctors',
+        promotions: 'promotions',
+        home: 'home',
+        intents: 'intents',
+        getCare: 'getCare',
+      };
+      return map[key] || key;
     };
 
     const active = new Set();
+    // N9: nothing maps to the hero, the intent cards, the Get-care band or the
+    // What-to-expect / Practical-info tabs — over those stretches the active
+    // set empties and the bar used to go blank. Keep the last highlighted pill
+    // lit instead (dropping it only if that pill is hidden on this viewport).
+    let lastHighlight = null;
+    const pickHighlight = function () {
+      for (const pill of pills) {
+        const key = pill.getAttribute("data-jump-target");
+        if (active.has(key) && pill.offsetParent !== null) return key;
+      }
+      return null;
+    };
     const apply = function () {
+      const current = pickHighlight();
+      if (current) {
+        lastHighlight = current;
+      } else if (lastHighlight) {
+        const held = document.querySelector('[data-jump-target="' + lastHighlight + '"]');
+        if (!held || held.offsetParent === null) lastHighlight = null;
+      }
       pills.forEach(function (pill) {
-        if (active.has(pill.getAttribute("data-jump-target"))) {
-          pill.classList.add("is-active");
-        } else {
-          pill.classList.remove("is-active");
-        }
+        const key = pill.getAttribute("data-jump-target");
+        const isOn = active.has(key) || (!active.size && key === lastHighlight);
+        pill.classList.toggle("is-active", isOn);
       });
     };
 
@@ -1403,21 +1423,16 @@
       entries.forEach(function (e) {
         const id = e.target.id;
         if (!id) return;
-        // Section is active when its top is within the top half of the viewport.
-        if (e.isIntersecting && e.intersectionRatio > 0) {
-          pills.forEach(function (pill) {
-            const key = pill.getAttribute("data-jump-target");
-            if (resolveTarget(key) === id) active.add(key);
-          });
-        } else {
-          pills.forEach(function (pill) {
-            const key = pill.getAttribute("data-jump-target");
-            if (resolveTarget(key) === id) active.delete(key);
-          });
-        }
+        pills.forEach(function (pill) {
+          const key = pill.getAttribute('data-jump-target');
+          if (resolveTarget(key) === id) {
+            if (e.isIntersecting && e.intersectionRatio > 0) active.add(key);
+            else active.delete(key);
+          }
+        });
+        apply();
       });
-      apply();
-    }, { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.01, 0.5] });
+    }, { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.05, 0.5] });
 
     pills.forEach(function (pill) {
       const key = pill.getAttribute("data-jump-target");
@@ -1488,12 +1503,22 @@
     SWIFT.ai.renderJsonLd();
     SWIFT.ai.renderFaq();
     SWIFT.ai.renderWaitTrend();
-    // Hook the AI symptom-checker form
-    const aiForm = $("aiSymptomForm");
-    if (aiForm) aiForm.onsubmit = SWIFT.ai.runSymptomChecker;
 
     // Phase K3 — jump-bar scroll-spy
     SWIFT.ui.initJumpSpy();
+
+    // T5 — overflow affordance for tab strips that clip on small screens:
+    // a right-edge fade shows only while there is still more to scroll.
+    $$('[role="tablist"]').forEach(function (ts) {
+      const update = function () {
+        const overflows = ts.scrollWidth > ts.clientWidth + 2;
+        const atEnd = ts.scrollLeft + ts.clientWidth >= ts.scrollWidth - 4;
+        ts.classList.toggle("can-scroll", overflows && !atEnd);
+      };
+      ts.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    });
 
     // Wire the "Before you visit" tab buttons (delegated so dynamically
     // inserted campaigns still work).

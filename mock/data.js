@@ -158,7 +158,7 @@ window.SWIFT_DATA = {
     { q: /where|location|address|direction/i, a: "We're at G38, 32 Civic Way, Rouse Hill NSW 2155. Tap 'Directions' for Google Maps." },
     { q: /treat|service|offer|child|kid|paediatric/i, a: "We treat sports injuries, fractures, paediatrics (>3mo), infusions, radiology and physiotherapy." },
     { q: /triage|should i come|what.*wrong/i, a: "Try our 'Can we treat this?' checker above — 3 quick questions will tell you whether to walk in, book, or call 000." },
-    { q: /results|test|x-?ray|scan/i, a: "Demo test results are available via the 'Test & imaging results' section — sign in with demo/demo." },
+    { q: /results|test|x-?ray|scan/i, a: "Demo test results are in the Check-in section's 'Test results' tab — sign in with demo/demo." },
     { q: /queue|wait list|reserve/i, a: "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait." },
   ],
 
@@ -299,7 +299,7 @@ window.SWIFT_DATA = {
       text: "Is the patient over 3 months old?",
       options: [
         { label: "Yes", next: "severity" },
-        { label: "No", outcome: "call000" },
+        { label: "No", outcome: "tooyoung" },
       ],
     },
     {
@@ -324,6 +324,7 @@ window.SWIFT_DATA = {
     walkin: { icon: "ambulance", title: "Walk in now", body: "Average wait ~12 min. Bring ID and Medicare card. No appointment needed.", cta: { label: "Get directions", href: "#location" } },
     book: { icon: "clipboard", title: "Book an appointment", body: "Use Book Now for the fastest slot. Referrals welcome.", cta: { label: "Book now", action: "openBooking" } },
     call000: { icon: "phone", title: "Call 000 now", body: "This sounds like an emergency. Don't wait — call 000 or go to your nearest ED.", cta: { label: "Get directions to nearest ED", href: "#location" } },
+    tooyoung: { icon: "baby", title: "We can't treat under 3 months", body: "Our clinic sees children from 3 months and older. For a baby under 3 months, please see your GP or a paediatric ED if urgent.", cta: { label: "Find a paediatric ED", href: "https://www.google.com/search?q=paediatric+emergency+department+near+me", external: true } },
   },
 
   // Tier 1 — pricing scenarios
@@ -333,6 +334,9 @@ window.SWIFT_DATA = {
     items: [
       { id: "insured", label: "Insured (Medicare + private)", outOfPocket: "$0–$50", note: "Private health typically covers the gap — check your policy." },
       { id: "medicareOnly", label: "Medicare only", outOfPocket: "$355", note: "Medicare rebate of ~$41.40 applies; remainder is the facility fee." },
+      // C13: "no Medicare + private insurance" is its own scenario now —
+      // private cover no longer silently routes to the overseas price.
+      { id: "privateNoMedicare", label: "Private insurance (no Medicare)", outOfPocket: "$396", note: "No Medicare card, so no Medicare rebate — we'll process your private health claim on the spot where possible." },
       { id: "uninsured", label: "No Medicare / overseas", outOfPocket: "$396", note: "Full facility fee, no rebate applied." },
       { id: "workcover", label: "WorkCover / DVA", outOfPocket: "$0", note: "Billed directly to insurer." },
     ],
@@ -353,33 +357,16 @@ window.SWIFT_DATA = {
 
   // ---- Phase I: AI surfaces (all mocked, grounded in SWIFT_DATA) ----
 
-  // I1 — AI symptom checker: keyword maps → triage outcome keys.
-  aiSymptomRules: {
-    emergencies: [
-      { pattern: /(chest pain|stroke|severe bleeding|can'?t breathe|unconscious|seizure)/i, label: "emergency" },
-    ],
-    injuries: [
-      { pattern: /(sprain|strain|fracture|broken|twisted|wrist|ankle|knee|back|cut|wound|burn)/i, label: "injury" },
-    ],
-    illness: [
-      { pattern: /(fever|flu|cold|cough|sore throat|vomit|nausea|infection|ear|sinus|rash|diarrh)/i, label: "illness" },
-    ],
-    book: [
-      { pattern: /(infusion|iron|referral|follow[- ]?up|repeat script|script|medication)/i, label: "planned care" },
-    ],
-    fallback: "Sorry, I couldn't match that. Tap 'Can we treat this?' for the step-by-step checker.",
-  },
-
   // I2 — grounded AI concierge: regex patterns → answer functions that read SWIFT_DATA.
   aiConciergeIntents: [
     { id: "hours", patterns: [/open|hours|close|today|tomorrow/i],
-      answer: function (D) { return "We're open " + D.clinic.hours + "."; } },
+      answer: function (D) { return "Hours: " + D.clinic.hours; } },
     { id: "wait", patterns: [/wait|busy|queue|long/i],
       answer: function (D) {
         const others = D.waitTimes.hospitals.slice(1).map(function (h) { return h.name + " " + h.mins + "m"; }).join(", ");
         return "Current urgent care wait is about " + D.waitTimes.swiftCurrentMins + " min. Hospital EDs for comparison: " + others + ".";
       } },
-    { id: "cost", patterns: [/cost|price|fee|pay|medicare|insurance|gap|rebate/i],
+    { id: "cost", patterns: [/cost|price|fee|pay|medicare|insurance|gap|rebate|how much|charge/i],
       answer: function (D) {
         const items = D.pricingScenarios.items.map(function (i) { return i.label + " " + i.outOfPocket; }).join("; ");
         return D.clinic.facilityFee + " Out-of-pocket by scenario: " + items + ".";
@@ -388,13 +375,13 @@ window.SWIFT_DATA = {
       answer: function (D) { return "We treat: " + D.services.map(function (s) { return s.name; }).join(", ") + ". Ages 3 months +."; } },
     { id: "book", patterns: [/book|appointment|appt|reserve|slot/i],
       answer: function () { return "For planned therapies like iron infusions, tap Book Now. For minor emergencies, just walk in."; } },
+    { id: "results", patterns: [/results?|test|x-?ray|scan|portal|my blood|my imaging/i],
+      answer: function () { return "Demo test results are in the Check-in section — open the 'Test results' tab. Sign in with demo / demo."; } },
     { id: "location", patterns: [/where|location|address|direction|parking|find/i],
       answer: function (D) { return D.clinic.address + ". Free parking on-site."; },
       cta: { label: "Open in Google Maps", action: "getDirections" } },
     { id: "triage", patterns: [/triage|should i come|what.*wrong|symptoms/i],
       answer: function () { return "Try 'Can we treat this?' in the Before-you-visit hub — three questions and we'll tell you walk in, book, or call 000."; } },
-    { id: "results", patterns: [/results|test|x-?ray|scan|portal/i],
-      answer: function () { return "Demo test results are under 'More — Test results & Referrals'. Use demo / demo."; } },
     { id: "queue", patterns: [/queue|wait list|reserve|online check/i],
       answer: function () { return "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait."; } },
   ],
@@ -410,7 +397,7 @@ window.SWIFT_DATA = {
     { q: "How long is the wait?", a: "Median urgent care wait is about 12 minutes, versus 2–4 hours in hospital EDs. Live wait times refresh every minute." },
     { q: "Where are you located?", a: "G38, 32 Civic Way, Rouse Hill NSW 2155. Free parking on-site. Tap 'Open in Google Maps' for directions." },
     { q: "Do you do X-rays and imaging?", a: "Yes — on-site X-ray and ultrasound. Interventional radiology and image-guided pain management available." },
-    { q: "Can I get my test results online?", a: "Yes — under More → Test results & Referrals. Sign in with demo / demo for the demo." },
+    { q: "Can I get my test results online?", a: "Yes — the 'Test results' tab under Check-in. Sign in with demo / demo for the demo." },
     { q: "What if it's a life-threatening emergency?", a: "Call 000 immediately or go to your nearest hospital ED. Our triage checker is for non-life-threatening concerns only." },
   ],
 
@@ -441,7 +428,7 @@ window.SWIFT_DATA = {
     },
     es: {
       bookNow: "Reservar",
-      checkIn: "Registrarse",
+      checkIn: "Registro de llegada",
       waitTimes: "Tiempos de espera",
       pricing: "Precios",
       services: "Servicios",
