@@ -75,6 +75,11 @@
             sm: ['15px', { lineHeight: '1.85', letterSpacing: '-0.56px' }],
             xs: ['13px', { lineHeight: '1.5' }],
           },
+          // Heltro container proportioned to our fixed 1280px canvas
+          // (Heltro's 1800px is full-bleed template width).
+          maxWidth: {
+            '6xl': '1280px',
+          },
         },
       },
     };
@@ -109,6 +114,15 @@
     html { scroll-behavior: smooth; }
     /* Heltro body texture: 500 weight, light negative tracking. */
     body { font-weight: 500; letter-spacing: -0.011em; }
+    /* Heltro section rhythm (Phase 5). A plain class is safe here — it
+       collides with no utility name, so the a11y-contrast contract holds.
+       Rhythm is 64px mobile / 96px ≥1024: Heltro's 130px would push the page
+       well past its current 12.2 viewports, and "too long to scroll" was the
+       client's original complaint (deliberate reduction per plan risk 2). */
+    .section-y { padding-top: 64px; padding-bottom: 64px; }
+    @media (min-width: 1024px) {
+      .section-y { padding-top: 96px; padding-bottom: 96px; }
+    }
     .demo-badge { background: repeating-linear-gradient(45deg,rgb(var(--c-teal-600)),rgb(var(--c-teal-600)) 10px,rgb(var(--c-teal-700)) 10px,rgb(var(--c-teal-700)) 20px); }
     /* Visible focus rings for keyboard navigation */
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
@@ -383,7 +397,7 @@
   </section>
 
   <!-- Intent-based entry -->
-  <section id="intents" class="max-w-6xl mx-auto px-4 py-8">
+  <section id="intents" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-h2 font-extrabold text-slate-800">What do you need today?</h2>
       <p class="mt-2 text-slate-500">Pick a quick route — we'll take you straight there.</p>
@@ -405,8 +419,8 @@
   </section>
 
   <!-- Before-you-visit hub (G1) -->
-  <section id="beforeYouVisit" class="bg-white border-y border-slate-200" data-tabs-root>
-    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="beforeYouVisit" class="bg-white border-y border-slate-200 section-y" data-tabs-root>
+    <div class="max-w-6xl mx-auto px-4">
       <div class="text-center max-w-2xl mx-auto">
         <h2 class="text-h2 font-extrabold text-slate-800">Before you visit</h2>
         <p class="mt-2 text-slate-500">Reserve your spot, check costs, and plan your visit.</p>
@@ -496,7 +510,7 @@
 
   <!-- Location — its own block (T1: no longer filed under visit-prep tabs).
        All #location deep links (nav, jump pill, campaigns) land here directly. -->
-  <section id="location" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="location" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-h2 font-extrabold text-slate-800">Find us</h2>
       <p class="mt-2 text-slate-500">Directions, parking and contact.</p>
@@ -525,7 +539,7 @@
   </section>
 
   <!-- Wait times widget -->
-  <section id="wait" class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+  <section id="wait" class="max-w-6xl mx-auto px-4 section-y">
     <div class="bg-gradient-to-br from-slate-800 to-teal-900 text-white rounded-2xl p-4 sm:p-5">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -547,7 +561,7 @@
   </section>
 
   <!-- Services -->
-  <section id="services" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="services" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-h2 font-extrabold text-slate-800">Our Services</h2>
       <p class="mt-3 text-slate-500">Purpose-built emergency care for non-life-threatening injuries and illness.</p>
@@ -560,7 +574,7 @@
        Contact section below (T1). -->
 
   <!-- Contact (T1: out of Patient hub). -->
-  <section id="enquiries" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="enquiries" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-h2 font-extrabold text-slate-800">Contact us</h2>
       <p class="mt-2 text-slate-500">Send us a message.</p>
@@ -581,7 +595,7 @@
   </section>
 
   <!-- Promotions -->
-  <section id="promotions" class="max-w-6xl mx-auto px-4 py-6" aria-labelledby="promotionsHeading">
+  <section id="promotions" class="max-w-6xl mx-auto px-4 section-y" aria-labelledby="promotionsHeading">
     <h2 id="promotionsHeading" class="text-h2 font-extrabold text-slate-800 mb-5">Current offers</h2>
     <div id="promoGrid" class="scroll-row"></div>
   </section>
@@ -594,8 +608,8 @@
        bottom all the way through #faq. Was previously above #faq. -->
 
   <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
-  <section id="faq" class="bg-white border-t border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="faq" class="bg-white border-t border-slate-200 section-y">
+    <div class="max-w-6xl mx-auto px-4">
       <div class="text-left max-w-2xl">
         <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
         <h2 class="mt-2 text-h2 font-extrabold text-slate-800">Common questions</h2>
@@ -607,7 +621,7 @@
 
   <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2/N3
        Moved from mid-page to just above FAQ for a calmer pre-footer beat. -->
-  <section id="doctors" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <section id="doctors" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-left max-w-2xl">
       <h2 class="text-h2 font-extrabold text-slate-800">Our Doctors</h2>
       <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
