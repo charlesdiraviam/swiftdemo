@@ -157,7 +157,6 @@ window.SWIFT_DATA = {
     { q: /book|appointment|appt/i, a: "For planned therapies like iron infusions, tap 'Book Now'. For minor emergencies, just walk in!" },
     { q: /where|location|address|direction/i, a: "We're at G38, 32 Civic Way, Rouse Hill NSW 2155. Tap 'Directions' for Google Maps." },
     { q: /treat|service|offer|child|kid|paediatric/i, a: "We treat sports injuries, fractures, paediatrics (>3mo), infusions, radiology and physiotherapy." },
-    { q: /triage|should i come|what.*wrong/i, a: "Try our 'Can we treat this?' checker above — 3 quick questions will tell you whether to walk in, book, or call 000." },
     { q: /results|test|x-?ray|scan/i, a: "Demo test results are in the Check-in section's 'Test results' tab — sign in with demo/demo." },
     { q: /queue|wait list|reserve/i, a: "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait." },
   ],
@@ -207,7 +206,6 @@ window.SWIFT_DATA = {
       intentsOrder: ["now", "imaging", "infusion"],
       bookingService: "Sports Injury",
       checkinService: "Sports Injury",
-      triagePreset: { answer: "category", option: "Injury (sprain, fracture, wound)" },
       hideSections: [],
     },
     infusion: {
@@ -234,7 +232,7 @@ window.SWIFT_DATA = {
       headlineHTML: 'Sick child? <span class="text-teal-200">In-house paediatricians.</span>',
       subtext: "Calm, child-friendly care by paediatric-trained Emergency Physicians. No long ED waits.",
       primaryCta: { label: "Book / Walk in", action: "openBooking", service: "Paediatrics" },
-      secondaryCta: { label: "What we treat", href: "#triage" },
+      secondaryCta: { label: "What we treat", href: "#services" },
       highlightService: "Paediatrics",
       ribbonText: "You're viewing our Paediatric info",
       stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" },
@@ -242,10 +240,9 @@ window.SWIFT_DATA = {
       intentsOrder: ["now", "imaging", "infusion"],
       bookingService: "Paediatrics",
       checkinService: "Paediatrics",
-      triagePreset: { answer: "age", option: "Yes" },
       hideSections: [],
     },
-    paeds: { id: "paeds", name: "Kids / Paediatrics", eyebrow: "Ages 3 months +", headlineHTML: 'Sick child? <span class="text-teal-200">In-house paediatricians.</span>', subtext: "Calm, child-friendly care by paediatric-trained Emergency Physicians.", primaryCta: { label: "Book / Walk in", action: "openBooking", service: "Paediatrics" }, secondaryCta: { label: "What we treat", href: "#triage" }, highlightService: "Paediatrics", ribbonText: "You're viewing our Paediatric info", stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" }, services: ["Paediatrics", "Fracture Clinic", "Sports Injury", "Infusion Clinic", "Interventional Radiology", "Physiotherapy"], intentsOrder: ["now", "imaging", "infusion"], bookingService: "Paediatrics", hideSections: [] },
+    paeds: { id: "paeds", name: "Kids / Paediatrics", eyebrow: "Ages 3 months +", headlineHTML: 'Sick child? <span class="text-teal-200">In-house paediatricians.</span>', subtext: "Calm, child-friendly care by paediatric-trained Emergency Physicians.", primaryCta: { label: "Book / Walk in", action: "openBooking", service: "Paediatrics" }, secondaryCta: { label: "What we treat", href: "#services" }, highlightService: "Paediatrics", ribbonText: "You're viewing our Paediatric info", stickyCta: { label: "Walk in / Book", action: "openBooking", service: "Paediatrics" }, services: ["Paediatrics", "Fracture Clinic", "Sports Injury", "Infusion Clinic", "Interventional Radiology", "Physiotherapy"], intentsOrder: ["now", "imaging", "infusion"], bookingService: "Paediatrics", hideSections: [] },
   },
   campaignPreviewOrder: ["default", "flu", "sports", "infusion", "kids"],
 
@@ -291,41 +288,6 @@ window.SWIFT_DATA = {
     { icon: "scan", title: "Any prior imaging or results", body: "Helps the doctor compare and avoid repeats." },
     { icon: "wallet", title: "Payment method", body: "EFTPOS, credit card or cash for the facility fee." },
   ],
-
-  // Tier 1 — triage questions and outcomes
-  triageQuestions: [
-    {
-      id: "age",
-      text: "Is the patient over 3 months old?",
-      options: [
-        { label: "Yes", next: "severity" },
-        { label: "No", outcome: "tooyoung" },
-      ],
-    },
-    {
-      id: "severity",
-      text: "Is this life-threatening (chest pain, severe bleeding, stroke symptoms, trouble breathing)?",
-      options: [
-        { label: "Yes", outcome: "call000" },
-        { label: "No", next: "category" },
-      ],
-    },
-    {
-      id: "category",
-      text: "Which best describes the visit?",
-      options: [
-        { label: "Injury (sprain, fracture, wound)", outcome: "walkin" },
-        { label: "Illness (fever, infection, pain)", outcome: "walkin" },
-        { label: "Planned therapy (infusion, follow-up)", outcome: "book" },
-      ],
-    },
-  ],
-  triageOutcomes: {
-    walkin: { icon: "ambulance", title: "Walk in now", body: "Average wait ~12 min. Bring ID and Medicare card. No appointment needed.", cta: { label: "Get directions", href: "#location" } },
-    book: { icon: "clipboard", title: "Book an appointment", body: "Use Book Now for the fastest slot. Referrals welcome.", cta: { label: "Book now", action: "openBooking" } },
-    call000: { icon: "phone", title: "Call 000 now", body: "This sounds like an emergency. Don't wait — call 000 or go to your nearest ED.", cta: { label: "Get directions to nearest ED", href: "#location" } },
-    tooyoung: { icon: "baby", title: "We can't treat under 3 months", body: "Our clinic sees children from 3 months and older. For a baby under 3 months, please see your GP or a paediatric ED if urgent.", cta: { label: "Find a paediatric ED", href: "https://www.google.com/search?q=paediatric+emergency+department+near+me", external: true } },
-  },
 
   // Tier 1 — pricing scenarios
   pricingScenarios: {
@@ -380,8 +342,6 @@ window.SWIFT_DATA = {
     { id: "location", patterns: [/where|location|address|direction|parking|find/i],
       answer: function (D) { return D.clinic.address + ". Free parking on-site."; },
       cta: { label: "Open in Google Maps", action: "getDirections" } },
-    { id: "triage", patterns: [/triage|should i come|what.*wrong|symptoms/i],
-      answer: function () { return "Try 'Can we treat this?' in the Before-you-visit hub — three questions and we'll tell you walk in, book, or call 000."; } },
     { id: "queue", patterns: [/queue|wait list|reserve|online check/i],
       answer: function () { return "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait."; } },
   ],
@@ -398,7 +358,7 @@ window.SWIFT_DATA = {
     { q: "Where are you located?", a: "G38, 32 Civic Way, Rouse Hill NSW 2155. Free parking on-site. Tap 'Open in Google Maps' for directions." },
     { q: "Do you do X-rays and imaging?", a: "Yes — on-site X-ray and ultrasound. Interventional radiology and image-guided pain management available." },
     { q: "Can I get my test results online?", a: "Yes — the 'Test results' tab under Check-in. Sign in with demo / demo for the demo." },
-    { q: "What if it's a life-threatening emergency?", a: "Call 000 immediately or go to your nearest hospital ED. Our triage checker is for non-life-threatening concerns only." },
+    { q: "What if it's a life-threatening emergency?", a: "Call 000 immediately or go to your nearest hospital ED." },
   ],
 
   // Tier 2 — accessibility translations (small key-value map; falls back to English)
@@ -417,7 +377,6 @@ window.SWIFT_DATA = {
       openDaily: "Open daily",
       getDirections: "Get Directions",
       sendEnquiry: "Send Enquiry",
-      startTriage: "Start triage",
       calculateEstimate: "Calculate estimate",
       ourServices: "Our Services",
       ourDoctors: "Our Doctors",
@@ -440,7 +399,6 @@ window.SWIFT_DATA = {
       openDaily: "Abierto todos los días",
       getDirections: "Cómo llegar",
       sendEnquiry: "Enviar consulta",
-      startTriage: "Iniciar triaje",
       calculateEstimate: "Calcular estimación",
       ourServices: "Nuestros servicios",
       ourDoctors: "Nuestros doctores",
@@ -463,7 +421,6 @@ window.SWIFT_DATA = {
       openDaily: "每日开放",
       getDirections: "获取路线",
       sendEnquiry: "发送咨询",
-      startTriage: "开始分诊",
       calculateEstimate: "费用估算",
       ourServices: "我们的服务",
       ourDoctors: "我们的医生",

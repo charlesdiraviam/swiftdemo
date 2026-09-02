@@ -314,9 +314,6 @@
       <a href="#checkinForm" class="inline-flex items-center gap-2 bg-white hover:bg-teal-100 text-teal-800 font-semibold text-sm px-4 py-2 rounded-xl border border-teal-200">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Reserve my spot
       </a>
-      <a href="#triage" class="inline-flex items-center gap-2 bg-white hover:bg-teal-100 text-teal-800 font-semibold text-sm px-4 py-2 rounded-xl border border-teal-200">
-        <svg width="16" height="16" aria-hidden="true"><use href="#i-clock"/></svg>Can we treat this?
-      </a>
       <button onclick="openBooking()" class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-clipboard"/></svg>Book online
       </button>
@@ -331,26 +328,16 @@
         <p class="mt-2 text-slate-500">Everything you need to plan your visit — pick a tab.</p>
       </div>
       <!-- Tab strip (T1: Location moved out to its own section — this hub is
-           strictly visit-prep: Triage · Pricing · What to expect · Practical info) -->
+           strictly visit-prep: Pricing · What to expect · Practical info) -->
       <div role="tablist" aria-label="Before you visit" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button id="tab-triage" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="triagePanel" aria-controls="triage" aria-selected="true">Triage</button>
-        <button id="tab-pricing" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="pricingPanel" aria-controls="pricing" aria-selected="false" tabindex="-1">Pricing</button>
+        <button id="tab-pricing" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="pricingPanel" aria-controls="pricing" aria-selected="true">Pricing</button>
         <button id="tab-journey" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="journeyPanel" aria-controls="journey" aria-selected="false" tabindex="-1">What to expect</button>
         <button id="tab-amenities" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="amenitiesPanel" aria-controls="amenities" aria-selected="false" tabindex="-1">Practical info</button>
       </div>
 
-      <!-- Panels — id on the visible ones keeps #triage / #pricing / #journey / #amenities deep links working. -->
+      <!-- Panels — id on the visible ones keeps #pricing / #journey / #amenities deep links working. -->
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
-        <div data-panel="triagePanel" id="triage" role="tabpanel" aria-labelledby="tab-triage">
-          <h3 class="text-lg font-extrabold text-slate-800">Can we treat this?</h3>
-          <p class="mt-1 text-sm text-slate-500">Answer 3 quick questions and we'll guide you.</p>
-          <div id="triageIntro" class="mt-5 bg-teal-50 border border-teal-200 rounded-2xl p-5 text-center">
-            <p class="text-slate-700">We'll ask 3 short questions about the patient's age, severity and what they need help with.</p>
-            <button onclick="SWIFT.triage.start()" class="mt-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Start triage</button>
-          </div>
-          <div id="triageQuestions" class="mt-5"></div>
-        </div>
-        <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
+        <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing">
           <h3 class="text-lg font-extrabold text-slate-800">Pricing &amp; cost estimator</h3>
           <p class="mt-1 text-sm text-slate-500">Quick estimate — exact costs depend on your treatment.</p>
           <form id="pricingForm" onsubmit="submitPricing(event)" class="mt-5 grid sm:grid-cols-2 gap-4 bg-white border border-slate-200 rounded-xl p-5">
@@ -406,8 +393,7 @@
   </section>
 
   <!-- Location — its own block (T1: no longer filed under visit-prep tabs).
-       All #location deep links (nav, jump pill, triage outcomes, campaigns)
-       land here directly. -->
+       All #location deep links (nav, jump pill, campaigns) land here directly. -->
   <section id="location" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Find us</h2>
@@ -631,9 +617,6 @@
        via .pill-extra, and the header menu covers them below that. -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
     <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
-      <a href="#triage" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
-      </a>
       <a href="#pricing" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
       </a>

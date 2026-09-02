@@ -27,7 +27,6 @@
     ui: {},
     forms: {},
     campaign: {},
-    triage: {},
     a11y: {},
     ai: {},
     state: { queueNumber: D.queuePosition.currentInQueue, lastCampaignId: null, lang: "en", _baseline: null },
@@ -257,7 +256,7 @@
   };
 
   // ---------- Tab controller for the "Before you visit" hub ----------
-  // A tab is identified by a panel id (e.g. "triagePanel"). Buttons sharing
+  // A tab is identified by a panel id (e.g. "pricingPanel"). Buttons sharing
   // data-tab="<id>" toggle their parent .tab-button group's active state and
   // reveal the matching [data-panel="<id>"] while hiding the others.
   SWIFT.ui.openTab = function (panelId) {
@@ -314,7 +313,7 @@
         : (pn === target);
       p.classList.toggle("hidden", !isActive);
     });
-    // Sync deep-link anchor id onto the active panel so #triage/#pricing/etc still resolve.
+    // Sync deep-link anchor id onto the active panel so #pricing/etc still resolve.
     const active = panels.find((p) => {
       const pn = p.getAttribute("data-panel") || "";
       return inputHasPanelSuffix ? pn === rawId : (pn === rawId || pn === target);
@@ -430,34 +429,6 @@
       </div>`;
   }
 
-  function triageQuestionTemplate(q, idx, total) {
-    const options = q.options.map((o, i) => `
-      <button data-qid="${escapeHTML(q.id)}" data-oi="${i}" class="triage-option w-full text-left bg-white hover:bg-teal-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700">${escapeHTML(o.label)}</button>
-    `).join("");
-    return `
-      <div class="triage-card hidden bg-teal-50 border border-teal-200 rounded-2xl p-6" data-triage-q="${escapeHTML(q.id)}">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs uppercase tracking-wider text-teal-700 font-semibold">Question ${idx + 1} of ${total}</span>
-          <button onclick="SWIFT.triage.reset()" class="text-xs text-teal-700 underline">Start over</button>
-        </div>
-        <p class="text-lg font-extrabold text-slate-800">${escapeHTML(q.text)}</p>
-        <div class="mt-4 space-y-2">${options}</div>
-      </div>`;
-  }
-
-  function triageOutcomeTemplate(o, key) {
-    const onclick = `SWIFT.ui.runAction(${JSON.stringify(o.cta || {}).replace(/"/g, "&quot;")})`;
-    const iconName = o.icon || "check";
-    return `
-      <div class="triage-card hidden bg-white border-2 border-teal-300 rounded-2xl p-6 text-center" data-triage-outcome="${escapeHTML(key)}">
-        <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(iconName, 28)}</div>
-        <h3 class="mt-3 text-2xl font-extrabold text-slate-800">${escapeHTML(o.title)}</h3>
-        <p class="mt-2 text-slate-600">${escapeHTML(o.body)}</p>
-        <button onclick='${onclick}' class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">${escapeHTML(o.cta.label)}</button>
-        <div class="mt-3"><button onclick="SWIFT.triage.reset()" class="text-teal-700 underline text-sm">Start over</button></div>
-      </div>`;
-  }
-
   // ---------- Section renderers ----------
 
   SWIFT.render.renderServices = function (highlightName) {
@@ -518,24 +489,6 @@
     sel.innerHTML = `<option value="">— Choose service —</option>` +
       D.services.map((s) => `<option value="${escapeHTML(s.name)}" ${prefill === s.name ? "selected" : ""}>${escapeHTML(s.name)}</option>`).join("") +
       `<option value="General enquiry">General enquiry</option>`;
-  };
-
-  SWIFT.render.renderTriageCards = function () {
-    const container = $("triageQuestions");
-    if (!container) return;
-    const total = D.triageQuestions.length;
-    const qCards = D.triageQuestions.map((q, i) => triageQuestionTemplate(q, i, total)).join("");
-    const outcomeKeys = Object.keys(D.triageOutcomes);
-    const outcomeCards = outcomeKeys.map((k) => triageOutcomeTemplate(D.triageOutcomes[k], k)).join("");
-    container.innerHTML = qCards + outcomeCards;
-    // Attach delegated click for options
-    container.addEventListener("click", function (e) {
-      const opt = e.target.closest(".triage-option");
-      if (!opt) return;
-      const qid = opt.getAttribute("data-qid");
-      const oi = parseInt(opt.getAttribute("data-oi"), 10);
-      SWIFT.triage.answer(qid, oi);
-    });
   };
 
   // ---------- UI handlers (called by inline onclick) ----------
@@ -818,43 +771,6 @@
       <p class="mt-4 text-xs text-slate-400">Sample data only — real portal would link to your records.</p>`;
   };
 
-  // ---------- Triage ----------
-
-  SWIFT.triage.start = function () {
-    $("triageIntro").classList.add("hidden");
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    SWIFT.triage._showQuestion(D.triageQuestions[0].id);
-  };
-
-  SWIFT.triage.reset = function () {
-    $("triageIntro").classList.remove("hidden");
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-  };
-
-  SWIFT.triage.answer = function (qid, optionIndex) {
-    const q = D.triageQuestions.find((x) => x.id === qid);
-    if (!q) return;
-    const opt = q.options[optionIndex];
-    if (!opt) return;
-    if (opt.outcome) {
-      SWIFT.triage._showOutcome(opt.outcome);
-    } else if (opt.next) {
-      SWIFT.triage._showQuestion(opt.next);
-    }
-  };
-
-  SWIFT.triage._showQuestion = function (qid) {
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    const card = document.querySelector(`[data-triage-q="${qid}"]`);
-    if (card) card.classList.remove("hidden");
-  };
-
-  SWIFT.triage._showOutcome = function (key) {
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    const card = document.querySelector(`[data-triage-outcome="${key}"]`);
-    if (card) card.classList.remove("hidden");
-  };
-
   // ---------- Campaign ----------
 
   SWIFT.campaign.readFromURL = function () {
@@ -935,27 +851,6 @@
         }
       }
     }
-  };
-
-  SWIFT.campaign._applyTriagePreset = function (preset) {
-    if (!preset || !preset.answer || !preset.option) return;
-    // Defer to next tick so DOM (question cards) is ready.
-    setTimeout(function () {
-      try {
-        if (typeof SWIFT.triage !== "object" || !SWIFT.triage) return;
-        if (typeof SWIFT.triage.start === "function") SWIFT.triage.start();
-        // Find the question card by data-triage-q="<answer>" and click the option button.
-        const q = document.querySelector('[data-triage-q="' + preset.answer + '"]');
-        if (!q) return;
-        const btns = q.querySelectorAll('button');
-        for (let i = 0; i < btns.length; i++) {
-          if ((btns[i].textContent || "").trim() === preset.option) {
-            btns[i].click();
-            break;
-          }
-        }
-      } catch (e) { /* no-op */ }
-    }, 0);
   };
 
   SWIFT.campaign._applyPricingPreset = function (preset) {
@@ -1050,7 +945,6 @@
     SWIFT.campaign._applySections(c.hideSections);
     if (c.bookingService) SWIFT.campaign._applyBookingPrefill(c.bookingService);
     if (c.checkinService) SWIFT.campaign._applyBookingPrefill(c.checkinService);
-    SWIFT.campaign._applyTriagePreset(c.triagePreset);
     SWIFT.campaign._applyPricingPreset(c.pricingPreset);
 
     // Phase I4: stamp badges on the matching service + promo cards (one-shot DOM pass).
@@ -1359,7 +1253,7 @@
 
   // ---- Phase K3 — jump-bar scroll-spy -----------------------------
   // Map `data-jump-target` values to either a section id or a tab-panel id.
-  // For tab-panel targets (triage, pricing) we watch the parent `[data-tabs-root]`.
+  // For tab-panel targets (pricing) we watch the parent `[data-tabs-root]`.
   // For section ids we watch the section directly.
   SWIFT.ui.initJumpSpy = function () {
     const pills = document.querySelectorAll('[data-jump-target]');
@@ -1370,7 +1264,6 @@
       // observed directly; only the active (non-hidden) panel intersects, so pills
       // in the same hub don't light up together.
       const map = {
-        triage: 'triage',
         pricing: 'pricing',
         journey: 'journey',
         amenities: 'amenities',
@@ -1495,7 +1388,6 @@
     SWIFT.render.renderAmenities();
     SWIFT.render.renderJourney();
     SWIFT.render.populateQueueServiceSelect();
-    SWIFT.render.renderTriageCards();
     // Services rendered again by campaign.apply() to support highlight; render default first so highlight can be added
     SWIFT.render.renderServices(null);
 
@@ -1542,7 +1434,7 @@
         SWIFT.ui.openTab(target.getAttribute("data-tab"));
       }
     });
-    // Default-open the first tab so deep-link #triage/#pricing/#journey/#amenities
+    // Default-open the first tab so deep-link #pricing/#journey/#amenities
     // still scroll-resolve to the right pane.
     const firstTab = document.querySelector(".tab-button");
     if (firstTab) SWIFT.ui.openTab(firstTab.getAttribute("data-tab"));
