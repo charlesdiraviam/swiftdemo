@@ -177,10 +177,19 @@
       #stickyCta { bottom: calc(var(--action-bar-h, 54px) + 154px); }
       #chatPanel { bottom: calc(var(--action-bar-h, 54px) + 210px); }
       #toast { bottom: calc(var(--action-bar-h, 54px) + 210px); }
-      /* N10: the full pill list doesn't fit a 375px rail — keep the four core
-         destinations (Check-in · Pricing · Location · Wait) on phones;
-         the full list returns from md up. */
+    }
+    /* The eleven pills need ~1085px. Below xl there isn't room, and a rail the
+       user has to scroll sideways isn't a shortcut — so keep only the four core
+       destinations (Check-in · Pricing · Location · Wait) until the full set
+       genuinely fits. The header nav carries the rest at those widths. */
+    @media (max-width: 1279px) {
       #jumpBar .jump-pill.pill-extra { display: none; }
+    }
+    /* Even four pills need ~392px, so tighten padding on the narrowest phones
+       rather than letting the rail scroll. Touch height is unaffected. */
+    @media (max-width: 400px) {
+      #jumpBar .jump-pill { padding-left: 0.5rem; padding-right: 0.5rem; gap: 0.2rem; }
+      #jumpBar > div { gap: 0.25rem; padding-left: 0.25rem; padding-right: 0.25rem; }
     }
     /* Sticky header offset for all anchored sections and tab panels */
     section[id], [id][role="tabpanel"] { scroll-margin-top: 80px; }
@@ -444,18 +453,20 @@
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
         <div data-panel="checkinPanel" id="checkinForm" role="tabpanel" aria-labelledby="tab-checkin">
           <div class="max-w-3xl mx-auto">
-            <!-- Single source of truth for the check-in form: SWIFT.init and
-                 SWIFT.forms.cancelQueue both clone this template, so a restyle
-                 can't regress on cancel. -->
-            <template id="tplCheckinForm">
+            <!-- Single source of truth for the check-in form. It ships as STATIC
+                 markup so it renders before app.js runs, survives a JS error, and
+                 is visible to crawlers — a <template> here left the default tab a
+                 blank box until init cloned it. SWIFT.init snapshots this
+                 innerHTML and SWIFT.forms.cancelQueue restores from that snapshot,
+                 so there is still exactly one copy of the markup. -->
+            <div id="checkinFormInner">
               <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
                 <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
                 <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
                 <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Add me to the queue</button>
               </form>
               <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
-            </template>
-            <div id="checkinFormInner"></div>
+            </div>
           </div>
         </div>
         <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
@@ -596,6 +607,55 @@
           <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Send Enquiry</button>
         </form>
       </div>
+      <!-- Why-choose-SWIFT aside. Lives here rather than beside Doctors: it fills
+           the column left empty when the referral card was removed, and reads as
+           reassurance right where someone is deciding to make contact. Desktop
+           only: on mobile it has no column to fill and would add ~350px to a page
+           whose length is already the client's standing complaint. -->
+      <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl overflow-hidden flex-col">
+        <div class="relative h-32 bg-gradient-to-br from-teal-600 to-teal-800">
+          <!-- Inline SVG illustration (no external CDN / no licence risk) — clinician at the bedside. -->
+          <svg viewBox="0 0 320 128" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="wcBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" style="stop-color:rgb(var(--c-wc-grad-a))"/>
+                <stop offset="100%" style="stop-color:rgb(var(--c-wc-grad-b))"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="128" fill="url(#wcBg)"/>
+            <!-- clinician silhouette + stethoscope (simple line illustration, teal-50 stroke) -->
+            <g fill="none" stroke="#ccfbf1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <!-- head -->
+              <circle cx="180" cy="42" r="13"/>
+              <!-- torso / shoulders -->
+              <path d="M160 70 C160 58, 200 58, 200 70 L210 110 L150 110 Z"/>
+              <!-- stethoscope -->
+              <path d="M170 70 C168 80, 168 88, 176 92"/>
+              <circle cx="176" cy="93" r="2.4"/>
+              <!-- clipboard -->
+              <rect x="118" y="76" width="22" height="30" rx="2"/>
+              <line x1="122" y1="84" x2="136" y2="84"/>
+              <line x1="122" y1="90" x2="136" y2="90"/>
+              <line x1="122" y1="96" x2="132" y2="96"/>
+            </g>
+            <!-- subtle medical-cross watermark -->
+            <g fill="#ffffff" fill-opacity="0.10">
+              <rect x="262" y="36" width="14" height="44" rx="2"/>
+              <rect x="252" y="46" width="34" height="24" rx="2"/>
+            </g>
+          </svg>
+          <!-- Scrim so the label stays legible over the illustration's light strokes. -->
+          <div class="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true"></div>
+          <div class="absolute bottom-2 left-3 text-xs font-semibold uppercase tracking-wider text-white">Why choose SWIFT</div>
+        </div>
+        <ul id="whyChooseList" class="p-6 space-y-3 text-sm text-slate-700 flex-1">
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>On-site X-ray, ultrasound and pathology.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Open 10am–10pm, every day of the year.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Transparent facility fee &amp; Medicare rebate.</span></li>
+          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Paediatric-trained for ages 3 months +.</span></li>
+        </ul>
+      </aside>
     </div>
   </section>
 
@@ -631,54 +691,11 @@
       <h2 class="text-h2 font-extrabold text-slate-800">Our Doctors</h2>
       <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
     </div>
-    <div class="mt-6 grid lg:grid-cols-[1fr,320px] gap-6 items-stretch">
-      <!-- C8: doctors column now ~2.5× the aside — two-up cards on lg instead
-           of three narrow ones beside one wide aside. Stacks 1→2→2 across breakpoints. -->
-      <div id="doctorsGrid" class="grid sm:grid-cols-2 gap-4"></div>
-      <!-- Why-choose-SWIFT aside (N3) — stock imagery + qualitative differentiators.
-           No duplicate numeric trust stats. -->
-      <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl overflow-hidden flex-col">
-        <div class="relative h-32 bg-gradient-to-br from-teal-600 to-teal-800">
-          <!-- Inline SVG illustration (no external CDN / no licence risk) — clinician at the bedside. -->
-          <svg viewBox="0 0 320 128" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <defs>
-              <linearGradient id="wcBg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" style="stop-color:rgb(var(--c-wc-grad-a))"/>
-                <stop offset="100%" style="stop-color:rgb(var(--c-wc-grad-b))"/>
-              </linearGradient>
-            </defs>
-            <rect width="320" height="128" fill="url(#wcBg)"/>
-            <!-- clinician silhouette + stethoscope (simple line illustration, teal-50 stroke) -->
-            <g fill="none" stroke="#ccfbf1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <!-- head -->
-              <circle cx="180" cy="42" r="13"/>
-              <!-- torso / shoulders -->
-              <path d="M160 70 C160 58, 200 58, 200 70 L210 110 L150 110 Z"/>
-              <!-- stethoscope -->
-              <path d="M170 70 C168 80, 168 88, 176 92"/>
-              <circle cx="176" cy="93" r="2.4"/>
-              <!-- clipboard -->
-              <rect x="118" y="76" width="22" height="30" rx="2"/>
-              <line x1="122" y1="84" x2="136" y2="84"/>
-              <line x1="122" y1="90" x2="136" y2="90"/>
-              <line x1="122" y1="96" x2="132" y2="96"/>
-            </g>
-            <!-- subtle medical-cross watermark -->
-            <g fill="#ffffff" fill-opacity="0.10">
-              <rect x="262" y="36" width="14" height="44" rx="2"/>
-              <rect x="252" y="46" width="34" height="24" rx="2"/>
-            </g>
-          </svg>
-          <div class="absolute bottom-2 left-3 text-xs font-semibold uppercase tracking-wider text-teal-50/90">Why choose SWIFT</div>
-        </div>
-        <ul id="whyChooseList" class="p-6 space-y-3 text-sm text-slate-700 flex-1">
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>On-site X-ray, ultrasound and pathology.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Open 10am–10pm, every day of the year.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Transparent facility fee &amp; Medicare rebate.</span></li>
-          <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Paediatric-trained for ages 3 months +.</span></li>
-        </ul>
-      </aside>
+    <!-- The Why-choose-SWIFT aside moved to the Contact section, where it fills
+         a column that was left empty when the referral card was removed. Doctors
+         now runs full width: 1 → 2 → 3 up. -->
+    <div class="mt-6">
+      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
   </section>
 
@@ -687,7 +704,11 @@
        Services, Contact, Promos, FAQ and Doctors return from md up
        via .pill-extra, and the header menu covers them below that. -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
-    <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
+    <!-- w-max makes the rail shrink-wrap to its pills so mx-auto centres it and
+         there is never dead space or a scroll stub; max-w-full keeps it inside
+         the viewport, with overflow-x-auto as a last-resort safety net (e.g.
+         large-text mode). -->
+    <div class="w-max max-w-full mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
       <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>

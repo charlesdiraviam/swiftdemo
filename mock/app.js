@@ -647,11 +647,12 @@
   SWIFT.forms.cancelQueue = function () {
     SWIFT.state.queueNumber = Math.max(D.queuePosition.currentInQueue, SWIFT.state.queueNumber - 1);
     SWIFT.ui.toast("Your place was cancelled.");
-    // Restore the form inside the panel's inner slot, from the shared template
-    // (same source SWIFT.init uses — one markup, no drift).
+    // Restore the form from the snapshot SWIFT.init took of the static markup
+    // (same source, so there is no second copy to drift).
     const container = $("checkinFormInner") || $("checkinForm");
-    const tpl = $("tplCheckinForm");
-    if (container && tpl) container.innerHTML = tpl.innerHTML;
+    if (container && SWIFT.state._checkinFormHTML) {
+      container.innerHTML = SWIFT.state._checkinFormHTML;
+    }
     SWIFT.render.populateQueueServiceSelect();
   };
 
@@ -1239,11 +1240,11 @@
       document.fonts.ready.then(measureChrome);
     }
 
-    // Check-in form: clone the shared template into the panel's inner slot
-    // (SWIFT.forms.cancelQueue reuses the same template).
+    // Check-in form ships as static markup in index.html so it renders before
+    // this script runs. Snapshot it here so SWIFT.forms.cancelQueue can restore
+    // the pristine form after a queue ticket replaces it — one markup, no drift.
     const checkinSlot = $("checkinFormInner");
-    const checkinTpl = $("tplCheckinForm");
-    if (checkinSlot && checkinTpl) checkinSlot.innerHTML = checkinTpl.innerHTML;
+    if (checkinSlot) SWIFT.state._checkinFormHTML = checkinSlot.innerHTML;
 
     // Snapshot the original services/intents ordering so campaign re-orders can be undone.
     SWIFT.state._baseline = {
