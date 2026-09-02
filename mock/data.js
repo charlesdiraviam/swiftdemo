@@ -23,8 +23,8 @@ window.SWIFT_DATA = {
       summary:
         "Ankle, wrist, knee or back injuries managed by trained Emergency Physicians for a swift recovery.",
       treatments: ["Sprains & strains", "Joint injuries", "On-site imaging"],
-      image: "mock/img/service-sports-injury.webp",
-      imageAlt: "Therapist supporting a patient's ankle during rehabilitation",
+      image: "mock/img/service-sports-injury.jpg",
+      imageAlt: "Clinician assessing a patient's knee on a treatment table",
     },
     {
       icon: "bone",
@@ -33,8 +33,8 @@ window.SWIFT_DATA = {
       summary:
         "Fractures followed up with specialist Orthopaedic surgeons within 24 hours.",
       treatments: ["Casting & splinting", "Ortho referral < 24h", "Follow-up review"],
-      image: "mock/img/service-fracture-clinic.webp",
-      imageAlt: "Clinical X-ray films being reviewed on a light box",
+      image: "mock/img/service-fracture-clinic.jpg",
+      imageAlt: "Clinician applying a cast to a patient's lower leg",
     },
     {
       icon: "baby",
@@ -43,8 +43,8 @@ window.SWIFT_DATA = {
       summary:
         "In-house paediatricians for quick treatment when children fall sick or are injured (age > 3 months).",
       treatments: ["Child-friendly care", "Fever & infections", "Minor injuries"],
-      image: "mock/img/service-paediatrics.webp",
-      imageAlt: "Paediatrician examining a young child in a friendly clinic room",
+      image: "mock/img/service-paediatrics.jpg",
+      imageAlt: "Clinician listening to a young child's chest with a stethoscope",
     },
     {
       icon: "syringe",
@@ -63,8 +63,8 @@ window.SWIFT_DATA = {
       summary:
         "Back, shoulder or joint pain tended to quickly with seasoned radiologists on hand.",
       treatments: ["Image-guided care", "Pain management", "Rapid imaging"],
-      image: "mock/img/service-interventional-radiology.avif",
-      imageAlt: "Radiology scan monitor displaying medical imaging",
+      image: "mock/img/service-interventional-radiology.jpg",
+      imageAlt: "Clinician in scrubs operating an ultrasound console",
     },
     {
       icon: "activity",
@@ -73,8 +73,8 @@ window.SWIFT_DATA = {
       summary:
         "Highly trained physiotherapists for fast recovery and a quick return to daily activity.",
       treatments: ["Post-procedure rehab", "Movement recovery", "Injury prevention"],
-      image: "mock/img/service-physiotherapy.webp",
-      imageAlt: "Physiotherapist guiding a patient through recovery exercises",
+      image: "mock/img/service-physiotherapy.jpg",
+      imageAlt: "Patient working through a resistance exercise with a physiotherapist",
     },
   ],
 
@@ -85,8 +85,8 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "VM",
       bio: "Emergency Physician trained in acute care, leading SWIFT's clinical vision.",
-      image: "mock/img/doctor-1.webp",
-      imageAlt: "Representative photo of an emergency physician in scrubs",
+      image: "mock/img/doctor-1.jpg",
+      imageAlt: "Representative photo of an emergency physician in a white coat",
     },
     {
       name: "Dr Gopinath Betarayappa",
@@ -94,8 +94,8 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "GB",
       bio: "Emergency Physician focused on efficient, patient-centred urgent care.",
-      image: "mock/img/doctor-2.webp",
-      imageAlt: "Representative photo of an emergency physician consulting a patient",
+      image: "mock/img/doctor-2.jpg",
+      imageAlt: "Representative photo of an emergency physician in scrubs",
     },
     {
       name: "Dr Stephen Madden",
@@ -103,8 +103,8 @@ window.SWIFT_DATA = {
       specialty: "Acute Care",
       initials: "SM",
       bio: "Senior Emergency Doctor experienced in minor injuries and non-life-threatening illness.",
-      image: "mock/img/doctor-3.webp",
-      imageAlt: "Representative photo of a senior doctor reviewing notes",
+      image: "mock/img/doctor-3.jpg",
+      imageAlt: "Representative photo of an emergency physician with a stethoscope",
     },
   ],
 
@@ -125,24 +125,24 @@ window.SWIFT_DATA = {
       title: "Winter Flu & Fever Care",
       badge: "Seasonal",
       body: "Walk in for rapid assessment of flu-like symptoms — no appointment needed.",
-      image: "mock/img/promo-flu.webp",
-      imageAlt: "Thermometer and warm drink suggesting seasonal flu care",
+      image: "mock/img/promo-flu.jpg",
+      imageAlt: "Doctor consulting an adult patient about medication",
     },
     {
       id: "sports",
       title: "Sports Injury Saturday",
       badge: "Weekend",
       body: "Sprains, strains and fractures — walk in on Saturdays, no appointment needed.",
-      image: "mock/img/promo-sports.webp",
-      imageAlt: "Athlete with an ankle tape, on a sunny sports field",
+      image: "mock/img/promo-sports.jpg",
+      imageAlt: "Athlete with a support band walking off a sports field",
     },
     {
       id: "kids",
       title: "Kids' Cough & Cold Clinic",
       badge: "Paediatric",
       body: "Calm, child-friendly assessments for ages 3 months +. Walk in any day.",
-      image: "mock/img/promo-kids.webp",
-      imageAlt: "Smiling child being examined by a paediatrician",
+      image: "mock/img/promo-kids.jpg",
+      imageAlt: "Young child with a cooling fever patch resting on a parent",
     },
     // N4: removed the Iron Infusion Clinic promo — it duplicated the
     // "Infusion Clinic" service card (same image, same concept).
