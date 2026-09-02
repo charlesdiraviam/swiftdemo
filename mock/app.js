@@ -319,12 +319,22 @@
     const treatments = (s.treatments || []).map((t) => `<li class="text-sm text-slate-600 flex gap-2"><span class="text-teal-500 mt-0.5">${SWIFT.ui.icon("check", 16)}</span><span>${escapeHTML(t)}</span></li>`).join("");
     // Phase I4: AI picked badge — shown when the active campaign features this service.
     const aiBadge = `<span data-ai-badge="service" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
+    // Partner-delivered services (physio, infusion, both radiology lines) are marked
+    // so patients aren't left assuming SWIFT provides and bills them directly.
+    // Deliberately slate, not teal — it must read as a qualifier, not a promotion.
+    const partnerBadge = s.partner
+      ? `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-slate-200 align-middle ml-2">Partner provider</span>`
+      : "";
+    const partnerNote = s.partner
+      ? `<p class="mt-2 text-xs text-slate-500">Delivered at SWIFT by ${escapeHTML(s.partnerName || "a partner provider")}${s.partnerName ? "" : ""}.</p>`
+      : "";
     return `
       <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-lg">
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
-          <h3 class="text-h3 font-light text-slate-800">${escapeHTML(s.name)}</h3>
+          <h3 class="text-h3 font-light text-slate-800">${escapeHTML(s.name)}${partnerBadge}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
+          ${partnerNote}
           <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
           <ul class="mt-3 space-y-1.5">${treatments}</ul>
           <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow-btn">Book this service</button>
@@ -465,15 +475,17 @@
   SWIFT.render.populateQueueServiceSelect = function () {
     const sel = $("queueService");
     if (!sel) return;
+    // The option label carries the partner qualifier too — a patient picking a
+    // service from a bare dropdown otherwise has no way to know it isn't SWIFT's.
     sel.innerHTML = `<option value="">— Choose service —</option>` +
-      D.services.map((s) => `<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)}</option>`).join("");
+      D.services.map((s) => `<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)}${s.partner ? " (partner provider)" : ""}</option>`).join("");
   };
 
   SWIFT.render.populateBookingServiceSelect = function (prefill) {
     const sel = $("bookingService");
     if (!sel) return;
     sel.innerHTML = `<option value="">— Choose service —</option>` +
-      D.services.map((s) => `<option value="${escapeHTML(s.name)}" ${prefill === s.name ? "selected" : ""}>${escapeHTML(s.name)}</option>`).join("") +
+      D.services.map((s) => `<option value="${escapeHTML(s.name)}" ${prefill === s.name ? "selected" : ""}>${escapeHTML(s.name)}${s.partner ? " (partner provider)" : ""}</option>`).join("") +
       `<option value="General enquiry">General enquiry</option>`;
   };
 

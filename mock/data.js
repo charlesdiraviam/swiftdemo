@@ -19,7 +19,7 @@ window.SWIFT_DATA = {
     {
       icon: "stethoscope",
       name: "Sports Injury",
-      cost: "From $396 facility fee",
+      cost: "$396 facility fee + Medicare",
       summary:
         "Ankle, wrist, knee or back injuries managed by trained Emergency Physicians for a swift recovery.",
       treatments: ["Sprains & strains", "Joint injuries", "On-site imaging"],
@@ -29,7 +29,7 @@ window.SWIFT_DATA = {
     {
       icon: "bone",
       name: "Fracture Clinic",
-      cost: "From $396 facility fee",
+      cost: "$396 facility fee + Medicare",
       summary:
         "Fractures followed up with specialist Orthopaedic surgeons within 24 hours.",
       treatments: ["Casting & splinting", "Ortho referral < 24h", "Follow-up review"],
@@ -39,7 +39,7 @@ window.SWIFT_DATA = {
     {
       icon: "baby",
       name: "Paediatrics",
-      cost: "From $396 facility fee",
+      cost: "$396 facility fee + Medicare",
       summary:
         "In-house paediatricians for quick treatment when children fall sick or are injured (age > 3 months).",
       treatments: ["Child-friendly care", "Fever & infections", "Minor injuries"],
@@ -49,7 +49,8 @@ window.SWIFT_DATA = {
     {
       icon: "syringe",
       name: "Infusion Clinic",
-      cost: "From $396 facility fee",
+      cost: "Iron infusion $246 + Medicare",
+      partner: true,
       summary:
         "Iron infusions completed in under an hour instead of long ED waits. Book an appointment.",
       treatments: ["Iron infusion", "Planned therapy", "By appointment"],
@@ -58,8 +59,22 @@ window.SWIFT_DATA = {
     },
     {
       icon: "scan",
+      name: "Imaging & Radiology",
+      cost: "X-ray & CT bulk billed with Medicare",
+      partner: true,
+      partnerName: "Imaging Specialists",
+      summary:
+        "On-site X-ray, CT, ultrasound and MRI, open 9am\u201310pm every day.",
+      treatments: ["X-ray & CT bulk billed*", "Ultrasound & MRI", "Results to your doctor"],
+      image: "mock/img/service-imaging.jpg",
+      imageAlt: "X-ray image of a wrist and hand on a light box",
+    },
+    {
+      icon: "scan",
       name: "Interventional Radiology",
-      cost: "From $396 facility fee",
+      cost: "Fee on enquiry",
+      partner: true,
+      partnerName: "Imaging Specialists",
       summary:
         "Back, shoulder or joint pain tended to quickly with seasoned radiologists on hand.",
       treatments: ["Image-guided care", "Pain management", "Rapid imaging"],
@@ -69,7 +84,8 @@ window.SWIFT_DATA = {
     {
       icon: "activity",
       name: "Physiotherapy",
-      cost: "From $396 facility fee",
+      cost: "Fee on enquiry",
+      partner: true,
       summary:
         "Highly trained physiotherapists for fast recovery and a quick return to daily activity.",
       treatments: ["Post-procedure rehab", "Movement recovery", "Injury prevention"],
