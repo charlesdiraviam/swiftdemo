@@ -483,12 +483,11 @@
     </div>
   </section>
 
-  <!-- Contact (T1: out of Patient hub) + For health professionals (Referrals,
-       the GP-facing B2B form — now under its own heading). -->
+  <!-- Contact (T1: out of Patient hub). -->
   <section id="enquiries" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-center max-w-2xl mx-auto">
       <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Contact us</h2>
-      <p class="mt-2 text-slate-500">Send us a message — or refer a patient.</p>
+      <p class="mt-2 text-slate-500">Send us a message.</p>
     </div>
     <div class="mt-6 grid lg:grid-cols-2 gap-6 items-start">
       <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
@@ -500,17 +499,6 @@
           <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
           <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
           <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send Enquiry</button>
-        </form>
-      </div>
-      <div id="referrals" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 scroll-mt-20">
-        <h3 class="text-2xl font-extrabold text-slate-800">For health professionals</h3>
-        <p class="mt-2 text-slate-500 text-sm">GPs, specialists and WorkCover — refer a patient to SWIFT.</p>
-        <form onsubmit="submitReferral(event)" class="mt-5 space-y-3">
-          <input required placeholder="Your name" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-          <input required type="email" placeholder="Email" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-          <input required placeholder="Clinic / practice" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-          <textarea required placeholder="Referral details" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none"></textarea>
-          <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send referral</button>
         </form>
       </div>
     </div>
@@ -535,7 +523,7 @@
       <div class="text-left max-w-2xl">
         <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
         <h2 class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-800">Common questions</h2>
-        <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, location, and results. For anything urgent, call 000.</p>
+        <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, and location. For anything urgent, call 000.</p>
       </div>
       <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
     </div>

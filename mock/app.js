@@ -632,15 +632,6 @@
     SWIFT.ui.toast("Appointment requested!");
   };
 
-  SWIFT.forms.submitReferral = function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const payload = Array.from(form.elements).filter((el) => el.tagName !== "BUTTON").map((el) => el.value);
-    console.log("[SWIFT demo] referral:", payload);
-    SWIFT.ui.toast("Referral sent — we'll be in touch.");
-    form.reset();
-  };
-
   SWIFT.forms.submitQueue = function (e) {
     e.preventDefault();
     const form = e.target;
@@ -1299,7 +1290,6 @@
     window.sendChat = SWIFT.ui.sendChat;
     window.submitEnquiry = SWIFT.forms.submitEnquiry;
     window.submitBooking = SWIFT.forms.submitBooking;
-    window.submitReferral = SWIFT.forms.submitReferral;
     window.submitQueue = SWIFT.forms.submitQueue;
     window.submitPricing = SWIFT.forms.submitPricing;
 
