@@ -323,7 +323,7 @@
       <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
-          <h3 class="text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
+          <h3 class="text-h3 font-light text-slate-800">${escapeHTML(s.name)}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
           <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
           <ul class="mt-3 space-y-1.5">${treatments}</ul>
@@ -371,7 +371,7 @@
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}${aiBadge}</div>
         <div class="p-6">
           <div class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
-          <h3 class="mt-3 text-xl font-extrabold text-slate-800">${escapeHTML(p.title)}</h3>
+          <h3 class="mt-3 text-h3 font-light text-slate-800">${escapeHTML(p.title)}</h3>
           <p class="mt-2 text-slate-600">${escapeHTML(p.body)}</p>
         </div>
       </div>`;

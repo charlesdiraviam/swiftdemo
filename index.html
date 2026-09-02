@@ -63,6 +63,18 @@
             lg: '0 1px 49.3px rgba(0,0,0,.10)',
             btn: '0 12px 26px -18px rgba(0,0,0,.55)',
           },
+          // Heltro display sizes as NEW semantic tokens. text-2xl/text-3xl are
+          // deliberately untouched — they also serve numeric displays (hero
+          // stat cards, trust values, queue result, pricing out-of-pocket)
+          // where 45px heading tracking would be wrong.
+          fontSize: {
+            display: ['65px', { lineHeight: '1.15', letterSpacing: '-3.2px', fontWeight: '600' }],
+            h2: ['45px', { lineHeight: '1.2', letterSpacing: '-1.6px', fontWeight: '600' }],
+            h3: ['29px', { lineHeight: '1.35', letterSpacing: '-0.435px' }],
+            // Heltro body texture on the two workhorse text sizes.
+            sm: ['15px', { lineHeight: '1.85', letterSpacing: '-0.56px' }],
+            xs: ['13px', { lineHeight: '1.5' }],
+          },
         },
       },
     };
@@ -309,7 +321,7 @@
       <div class="grid md:grid-cols-2 gap-6 items-center">
         <div>
           <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-4">Emergency Physician led · Walk-in</span>
-          <h1 id="heroHeadline" class="text-4xl sm:text-5xl font-extrabold leading-tight">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
+          <h1 id="heroHeadline" class="text-display font-extrabold">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
           <p id="heroSubtext" class="mt-4 text-teal-50/90 text-lg max-w-md">
             Best-practice urgent care in a calm, modern environment. Minor emergencies — no appointment needed, just walk in.
           </p>
@@ -373,7 +385,7 @@
   <!-- Intent-based entry -->
   <section id="intents" class="max-w-6xl mx-auto px-4 py-8">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-2xl font-extrabold text-slate-800">What do you need today?</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">What do you need today?</h2>
       <p class="mt-2 text-slate-500">Pick a quick route — we'll take you straight there.</p>
     </div>
     <div id="intentsGrid" class="mt-6 grid sm:grid-cols-3 gap-4"></div>
@@ -396,7 +408,7 @@
   <section id="beforeYouVisit" class="bg-white border-y border-slate-200" data-tabs-root>
     <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
       <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Before you visit</h2>
+        <h2 class="text-h2 font-extrabold text-slate-800">Before you visit</h2>
         <p class="mt-2 text-slate-500">Reserve your spot, check costs, and plan your visit.</p>
       </div>
       <!-- Tab strip (T1: Location moved out to its own section — this hub is
@@ -428,7 +440,7 @@
           </div>
         </div>
         <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">Pricing &amp; cost estimator</h3>
+          <h3 class="text-h3 font-light text-slate-800">Pricing &amp; cost estimator</h3>
           <p class="mt-1 text-sm text-slate-500">Quick estimate — exact costs depend on your treatment.</p>
           <form id="pricingForm" onsubmit="submitPricing(event)" class="mt-5 grid sm:grid-cols-2 gap-4 bg-white border border-slate-200 rounded-xl p-5">
             <label class="block">
@@ -460,7 +472,7 @@
           <div id="pricingResult" class="mt-5 hidden"></div>
         </div>
         <div data-panel="journeyPanel" id="journey" role="tabpanel" aria-labelledby="tab-journey" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">What to expect · what to bring</h3>
+          <h3 class="text-h3 font-light text-slate-800">What to expect · what to bring</h3>
           <p class="mt-1 text-sm text-slate-500">Plan your visit in two minutes.</p>
           <div class="mt-5 grid md:grid-cols-2 gap-6">
             <div>
@@ -474,7 +486,7 @@
           </div>
         </div>
         <div data-panel="amenitiesPanel" id="amenities" role="tabpanel" aria-labelledby="tab-amenities" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">Practical visit info</h3>
+          <h3 class="text-h3 font-light text-slate-800">Practical visit info</h3>
           <p class="mt-1 text-sm text-slate-500">Everything you need for a smooth visit.</p>
           <div id="amenitiesGrid" class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
         </div>
@@ -486,7 +498,7 @@
        All #location deep links (nav, jump pill, campaigns) land here directly. -->
   <section id="location" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Find us</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">Find us</h2>
       <p class="mt-2 text-slate-500">Directions, parking and contact.</p>
     </div>
     <div class="mt-6 grid md:grid-cols-2 gap-6 items-stretch">
@@ -521,7 +533,7 @@
             <svg width="18" height="18" aria-hidden="true"><use href="#i-clock"/></svg>
           </div>
           <div>
-            <h2 class="text-base sm:text-lg font-extrabold leading-tight">Live Wait Times</h2>
+            <h2 class="text-h3 font-light leading-tight">Live Wait Times</h2>
             <p class="text-slate-300 text-[11px]">Mock NSW Health data · refreshes every minute</p>
           </div>
         </div>
@@ -537,7 +549,7 @@
   <!-- Services -->
   <section id="services" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-3xl font-extrabold text-slate-800">Our Services</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">Our Services</h2>
       <p class="mt-3 text-slate-500">Purpose-built emergency care for non-life-threatening injuries and illness.</p>
     </div>
     <div id="servicesGrid" class="mt-6 scroll-row lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0 gap-4"></div>
@@ -550,12 +562,12 @@
   <!-- Contact (T1: out of Patient hub). -->
   <section id="enquiries" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Contact us</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">Contact us</h2>
       <p class="mt-2 text-slate-500">Send us a message.</p>
     </div>
     <div class="mt-6 grid lg:grid-cols-2 gap-6 items-start">
       <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
-        <h3 class="text-2xl font-extrabold text-slate-800">Enquiries &amp; Bookings</h3>
+        <h3 class="text-h3 font-light text-slate-800">Enquiries &amp; Bookings</h3>
         <p class="mt-2 text-slate-500">Send us a message — we'll email you back. (Mock form for demo.)</p>
         <form onsubmit="submitEnquiry(event)" class="mt-5 grid sm:grid-cols-2 gap-3">
           <input required placeholder="Full name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
@@ -570,7 +582,7 @@
 
   <!-- Promotions -->
   <section id="promotions" class="max-w-6xl mx-auto px-4 py-6" aria-labelledby="promotionsHeading">
-    <h2 id="promotionsHeading" class="text-2xl font-extrabold text-slate-800 mb-5">Current offers</h2>
+    <h2 id="promotionsHeading" class="text-h2 font-extrabold text-slate-800 mb-5">Current offers</h2>
     <div id="promoGrid" class="scroll-row"></div>
   </section>
 
@@ -586,7 +598,7 @@
     <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
       <div class="text-left max-w-2xl">
         <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
-        <h2 class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-800">Common questions</h2>
+        <h2 class="mt-2 text-h2 font-extrabold text-slate-800">Common questions</h2>
         <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, and location. For anything urgent, call 000.</p>
       </div>
       <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
@@ -597,7 +609,7 @@
        Moved from mid-page to just above FAQ for a calmer pre-footer beat. -->
   <section id="doctors" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
     <div class="text-left max-w-2xl">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Our Doctors</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">Our Doctors</h2>
       <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
     </div>
     <div class="mt-6 grid lg:grid-cols-[1fr,320px] gap-6 items-stretch">
@@ -736,7 +748,7 @@
   <div id="bookingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
     <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
       <button onclick="closeBooking()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600" aria-label="Close"><svg width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-      <h3 class="text-xl font-extrabold text-slate-800">Request Appointment</h3>
+      <h3 class="text-h3 font-light text-slate-800">Request Appointment</h3>
       <p class="text-sm text-slate-500 mt-1">Third-party booking is mocked for this demo.</p>
       <form onsubmit="submitBooking(event)" class="mt-5 space-y-3">
         <input required placeholder="Full name" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
