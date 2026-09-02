@@ -82,7 +82,9 @@
     const safeAlt = escapeHTML(alt || "");
     const safeUrl = escapeHTML(url);
     const fallback = `data:image/svg+xml;utf8,${encodeURIComponent(
-      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='#cffaf1'/><text x='2' y='1.8' text-anchor='middle' font-family='sans-serif' font-size='0.6' fill='#0f766e'>${safeAlt.replace(/[<>&]/g, '')}</text></svg>`
+      // A data URI can't read CSS vars — this literal stays hard-coded
+      // (Heltro neutrals: #F5F7F9 ground, #4C5F72 text).
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='#F5F7F9'/><text x='2' y='1.8' text-anchor='middle' font-family='sans-serif' font-size='0.6' fill='#4C5F72'>${safeAlt.replace(/[<>&]/g, '')}</text></svg>`
     )}`;
     return `<img src="${safeUrl}" alt="${safeAlt}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallback}';this.classList.add('img-fallback');" class="w-full h-full object-cover" />`;
   };
