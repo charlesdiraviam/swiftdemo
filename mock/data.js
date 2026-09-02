@@ -11,7 +11,7 @@ window.SWIFT_DATA = {
     address: "G38, 32 Civic Way, Rouse Hill, NSW 2155",
     hours: "Open every day, 10:00am – 10:00pm (last registration 9:00pm)",
     facilityFee: "$396 facility fee + Medicare charges (reimbursed with a valid Medicare card).",
-    heroImage: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=1600&q=80&auto=format&fit=crop",
+    heroImage: "mock/img/hero.avif",
     heroAlt: "Calm, modern urgent-care clinic reception (representative photo)",
   },
 
@@ -23,7 +23,7 @@ window.SWIFT_DATA = {
       summary:
         "Ankle, wrist, knee or back injuries managed by trained Emergency Physicians for a swift recovery.",
       treatments: ["Sprains & strains", "Joint injuries", "On-site imaging"],
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-sports-injury.webp",
       imageAlt: "Therapist supporting a patient's ankle during rehabilitation",
     },
     {
@@ -33,7 +33,7 @@ window.SWIFT_DATA = {
       summary:
         "Fractures followed up with specialist Orthopaedic surgeons within 24 hours.",
       treatments: ["Casting & splinting", "Ortho referral < 24h", "Follow-up review"],
-      image: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-fracture-clinic.webp",
       imageAlt: "Clinical X-ray films being reviewed on a light box",
     },
     {
@@ -43,7 +43,7 @@ window.SWIFT_DATA = {
       summary:
         "In-house paediatricians for quick treatment when children fall sick or are injured (age > 3 months).",
       treatments: ["Child-friendly care", "Fever & infections", "Minor injuries"],
-      image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-paediatrics.webp",
       imageAlt: "Paediatrician examining a young child in a friendly clinic room",
     },
     {
@@ -53,7 +53,7 @@ window.SWIFT_DATA = {
       summary:
         "Iron infusions completed in under an hour instead of long ED waits. Book an appointment.",
       treatments: ["Iron infusion", "Planned therapy", "By appointment"],
-      image: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-infusion-clinic.avif",
       imageAlt: "Comfortable modern infusion suite with recliner chair",
     },
     {
@@ -63,7 +63,7 @@ window.SWIFT_DATA = {
       summary:
         "Back, shoulder or joint pain tended to quickly with seasoned radiologists on hand.",
       treatments: ["Image-guided care", "Pain management", "Rapid imaging"],
-      image: "https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-interventional-radiology.avif",
       imageAlt: "Radiology scan monitor displaying medical imaging",
     },
     {
@@ -73,7 +73,7 @@ window.SWIFT_DATA = {
       summary:
         "Highly trained physiotherapists for fast recovery and a quick return to daily activity.",
       treatments: ["Post-procedure rehab", "Movement recovery", "Injury prevention"],
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/service-physiotherapy.webp",
       imageAlt: "Physiotherapist guiding a patient through recovery exercises",
     },
   ],
@@ -85,7 +85,7 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "VM",
       bio: "Emergency Physician trained in acute care, leading SWIFT's clinical vision.",
-      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&q=80&auto=format&fit=crop",
+      image: "mock/img/doctor-1.webp",
       imageAlt: "Representative photo of an emergency physician in scrubs",
     },
     {
@@ -94,7 +94,7 @@ window.SWIFT_DATA = {
       specialty: "Emergency Medicine",
       initials: "GB",
       bio: "Emergency Physician focused on efficient, patient-centred urgent care.",
-      image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&q=80&auto=format&fit=crop",
+      image: "mock/img/doctor-2.webp",
       imageAlt: "Representative photo of an emergency physician consulting a patient",
     },
     {
@@ -103,7 +103,7 @@ window.SWIFT_DATA = {
       specialty: "Acute Care",
       initials: "SM",
       bio: "Senior Emergency Doctor experienced in minor injuries and non-life-threatening illness.",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&q=80&auto=format&fit=crop",
+      image: "mock/img/doctor-3.webp",
       imageAlt: "Representative photo of a senior doctor reviewing notes",
     },
   ],
@@ -125,7 +125,7 @@ window.SWIFT_DATA = {
       title: "Winter Flu & Fever Care",
       badge: "Seasonal",
       body: "Walk in for rapid assessment of flu-like symptoms — no appointment needed.",
-      image: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/promo-flu.webp",
       imageAlt: "Thermometer and warm drink suggesting seasonal flu care",
     },
     {
@@ -133,7 +133,7 @@ window.SWIFT_DATA = {
       title: "Sports Injury Saturday",
       badge: "Weekend",
       body: "Sprains, strains and fractures — walk in on Saturdays, no appointment needed.",
-      image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/promo-sports.webp",
       imageAlt: "Athlete with an ankle tape, on a sunny sports field",
     },
     {
@@ -141,7 +141,7 @@ window.SWIFT_DATA = {
       title: "Kids' Cough & Cold Clinic",
       badge: "Paediatric",
       body: "Calm, child-friendly assessments for ages 3 months +. Walk in any day.",
-      image: "https://images.unsplash.com/photo-1606166187734-a4cb74079037?w=800&q=80&auto=format&fit=crop",
+      image: "mock/img/promo-kids.webp",
       imageAlt: "Smiling child being examined by a paediatrician",
     },
     // N4: removed the Iron Infusion Clinic promo — it duplicated the
