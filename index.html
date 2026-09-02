@@ -309,7 +309,7 @@
           <span class="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
           <span>Wait <span id="headerWaitValue">~12 min</span></span>
         </a>
-        <button onclick="openBooking()" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">Book Now</button>
+        <button onclick="openBooking()" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-btn">Book Now</button>
         <button onclick="toggleMobileNav()" class="md:hidden p-2 text-slate-600" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       </div>
     </div>
@@ -342,7 +342,7 @@
           <!-- C10 / D3: one primary CTA per section — the solid button. The other
                two destinations are quiet text links, not competing buttons. -->
           <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
-            <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-teal-50">Request Appointment</button>
+            <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-6 py-3 rounded-xl shadow-btn hover:bg-teal-50">Request Appointment</button>
             <a id="heroReserveCta" href="#checkinForm" class="text-teal-100 text-sm font-semibold underline underline-offset-4 decoration-teal-300/60 hover:text-white inline-flex items-center">Reserve my spot</a>
             <a id="heroSecondaryCta" href="#wait" class="text-teal-100 text-sm font-semibold underline underline-offset-4 decoration-teal-300/60 hover:text-white inline-flex items-center">Check Wait Times</a>
           </div>
@@ -412,7 +412,7 @@
       <a href="#checkinForm" class="inline-flex items-center gap-2 bg-white hover:bg-teal-100 text-teal-800 font-semibold text-sm px-4 py-2 rounded-xl border border-teal-200">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Reserve my spot
       </a>
-      <button onclick="openBooking()" class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl">
+      <button onclick="openBooking()" class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl shadow-btn">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-clipboard"/></svg>Book online
       </button>
     </div>
@@ -446,7 +446,7 @@
               <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
                 <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
                 <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
-                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
+                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Add me to the queue</button>
               </form>
               <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
             </template>
@@ -481,7 +481,7 @@
                 <option value="no">No</option>
               </select>
             </label>
-            <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Calculate estimate</button>
+            <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Calculate estimate</button>
           </form>
           <div id="pricingResult" class="mt-5 hidden"></div>
         </div>
@@ -588,7 +588,7 @@
           <input required type="email" placeholder="Email" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
           <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
           <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
-          <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send Enquiry</button>
+          <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Send Enquiry</button>
         </form>
       </div>
     </div>
@@ -769,7 +769,7 @@
         <input required type="tel" placeholder="Phone" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
         <select id="bookingService" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400 text-slate-600"></select>
         <input required type="date" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400 text-slate-600" />
-        <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Confirm Request</button>
+        <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Confirm Request</button>
       </form>
       <div id="bookingSuccess" class="hidden text-center py-6">
         <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">

@@ -320,21 +320,21 @@
     // Phase I4: AI picked badge — shown when the active campaign features this service.
     const aiBadge = `<span data-ai-badge="service" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
-      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
+      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-lg">
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
           <h3 class="text-h3 font-light text-slate-800">${escapeHTML(s.name)}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
           <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
           <ul class="mt-3 space-y-1.5">${treatments}</ul>
-          <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Book this service</button>
+          <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow-btn">Book this service</button>
         </div>
       </div>`;
   }
 
   function doctorTemplate(d) {
     return `
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-lg">
         <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(d.image, d.imageAlt || d.name)}<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-teal-700 text-[10px] font-semibold px-2 py-1 rounded-full">Representative</div></div>
         <div class="p-6">
           <div class="flex items-center gap-3">
@@ -367,7 +367,7 @@
   function promoTemplate(p) {
     const aiBadge = `<span data-ai-badge="promo" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
-      <div data-promo-id="${escapeHTML(p.id || "")}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition relative">
+      <div data-promo-id="${escapeHTML(p.id || "")}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition relative">
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}${aiBadge}</div>
         <div class="p-6">
           <div class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
@@ -379,7 +379,7 @@
 
   function trustTemplate(s) {
     return `
-      <div class="text-center p-4 bg-white rounded-2xl border border-slate-200">
+      <div class="text-center p-4 bg-white rounded-2xl shadow">
         <div class="w-10 h-10 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>
         <div class="mt-2 text-2xl sm:text-3xl font-extrabold text-teal-700">${escapeHTML(s.value)}</div>
         <div class="mt-1 text-sm font-semibold text-slate-700">${escapeHTML(s.label)}</div>
@@ -391,7 +391,7 @@
     const label = i.action && (i.action.label || i.action.ctaLabel) || "Go";
     const onclick = `SWIFT.ui.runAction(${JSON.stringify(i.action || {}).replace(/"/g, "&quot;")})`;
     return `
-      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-teal-300 transition group">
+      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-teal-300 transition group">
         <div class="w-12 h-12 rounded-full bg-teal-50 text-teal-700 grid place-items-center group-hover:bg-teal-100 transition">${SWIFT.ui.icon(i.icon, 24)}</div>
         <div class="mt-3 text-lg font-extrabold text-slate-800">${escapeHTML(i.title)}</div>
         <div class="mt-1 text-sm text-slate-500">${escapeHTML(i.sub)}</div>
