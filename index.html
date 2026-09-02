@@ -49,6 +49,20 @@
             bold: '600',
             extrabold: '600',
           },
+          // Heltro shape: 10px dominant radius (42px pills come via rounded-full).
+          borderRadius: {
+            xl: '10px',
+            '2xl': '10px',
+            lg: '8px',
+          },
+          // Soft Heltro elevation. Default/md are the resting card shadow;
+          // lg keeps floating chrome legible; btn is the CTA lift.
+          boxShadow: {
+            DEFAULT: '0 1px 49.3px rgba(0,0,0,.04)',
+            md: '0 1px 49.3px rgba(0,0,0,.04)',
+            lg: '0 1px 49.3px rgba(0,0,0,.10)',
+            btn: '0 12px 26px -18px rgba(0,0,0,.55)',
+          },
         },
       },
     };
@@ -88,7 +102,7 @@
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
       outline: 3px solid rgb(var(--c-teal-500));
       outline-offset: 2px;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     /* Accessibility toggles */
     body.a11y-large { font-size: 18px; }
@@ -151,7 +165,7 @@
     [role="tablist"] { position: relative; }
     [role="tablist"]::after {
       content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 44px;
-      border-radius: 0 14px 14px 0; pointer-events: none; opacity: 0;
+      border-radius: 0 10px 10px 0; pointer-events: none; opacity: 0;
       background: linear-gradient(to left, rgb(var(--c-fade)) 35%, rgb(var(--c-fade) / 0));
       transition: opacity 150ms;
     }
