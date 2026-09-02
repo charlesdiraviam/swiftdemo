@@ -460,11 +460,10 @@
     <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
       <div class="text-center max-w-2xl mx-auto">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Check-in</h2>
-        <p class="mt-2 text-slate-500">Reserve your spot in the queue or view your test results.</p>
+        <p class="mt-2 text-slate-500">Reserve your spot in the queue.</p>
       </div>
       <div role="tablist" aria-label="Check-in" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
         <button id="tab-checkin" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-controls="checkinForm" aria-selected="true">Check-in</button>
-        <button id="tab-results" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="resultsPanel" aria-controls="results" aria-selected="false" tabindex="-1">Test results</button>
       </div>
 
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
@@ -478,17 +477,6 @@
               </form>
               <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
             </div>
-          </div>
-        </div>
-        <div data-panel="resultsPanel" id="results" role="tabpanel" aria-labelledby="tab-results" class="hidden">
-          <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl p-6 sm:p-8 text-center">
-            <div class="w-12 h-12 mx-auto rounded-full bg-teal-100 text-teal-700 grid place-items-center">
-              <svg width="24" height="24" aria-hidden="true"><use href="#i-scan" /></svg>
-            </div>
-            <h3 class="mt-3 text-2xl font-extrabold text-slate-800">Test &amp; imaging results</h3>
-            <p class="mt-2 text-slate-500 max-w-md mx-auto">Access your SWIFT results securely online. (Demo login below.)</p>
-            <button onclick="openResults()" class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Open test results</button>
-            <p class="mt-3 text-xs text-slate-400">DEMO ONLY · sample data · use <code>demo</code> / <code>demo</code></p>
           </div>
         </div>
       </div>
@@ -612,8 +600,8 @@
   </section>
 
   <!-- Sticky "jump to" chip bar (G4 / K3 / N1 / N3–N6 / N10) — pills in page
-       order (N3). On phones only the five core destinations show (N10);
-       Services, Results, Contact, Promos, FAQ and Doctors return from md up
+       order (N3). On phones only the core destinations show (N10);
+       Services, Contact, Promos, FAQ and Doctors return from md up
        via .pill-extra, and the header menu covers them below that. -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
     <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
@@ -631,9 +619,6 @@
       </a>
       <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
-      </a>
-      <a href="#results" data-jump-target="results" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
       </a>
       <a href="#enquiries" data-jump-target="enquiries" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
@@ -715,24 +700,6 @@
 
   <!-- Toast -->
   <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg hidden"></div>
-
-  <!-- Test results modal -->
-  <div id="resultsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-lg p-6 relative">
-      <button onclick="closeResults()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600" aria-label="Close"><svg width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-      <h3 class="text-xl font-extrabold text-slate-800">Test &amp; imaging results</h3>
-      <p class="text-xs text-slate-400 mt-1">DEMO ONLY · sample data</p>
-      <div id="resultsLogin" class="mt-5">
-        <form onsubmit="submitResultsLogin(event)" class="space-y-3">
-          <input required id="resultsUser" placeholder="Username" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
-          <input required id="resultsPass" type="password" placeholder="Password" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
-          <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Sign in</button>
-          <p class="text-xs text-slate-400 text-center">Try <code>demo</code> / <code>demo</code></p>
-        </form>
-      </div>
-      <div id="resultsData" class="mt-5 hidden"></div>
-    </div>
-  </div>
 
   <!-- Accessibility popover -->
   <div id="a11yPanel" class="hidden fixed bottom-5 left-5 z-40 bg-white rounded-2xl shadow-2xl border border-slate-200 w-72 max-w-[92vw] p-4">

@@ -605,23 +605,6 @@
     log.scrollTop = log.scrollHeight;
   };
 
-  SWIFT.ui.openResults = function () {
-    const m = $("resultsModal");
-    if (!m) return;
-    m.classList.remove("hidden");
-    m.classList.add("flex");
-    $("resultsLogin").classList.remove("hidden");
-    $("resultsData").classList.add("hidden");
-    $("resultsData").innerHTML = "";
-  };
-
-  SWIFT.ui.closeResults = function () {
-    const m = $("resultsModal");
-    if (!m) return;
-    m.classList.add("hidden");
-    m.classList.remove("flex");
-  };
-
   // ---------- Form handlers ----------
 
   SWIFT.forms.submitEnquiry = function (e) {
@@ -735,40 +718,6 @@
     $("pricingForm").reset();
     $("pricingResult").classList.add("hidden");
     $("pricingResult").innerHTML = "";
-  };
-
-  SWIFT.forms.submitResultsLogin = function (e) {
-    e.preventDefault();
-    const u = $("resultsUser").value.trim();
-    const p = $("resultsPass").value;
-    const creds = D.testResultsSample.login;
-    if (u !== creds.demoUser || p !== creds.demoPass) {
-      SWIFT.ui.toast("Invalid demo credentials — try demo / demo");
-      return;
-    }
-    const rows = D.testResultsSample.results.map((r) => `
-      <tr class="border-b border-slate-200 last:border-0">
-        <td class="py-3 pr-3 text-sm text-slate-700">${escapeHTML(r.date)}</td>
-        <td class="py-3 pr-3 text-sm font-semibold text-slate-800">${escapeHTML(r.test)}</td>
-        <td class="py-3 pr-3 text-sm text-slate-600">${escapeHTML(r.result)}</td>
-        <td class="py-3 text-sm text-teal-700">${escapeHTML(r.status)}</td>
-      </tr>
-    `).join("");
-    $("resultsLogin").classList.add("hidden");
-    const data = $("resultsData");
-    data.classList.remove("hidden");
-    data.innerHTML = `
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-xs uppercase tracking-wider text-slate-400 border-b border-slate-200">
-              <th class="py-2 pr-3">Date</th><th class="py-2 pr-3">Test</th><th class="py-2 pr-3">Result</th><th class="py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <p class="mt-4 text-xs text-slate-400">Sample data only — real portal would link to your records.</p>`;
   };
 
   // ---------- Campaign ----------
@@ -1269,8 +1218,6 @@
         amenities: 'amenities',
         location: 'location',
         checkin: 'checkinForm',
-        results: 'results',
-        referrals: 'referrals',
         enquiries: 'enquiries',
         wait: 'wait',
         services: 'services',
@@ -1355,19 +1302,14 @@
     window.submitReferral = SWIFT.forms.submitReferral;
     window.submitQueue = SWIFT.forms.submitQueue;
     window.submitPricing = SWIFT.forms.submitPricing;
-    window.submitResultsLogin = SWIFT.forms.submitResultsLogin;
-    window.openResults = SWIFT.ui.openResults;
-    window.closeResults = SWIFT.ui.closeResults;
 
     // Esc closes any open modal / popover
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape") return;
       const m1 = $("bookingModal");
-      const m2 = $("resultsModal");
       const m3 = $("chatPanel");
       const p = $("a11yPanel");
       if (m1 && !m1.classList.contains("hidden")) SWIFT.ui.closeBooking();
-      if (m2 && !m2.classList.contains("hidden")) SWIFT.ui.closeResults();
       if (p && !p.classList.contains("hidden")) p.classList.add("hidden");
       if (m3 && !m3.classList.contains("hidden")) SWIFT.ui.toggleChat();
     });

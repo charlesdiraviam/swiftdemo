@@ -157,7 +157,6 @@ window.SWIFT_DATA = {
     { q: /book|appointment|appt/i, a: "For planned therapies like iron infusions, tap 'Book Now'. For minor emergencies, just walk in!" },
     { q: /where|location|address|direction/i, a: "We're at G38, 32 Civic Way, Rouse Hill NSW 2155. Tap 'Directions' for Google Maps." },
     { q: /treat|service|offer|child|kid|paediatric/i, a: "We treat sports injuries, fractures, paediatrics (>3mo), infusions, radiology and physiotherapy." },
-    { q: /results|test|x-?ray|scan/i, a: "Demo test results are in the Check-in section's 'Test results' tab — sign in with demo/demo." },
     { q: /queue|wait list|reserve/i, a: "Use Online Check-in to reserve your spot — you'll see your queue number and an estimated wait." },
   ],
 
@@ -307,16 +306,6 @@ window.SWIFT_DATA = {
   // Tier 1 — queue position (session state lives in app.js)
   queuePosition: { currentInQueue: 3, avgMinsPerPatient: 6, prefix: "You're #" },
 
-  // Tier 1 — test results portal
-  testResultsSample: {
-    login: { demoUser: "demo", demoPass: "demo" },
-    results: [
-      { date: "2026-08-12", test: "Wrist X-ray (L)", result: "No fracture identified", status: "Reviewed by Dr Manivel" },
-      { date: "2026-07-30", test: "Iron studies panel", result: "Ferritin 28 ng/mL (low)", status: "Follow-up infusion booked" },
-      { date: "2026-07-15", test: "COVID-19 PCR", result: "Negative", status: "Reviewed" },
-    ],
-  },
-
   // ---- Phase I: AI surfaces (all mocked, grounded in SWIFT_DATA) ----
 
   // I2 — grounded AI concierge: regex patterns → answer functions that read SWIFT_DATA.
@@ -337,8 +326,6 @@ window.SWIFT_DATA = {
       answer: function (D) { return "We treat: " + D.services.map(function (s) { return s.name; }).join(", ") + ". Ages 3 months +."; } },
     { id: "book", patterns: [/book|appointment|appt|reserve|slot/i],
       answer: function () { return "For planned therapies like iron infusions, tap Book Now. For minor emergencies, just walk in."; } },
-    { id: "results", patterns: [/results?|test|x-?ray|scan|portal|my blood|my imaging/i],
-      answer: function () { return "Demo test results are in the Check-in section — open the 'Test results' tab. Sign in with demo / demo."; } },
     { id: "location", patterns: [/where|location|address|direction|parking|find/i],
       answer: function (D) { return D.clinic.address + ". Free parking on-site."; },
       cta: { label: "Open in Google Maps", action: "getDirections" } },
@@ -357,7 +344,6 @@ window.SWIFT_DATA = {
     { q: "How long is the wait?", a: "Median urgent care wait is about 12 minutes, versus 2–4 hours in hospital EDs. Live wait times refresh every minute." },
     { q: "Where are you located?", a: "G38, 32 Civic Way, Rouse Hill NSW 2155. Free parking on-site. Tap 'Open in Google Maps' for directions." },
     { q: "Do you do X-rays and imaging?", a: "Yes — on-site X-ray and ultrasound. Interventional radiology and image-guided pain management available." },
-    { q: "Can I get my test results online?", a: "Yes — the 'Test results' tab under Check-in. Sign in with demo / demo for the demo." },
     { q: "What if it's a life-threatening emergency?", a: "Call 000 immediately or go to your nearest hospital ED." },
   ],
 
