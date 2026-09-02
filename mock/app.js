@@ -1191,86 +1191,52 @@
 
   // ---------- Init ----------
 
-  // ---- Phase K3 — jump-bar scroll-spy -----------------------------
-  // Map `data-jump-target` values to either a section id or a tab-panel id.
-  // For tab-panel targets (pricing) we watch the parent `[data-tabs-root]`.
-  // For section ids we watch the section directly.
+  // ---- Phase K3 — jump-bar scroll-spy (single winner) ----------------
+  // The previous IntersectionObserver lit every target intersecting a band,
+  // so two pills lit at once at every section boundary. This scroll-driven
+  // pass picks exactly one winner: the last target whose top has crossed the
+  // reading line (30% of the viewport). Hidden tab panels are skipped via
+  // offsetParent, so only the open tab's pill can light.
   SWIFT.ui.initJumpSpy = function () {
-    const pills = document.querySelectorAll('[data-jump-target]');
-    if (!pills.length || typeof IntersectionObserver === "undefined") return;
+    const pills = [...document.querySelectorAll('[data-jump-target]')];
+    if (!pills.length) return;
 
-    const resolveTarget = function (key) {
-      // Map each pill to the actual element id it should observe. Tab panels are
-      // observed directly; only the active (non-hidden) panel intersects, so pills
-      // in the same hub don't light up together.
-      const map = {
-        pricing: 'pricing',
-        journey: 'journey',
-        amenities: 'amenities',
-        location: 'location',
-        checkin: 'checkinForm',
-        enquiries: 'enquiries',
-        wait: 'wait',
-        services: 'services',
-        faq: 'faq',
-        doctors: 'doctors',
-        promotions: 'promotions',
-        home: 'home',
-        intents: 'intents',
-        getCare: 'getCare',
-      };
-      return map[key] || key;
+    const map = {
+      checkin: 'checkinForm', pricing: 'pricing', journey: 'journey',
+      amenities: 'amenities', location: 'location', wait: 'wait',
+      services: 'services', enquiries: 'enquiries',
+      promotions: 'promotions', faq: 'faq', doctors: 'doctors',
     };
 
-    const active = new Set();
-    // N9: nothing maps to the hero, the intent cards, the Get-care band or the
-    // What-to-expect / Practical-info tabs — over those stretches the active
-    // set empties and the bar used to go blank. Keep the last highlighted pill
-    // lit instead (dropping it only if that pill is hidden on this viewport).
-    let lastHighlight = null;
-    const pickHighlight = function () {
-      for (const pill of pills) {
-        const key = pill.getAttribute("data-jump-target");
-        if (active.has(key) && pill.offsetParent !== null) return key;
-      }
-      return null;
-    };
-    const apply = function () {
-      const current = pickHighlight();
-      if (current) {
-        lastHighlight = current;
-      } else if (lastHighlight) {
-        const held = document.querySelector('[data-jump-target="' + lastHighlight + '"]');
-        if (!held || held.offsetParent === null) lastHighlight = null;
-      }
-      pills.forEach(function (pill) {
-        const key = pill.getAttribute("data-jump-target");
-        const isOn = active.has(key) || (!active.size && key === lastHighlight);
-        pill.classList.toggle("is-active", isOn);
+    const targets = pills
+      .map(p => ({ pill: p, el: document.getElementById(map[p.dataset.jumpTarget] || p.dataset.jumpTarget) }))
+      .filter(t => t.el);
+
+    let queued = false;
+    const update = function () {
+      queued = false;
+      const line = window.innerHeight * 0.3;   // the "reading line"
+      let best = null, bestTop = -Infinity;
+      targets.forEach(function (t) {
+        if (t.el.offsetParent === null) return;      // hidden tab panel — skip
+        const top = t.el.getBoundingClientRect().top;
+        if (top <= line && top > bestTop) { bestTop = top; best = t.pill; }
       });
+      targets.forEach(t => t.pill.classList.toggle('is-active', t.pill === best));
     };
 
-    const observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        const id = e.target.id;
-        if (!id) return;
-        pills.forEach(function (pill) {
-          const key = pill.getAttribute('data-jump-target');
-          if (resolveTarget(key) === id) {
-            if (e.isIntersecting && e.intersectionRatio > 0) active.add(key);
-            else active.delete(key);
-          }
-        });
-        apply();
-      });
-    }, { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.05, 0.5] });
+    const schedule = function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    };
 
-    pills.forEach(function (pill) {
-      const key = pill.getAttribute("data-jump-target");
-      const id = resolveTarget(key);
-      const target = document.getElementById(id);
-      if (target) observer.observe(target);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('click', function (e) {   // tab switches change visibility
+      if (e.target.closest('.tab-button')) schedule();
     });
+    update();
   };
 
   SWIFT.init = function () {

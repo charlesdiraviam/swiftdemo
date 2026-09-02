@@ -80,8 +80,9 @@
       #stickyCta { bottom: 208px; }
       #chatPanel { bottom: 264px; }
       #toast { bottom: 264px; }
-      /* N10: eleven pills don't fit a 375px rail — keep the five core
-         destinations on phones; the full list returns from md up. */
+      /* N10: the full pill list doesn't fit a 375px rail — keep the four core
+         destinations (Check-in · Pricing · Location · Wait) on phones;
+         the full list returns from md up. */
       #jumpBar .jump-pill.pill-extra { display: none; }
     }
     /* Sticky header offset for all anchored sections and tab panels */
@@ -581,8 +582,17 @@
        via .pill-extra, and the header menu covers them below that. -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
     <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
+      <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
+      </a>
       <a href="#pricing" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
+      </a>
+      <a href="#journey" data-jump-target="journey" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Expect
+      </a>
+      <a href="#amenities" data-jump-target="amenities" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-wheelchair"/></svg>Info
       </a>
       <a href="#location" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
@@ -592,9 +602,6 @@
       </a>
       <a href="#services" data-jump-target="services" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
-      </a>
-      <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>
       <a href="#enquiries" data-jump-target="enquiries" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
