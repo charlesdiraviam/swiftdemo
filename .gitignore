@@ -1,6 +1,7 @@
 # Planning / dev tooling — never deploy these to the public site
 .claude/
 plans/**.md
+plans/
 plan.md
 spec.md
 implementation.md
