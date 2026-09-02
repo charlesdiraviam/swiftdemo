@@ -33,11 +33,24 @@
     };
   </script>
   <style>
+    /* Brand colour single-source-of-truth (Heltro uplift Phase 0).
+       Space-separated RGB triplets so Tailwind's <alpha-value> placeholder and
+       these plain-CSS reads share one definition. Keep in sync with tailwind.config. */
+    :root {
+      --c-teal-500: 21 149 149;   /* #159595 primary brand teal */
+      --c-teal-600: 14 118 118;   /* #0e7676 */
+      --c-teal-700: 12 95 95;     /* #0c5f5f */
+      --c-img-tint: 204 251 241;  /* img loading placeholder */
+      --c-scrollbar: 203 213 225; /* .scroll-row thumb */
+      --c-fade: 241 245 249;      /* tablist overflow fade */
+      --c-wc-grad-a: 13 148 136;  /* whyChooseAside SVG gradient (current values) */
+      --c-wc-grad-b: 17 94 89;
+    }
     html { scroll-behavior: smooth; }
-    .demo-badge { background: repeating-linear-gradient(45deg,#0e7676,#0e7676 10px,#0c5f5f 10px,#0c5f5f 20px); }
+    .demo-badge { background: repeating-linear-gradient(45deg,rgb(var(--c-teal-600)),rgb(var(--c-teal-600)) 10px,rgb(var(--c-teal-700)) 10px,rgb(var(--c-teal-700)) 20px); }
     /* Visible focus rings for keyboard navigation */
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
-      outline: 3px solid #159595;
+      outline: 3px solid rgb(var(--c-teal-500));
       outline-offset: 2px;
       border-radius: 6px;
     }
@@ -50,36 +63,43 @@
     body.a11y-contrast .text-slate-800, body.a11y-contrast .text-slate-700, body.a11y-contrast .text-slate-600, body.a11y-contrast .text-slate-500 { color: #f8fafc !important; }
     body.a11y-contrast .border-slate-200, body.a11y-contrast .border-slate-300 { border-color: #475569 !important; }
     body.a11y-contrast .bg-slate-50 { background: #1f2937 !important; }
-    /* Spinner for wait-times refresh */
+    /* Spinner for wait-times refresh. The Tailwind Play CDN injects its
+       stylesheet after this block, so its `.animate-spin` (1s infinite) wins
+       any plain-CSS tie — the !important keeps the intended single 0.7s spin
+       regardless of cascade order. */
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .animate-spin { display: inline-block; animation: spin 0.7s linear; }
+    .animate-spin { display: inline-block; animation: spin 0.7s linear !important; }
     /* Imagery: lazy <img> safety net — neutral background while loading */
-    img { background: #ccfbf1; }
-    .img-fallback { background: #ccfbf1; opacity: 0.85; }
+    img { background: rgb(var(--c-img-tint)); }
+    .img-fallback { background: rgb(var(--c-img-tint)); opacity: 0.85; }
     /* Jump-bar active-pill highlight (K3) — teal pill when its section is in view. */
     .jump-pill { transition: background-color 120ms, color 120ms, border-color 120ms; }
-    .jump-pill.is-active { background-color: #159595; color: #ffffff; border-color: #0c5f5f; }
-    .jump-pill.is-active:hover { background-color: #0e7676; }
+    .jump-pill.is-active { background-color: rgb(var(--c-teal-500)); color: #ffffff; border-color: rgb(var(--c-teal-700)); }
+    .jump-pill.is-active:hover { background-color: rgb(var(--c-teal-600)); }
     /* Horizontal-scrolling content rows (L3) — used for Services + Promotions. */
     .scroll-row { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
     .scroll-row > * { flex: 0 0 280px; scroll-snap-align: start; }
     @media (min-width: 640px) { .scroll-row > * { flex-basis: 320px; } }
     @media (min-width: 1024px) { .scroll-row > * { flex-basis: 360px; } }
     .scroll-row::-webkit-scrollbar { height: 6px; }
-    .scroll-row::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    .scroll-row { scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }
+    .scroll-row::-webkit-scrollbar-thumb { background: rgb(var(--c-scrollbar)); border-radius: 999px; }
+    .scroll-row { scrollbar-color: rgb(var(--c-scrollbar)) transparent; scrollbar-width: thin; }
     /* Clear fixed bottom chrome (mobile action bar + jump bar + chat FAB) */
     body { padding-bottom: 120px; }
     /* L2: on mobile, lift the sticky jump bar above the fixed action bar
        (Call / Directions / Book), then stack chat FAB → campaign sticky CTA
-       → chat panel above it so nothing collides. Desktop keeps bottom-3. */
+       → chat panel above it so nothing collides. Desktop keeps bottom-3.
+       Heights are driven by --action-bar-h (measured at runtime in SWIFT.init),
+       so Heltro's taller line-heights can't collide the ladder. The deltas
+       below reproduce the previous hand-tuned 74/142/208/264px ladder when the
+       bar measures its current 54px. */
     @media (max-width: 767px) {
-      body { padding-bottom: 150px; }
-      #jumpBar { bottom: 74px; }
-      .fixed.bottom-5.right-5 { bottom: 142px; }
-      #stickyCta { bottom: 208px; }
-      #chatPanel { bottom: 264px; }
-      #toast { bottom: 264px; }
+      body { padding-bottom: calc(var(--action-bar-h, 54px) + 96px); }
+      #jumpBar { bottom: calc(var(--action-bar-h, 54px) + 20px); }
+      .fixed.bottom-5.right-5 { bottom: calc(var(--action-bar-h, 54px) + 88px); }
+      #stickyCta { bottom: calc(var(--action-bar-h, 54px) + 154px); }
+      #chatPanel { bottom: calc(var(--action-bar-h, 54px) + 210px); }
+      #toast { bottom: calc(var(--action-bar-h, 54px) + 210px); }
       /* N10: the full pill list doesn't fit a 375px rail — keep the four core
          destinations (Check-in · Pricing · Location · Wait) on phones;
          the full list returns from md up. */
@@ -95,7 +115,7 @@
     [role="tablist"]::after {
       content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 44px;
       border-radius: 0 14px 14px 0; pointer-events: none; opacity: 0;
-      background: linear-gradient(to left, #f1f5f9 35%, rgba(241,245,249,0));
+      background: linear-gradient(to left, rgb(var(--c-fade)) 35%, rgb(var(--c-fade) / 0));
       transition: opacity 150ms;
     }
     [role="tablist"].can-scroll::after { opacity: 1; }
@@ -187,7 +207,7 @@
       <a href="#home" class="flex items-center gap-2">
         <!-- SWIFT logo mark (teal) -->
         <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" fill="#159595"/>
+          <circle cx="24" cy="24" r="22" style="fill:rgb(var(--c-teal-500))"/>
           <path d="M31 14H20a6 6 0 0 0 0 12h8a6 6 0 0 1 0 12H15" stroke="white" stroke-width="4" stroke-linecap="round"/>
           <path d="M13 20l4-3v6l-4-3zM35 28l-4 3v-6l4 3z" fill="white"/>
         </svg>
@@ -342,14 +362,18 @@
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
         <div data-panel="checkinPanel" id="checkinForm" role="tabpanel" aria-labelledby="tab-checkin">
           <div class="max-w-3xl mx-auto">
-            <div id="checkinFormInner">
+            <!-- Single source of truth for the check-in form: SWIFT.init and
+                 SWIFT.forms.cancelQueue both clone this template, so a restyle
+                 can't regress on cancel. -->
+            <template id="tplCheckinForm">
               <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
                 <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
                 <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
                 <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
               </form>
               <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
-            </div>
+            </template>
+            <div id="checkinFormInner"></div>
           </div>
         </div>
         <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
@@ -537,8 +561,8 @@
           <svg viewBox="0 0 320 128" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
             <defs>
               <linearGradient id="wcBg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#0d9488"/>
-                <stop offset="100%" stop-color="#115e59"/>
+                <stop offset="0%" style="stop-color:rgb(var(--c-wc-grad-a))"/>
+                <stop offset="100%" style="stop-color:rgb(var(--c-wc-grad-b))"/>
               </linearGradient>
             </defs>
             <rect width="320" height="128" fill="url(#wcBg)"/>

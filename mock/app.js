@@ -69,6 +69,7 @@
       phone: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>`,
       mail: `<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>`,
       map: `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
+      "chevron-down": `<polyline points="6 9 12 15 18 9"/>`,
     };
     const p = paths[name];
     if (!p) return "";
@@ -163,17 +164,6 @@
       });
       return;
     }
-
-    // Default: classic <details> accordion
-    el.innerHTML = items.map((item, i) => `
-      <details class="bg-slate-50 border border-slate-200 rounded-xl p-4 group" ${i === 0 && opts.openFirst ? "open" : ""}>
-        <summary class="cursor-pointer font-semibold text-slate-800 flex items-center justify-between gap-2 list-none min-h-[44px]">
-          <span class="flex items-center gap-2"><span class="text-teal-600">${SWIFT.ui.icon(item.icon, 20)}</span><span>${escapeHTML(item.title)}</span></span>
-          <span class="text-teal-600 group-open:rotate-180 transition-transform">${SWIFT.ui.icon("check", 18)}</span>
-        </summary>
-        <p class="mt-2 text-sm text-slate-600">${escapeHTML(item.body)}</p>
-      </details>
-    `).join("");
   };
 
   // ---------- Toast + Action DSL ----------
@@ -394,20 +384,6 @@
         <div class="text-xs text-slate-400">${escapeHTML(s.sub || "")}</div>
       </div>`;
   }
-
-  // Compact horizontal layout used in the Doctors aside panel (desktop only).
-  function trustRowTemplate(s) {
-    return `
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center shrink-0">${SWIFT.ui.icon(s.icon, 18)}</div>
-        <div class="min-w-0">
-          <div class="text-lg font-extrabold text-teal-700 leading-tight">${escapeHTML(s.value)}</div>
-          <div class="text-xs font-semibold text-slate-700">${escapeHTML(s.label)}</div>
-          <div class="text-[11px] text-slate-400">${escapeHTML(s.sub || "")}</div>
-        </div>
-      </div>`;
-  }
-
 
   function intentTemplate(i) {
     const label = i.action && (i.action.label || i.action.ctaLabel) || "Go";
@@ -661,15 +637,11 @@
   SWIFT.forms.cancelQueue = function () {
     SWIFT.state.queueNumber = Math.max(D.queuePosition.currentInQueue, SWIFT.state.queueNumber - 1);
     SWIFT.ui.toast("Your place was cancelled.");
-    // Restore the form inside the panel's inner slot.
+    // Restore the form inside the panel's inner slot, from the shared template
+    // (same source SWIFT.init uses — one markup, no drift).
     const container = $("checkinFormInner") || $("checkinForm");
-    container.innerHTML = `
-      <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
-        <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
-        <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
-        <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
-      </form>
-      <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>`;
+    const tpl = $("tplCheckinForm");
+    if (container && tpl) container.innerHTML = tpl.innerHTML;
     SWIFT.render.populateQueueServiceSelect();
   };
 
@@ -1240,6 +1212,29 @@
   };
 
   SWIFT.init = function () {
+    // Fixed bottom chrome (mobile action bar → jump bar → FAB → panels) is
+    // offset from the *measured* action-bar height instead of hand-tuned px,
+    // so font changes can't collide the stack. See the ≤767px ladder in the
+    // inline stylesheet, which reads --action-bar-h.
+    const measureChrome = function () {
+      const bar = $("mobileActionBar");
+      document.documentElement.style.setProperty(
+        "--action-bar-h", ((bar && bar.offsetHeight) || 0) + "px"
+      );
+    };
+    measureChrome();
+    window.addEventListener("resize", measureChrome);
+    // Re-measure once web fonts land (font swap changes the bar's height).
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(measureChrome);
+    }
+
+    // Check-in form: clone the shared template into the panel's inner slot
+    // (SWIFT.forms.cancelQueue reuses the same template).
+    const checkinSlot = $("checkinFormInner");
+    const checkinTpl = $("tplCheckinForm");
+    if (checkinSlot && checkinTpl) checkinSlot.innerHTML = checkinTpl.innerHTML;
+
     // Snapshot the original services/intents ordering so campaign re-orders can be undone.
     SWIFT.state._baseline = {
       services: D.services.slice(),
