@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SWIFT Emergency &amp; Urgent Care</title>
   <meta name="description" content="SWIFT Emergency & Urgent Care — Emergency Physician led urgent care in Rouse Hill. Walk in for minor emergencies. Emergency? Think SWIFT." />
+  <!-- Plus Jakarta Sans variable face (Heltro uplift Phase 1). wght 200..800
+       so the h3 font-light sites don't synthesize a faux-light. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     // Brand palette based on the current SWIFT website (teal).
@@ -26,7 +31,13 @@
             },
           },
           fontFamily: {
-            sans: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          },
+          // Heltro's weight ceiling is 600 — retire every font-extrabold site
+          // at once by mapping the heavy keys onto 600.
+          fontWeight: {
+            bold: '600',
+            extrabold: '600',
           },
         },
       },
@@ -47,6 +58,8 @@
       --c-wc-grad-b: 17 94 89;
     }
     html { scroll-behavior: smooth; }
+    /* Heltro body texture: 500 weight, light negative tracking. */
+    body { font-weight: 500; letter-spacing: -0.011em; }
     .demo-badge { background: repeating-linear-gradient(45deg,rgb(var(--c-teal-600)),rgb(var(--c-teal-600)) 10px,rgb(var(--c-teal-700)) 10px,rgb(var(--c-teal-700)) 20px); }
     /* Visible focus rings for keyboard navigation */
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
