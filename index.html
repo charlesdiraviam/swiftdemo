@@ -5,69 +5,206 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SWIFT Emergency &amp; Urgent Care</title>
   <meta name="description" content="SWIFT Emergency & Urgent Care — Emergency Physician led urgent care in Rouse Hill. Walk in for minor emergencies. Emergency? Think SWIFT." />
+  <!-- Plus Jakarta Sans variable face (Heltro uplift Phase 1). wght 200..800
+       so the h3 font-light sites don't synthesize a faux-light. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Brand palette based on the current SWIFT website (teal).
+    // Brand palette (Heltro uplift Phase 2). Teal is stored as RGB triplets in
+    // :root vars so Tailwind's <alpha-value> placeholder AND the inline
+    // stylesheet's plain-CSS reads share one definition. Config and :root must
+    // land together — an undefined var invalidates the color silently.
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             teal: {
-              50: "#eafafa",
-              100: "#c9f0f0",
-              200: "#95e0e0",
-              300: "#5ccaca",
-              400: "#2fb0b0",
-              500: "#159595", // primary brand teal
-              600: "#0e7676",
-              700: "#0c5f5f",
-              800: "#0b4d4d",
-              900: "#0a4040",
+              50: 'rgb(var(--c-teal-50) / <alpha-value>)',
+              100: 'rgb(var(--c-teal-100) / <alpha-value>)',
+              200: 'rgb(var(--c-teal-200) / <alpha-value>)',
+              300: 'rgb(var(--c-teal-300) / <alpha-value>)',
+              400: 'rgb(var(--c-teal-400) / <alpha-value>)',
+              500: 'rgb(var(--c-teal-500) / <alpha-value>)', // locked #159595
+              600: 'rgb(var(--c-teal-600) / <alpha-value>)',
+              700: 'rgb(var(--c-teal-700) / <alpha-value>)',
+              800: 'rgb(var(--c-teal-800) / <alpha-value>)',
+              900: 'rgb(var(--c-teal-900) / <alpha-value>)',
+            },
+            // Partial slate override to Heltro's neutrals — only the shades the
+            // a11y block and the design key on; 400/500/700/800 keep Tailwind's.
+            slate: {
+              50: '#F5F7F9',  // alt band
+              600: '#4C5F72', // body text
+              900: '#00111E', // dark ground
             },
           },
           fontFamily: {
-            sans: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          },
+          // Heltro's weight ceiling is 600 — retire every font-extrabold site
+          // at once by mapping the heavy keys onto 600.
+          fontWeight: {
+            bold: '600',
+            extrabold: '600',
+          },
+          // Heltro shape: 10px dominant radius (42px pills come via rounded-full).
+          borderRadius: {
+            xl: '10px',
+            '2xl': '10px',
+            lg: '8px',
+          },
+          // Soft Heltro elevation. Default/md are the resting card shadow;
+          // lg keeps floating chrome legible; btn is the CTA lift.
+          boxShadow: {
+            DEFAULT: '0 1px 49.3px rgba(0,0,0,.04)',
+            md: '0 1px 49.3px rgba(0,0,0,.04)',
+            lg: '0 1px 49.3px rgba(0,0,0,.10)',
+            btn: '0 12px 26px -18px rgba(0,0,0,.55)',
+          },
+          // Heltro display sizes as NEW semantic tokens. text-2xl/text-3xl are
+          // deliberately untouched — they also serve numeric displays (hero
+          // stat cards, trust values, queue result, pricing out-of-pocket)
+          // where 45px heading tracking would be wrong.
+          fontSize: {
+            display: ['65px', { lineHeight: '1.15', letterSpacing: '-3.2px', fontWeight: '600' }],
+            h2: ['45px', { lineHeight: '1.2', letterSpacing: '-1.6px', fontWeight: '600' }],
+            h3: ['29px', { lineHeight: '1.35', letterSpacing: '-0.435px' }],
+            // Heltro body texture on the two workhorse text sizes.
+            sm: ['15px', { lineHeight: '1.85', letterSpacing: '-0.56px' }],
+            xs: ['13px', { lineHeight: '1.5' }],
+          },
+          // Heltro container proportioned to our fixed 1280px canvas
+          // (Heltro's 1800px is full-bleed template width).
+          maxWidth: {
+            '6xl': '1280px',
           },
         },
       },
     };
   </script>
   <style>
+    /* Brand colour single-source-of-truth (Heltro uplift Phase 0).
+       Space-separated RGB triplets so Tailwind's <alpha-value> placeholder and
+       these plain-CSS reads share one definition. Keep in sync with tailwind.config. */
+    :root {
+      /* Full teal ramp — Tailwind's `rgb(var(--c-teal-N) / <alpha-value>)`
+         reads these, so alpha modifiers (bg-white/10, bg-black/50, from-teal-600/85…)
+         keep working. 500 is locked to the brand teal #159595; 800/900 are
+         drifted toward Heltro navy (#00111E family) so the dark bands read
+         petrol-navy while staying teal-family. */
+      --c-teal-50: 234 250 250;   /* #eafafa */
+      --c-teal-100: 201 240 240;  /* #c9f0f0 */
+      --c-teal-200: 149 224 224;  /* #95e0e0 */
+      --c-teal-300: 92 202 202;   /* #5ccaca */
+      --c-teal-400: 47 176 176;   /* #2fb0b0 */
+      --c-teal-500: 21 149 149;   /* #159595 primary brand teal */
+      --c-teal-600: 14 118 118;   /* #0e7676 */
+      --c-teal-700: 12 95 95;     /* #0c5f5f */
+      --c-teal-800: 13 56 70;     /* #0d3846 — drifted toward navy */
+      --c-teal-900: 7 36 47;      /* #07242f — drifted toward navy */
+      /* Heltro neutrals consumed by the inline stylesheet. */
+      --c-img-tint: 204 251 241;  /* img loading placeholder */
+      --c-scrollbar: 203 213 225; /* .scroll-row thumb */
+      --c-fade: 241 245 249;      /* tablist overflow fade */
+      --c-wc-grad-a: 14 118 118;  /* whyChooseAside SVG gradient (teal-600) */
+      --c-wc-grad-b: 13 56 70;    /* teal-800 */
+    }
     html { scroll-behavior: smooth; }
-    .demo-badge { background: repeating-linear-gradient(45deg,#0e7676,#0e7676 10px,#0c5f5f 10px,#0c5f5f 20px); }
+    /* Heltro body texture: 500 weight, light negative tracking. */
+    body { font-weight: 500; letter-spacing: -0.011em; }
+    /* Heltro section rhythm (Phase 5). A plain class is safe here — it
+       collides with no utility name, so the a11y-contrast contract holds.
+       Rhythm is 64px mobile / 96px ≥1024: Heltro's 130px would push the page
+       well past its current 12.2 viewports, and "too long to scroll" was the
+       client's original complaint (deliberate reduction per plan risk 2). */
+    .section-y { padding-top: 64px; padding-bottom: 64px; }
+    @media (min-width: 1024px) {
+      .section-y { padding-top: 96px; padding-bottom: 96px; }
+    }
+    .demo-badge { background: repeating-linear-gradient(45deg,rgb(var(--c-teal-600)),rgb(var(--c-teal-600)) 10px,rgb(var(--c-teal-700)) 10px,rgb(var(--c-teal-700)) 20px); }
     /* Visible focus rings for keyboard navigation */
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
-      outline: 3px solid #159595;
+      outline: 3px solid rgb(var(--c-teal-500));
       outline-offset: 2px;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     /* Accessibility toggles */
     body.a11y-large { font-size: 18px; }
     body.a11y-large .text-sm { font-size: 1rem; }
     body.a11y-large .text-xs { font-size: 0.875rem; }
-    body.a11y-contrast { background: #0a0f1a; color: #f8fafc; }
-    body.a11y-contrast .bg-white { background: #111827 !important; color: #f8fafc; }
+    /* Dark palette realigned to the Heltro #00111E family (Phase 2). */
+    body.a11y-contrast { background: #00111E; color: #f8fafc; }
+    body.a11y-contrast .bg-white { background: #0d2033 !important; color: #f8fafc; }
     body.a11y-contrast .text-slate-800, body.a11y-contrast .text-slate-700, body.a11y-contrast .text-slate-600, body.a11y-contrast .text-slate-500 { color: #f8fafc !important; }
-    body.a11y-contrast .border-slate-200, body.a11y-contrast .border-slate-300 { border-color: #475569 !important; }
-    body.a11y-contrast .bg-slate-50 { background: #1f2937 !important; }
-    /* Spinner for wait-times refresh */
+    body.a11y-contrast .border-slate-200, body.a11y-contrast .border-slate-300 { border-color: #3c5168 !important; }
+    body.a11y-contrast .bg-slate-50 { background: #12293e !important; }
+    /* Spinner for wait-times refresh. The Tailwind Play CDN injects its
+       stylesheet after this block, so its `.animate-spin` (1s infinite) wins
+       any plain-CSS tie — the !important keeps the intended single 0.7s spin
+       regardless of cascade order. */
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .animate-spin { display: inline-block; animation: spin 0.7s linear; }
+    .animate-spin { display: inline-block; animation: spin 0.7s linear !important; }
     /* Imagery: lazy <img> safety net — neutral background while loading */
-    img { background: #ccfbf1; }
-    .img-fallback { background: #ccfbf1; opacity: 0.85; }
+    img { background: rgb(var(--c-img-tint)); }
+    .img-fallback { background: rgb(var(--c-img-tint)); opacity: 0.85; }
     /* Jump-bar active-pill highlight (K3) — teal pill when its section is in view. */
     .jump-pill { transition: background-color 120ms, color 120ms, border-color 120ms; }
-    .jump-pill.is-active { background-color: #159595; color: #ffffff; border-color: #0c5f5f; }
-    .jump-pill.is-active:hover { background-color: #0e7676; }
+    .jump-pill.is-active { background-color: rgb(var(--c-teal-500)); color: #ffffff; border-color: rgb(var(--c-teal-700)); }
+    .jump-pill.is-active:hover { background-color: rgb(var(--c-teal-600)); }
     /* Horizontal-scrolling content rows (L3) — used for Services + Promotions. */
     .scroll-row { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
     .scroll-row > * { flex: 0 0 280px; scroll-snap-align: start; }
     @media (min-width: 640px) { .scroll-row > * { flex-basis: 320px; } }
     @media (min-width: 1024px) { .scroll-row > * { flex-basis: 360px; } }
     .scroll-row::-webkit-scrollbar { height: 6px; }
-    .scroll-row::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    .scroll-row { scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }
+    .scroll-row::-webkit-scrollbar-thumb { background: rgb(var(--c-scrollbar)); border-radius: 999px; }
+    .scroll-row { scrollbar-color: rgb(var(--c-scrollbar)) transparent; scrollbar-width: thin; }
+    /* Clear fixed bottom chrome (mobile action bar + jump bar + chat FAB) */
+    body { padding-bottom: 120px; }
+    /* L2: on mobile, lift the sticky jump bar above the fixed action bar
+       (Call / Directions / Book), then stack chat FAB → campaign sticky CTA
+       → chat panel above it so nothing collides. Desktop keeps bottom-3.
+       Heights are driven by --action-bar-h (measured at runtime in SWIFT.init),
+       so Heltro's taller line-heights can't collide the ladder. The deltas
+       below reproduce the previous hand-tuned 74/142/208/264px ladder when the
+       bar measures its current 54px. */
+    @media (max-width: 767px) {
+      body { padding-bottom: calc(var(--action-bar-h, 54px) + 96px); }
+      #jumpBar { bottom: calc(var(--action-bar-h, 54px) + 20px); }
+      .fixed.bottom-5.right-5 { bottom: calc(var(--action-bar-h, 54px) + 88px); }
+      #stickyCta { bottom: calc(var(--action-bar-h, 54px) + 154px); }
+      #chatPanel { bottom: calc(var(--action-bar-h, 54px) + 210px); }
+      #toast { bottom: calc(var(--action-bar-h, 54px) + 210px); }
+    }
+    /* The eleven pills need ~1085px. Below xl there isn't room, and a rail the
+       user has to scroll sideways isn't a shortcut — so keep only the four core
+       destinations (Check-in · Pricing · Location · Wait) until the full set
+       genuinely fits. The header nav carries the rest at those widths. */
+    @media (max-width: 1279px) {
+      #jumpBar .jump-pill.pill-extra { display: none; }
+    }
+    /* Even four pills need ~392px, so tighten padding on the narrowest phones
+       rather than letting the rail scroll. Touch height is unaffected. */
+    @media (max-width: 400px) {
+      #jumpBar .jump-pill { padding-left: 0.5rem; padding-right: 0.5rem; gap: 0.2rem; }
+      #jumpBar > div { gap: 0.25rem; padding-left: 0.25rem; padding-right: 0.25rem; }
+    }
+    /* Sticky header offset for all anchored sections and tab panels */
+    section[id], [id][role="tabpanel"] { scroll-margin-top: 80px; }
+    /* Jump-bar pills meet minimum touch target */
+    .jump-pill { min-height: 44px; display: inline-flex; align-items: center; }
+    /* T5: overflow affordance for tab strips that clip on small screens —
+       a soft right-edge fade appears only while there is more to scroll. */
+    [role="tablist"] { position: relative; }
+    [role="tablist"]::after {
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 44px;
+      border-radius: 0 10px 10px 0; pointer-events: none; opacity: 0;
+      background: linear-gradient(to left, rgb(var(--c-fade)) 35%, rgb(var(--c-fade) / 0));
+      transition: opacity 150ms;
+    }
+    [role="tablist"].can-scroll::after { opacity: 1; }
   </style>
 
   <!-- SEO-for-AI structured data (Phase I5). Populated at runtime by SWIFT.ai.buildJsonLd(). -->
@@ -104,7 +241,7 @@
   </div>
   <!-- Sample-imagery note (visible only on larger screens to avoid mobile clutter) -->
   <div class="hidden md:block bg-amber-50 text-amber-800 text-center text-[11px] py-1 border-b border-amber-200">
-    Demo photography from <a href="https://unsplash.com" class="underline" rel="noopener noreferrer" target="_blank">Unsplash</a> — representative imagery only; replace before client hand-off.
+    Sample photography — services, doctors and offers use free-licence <a href="https://unsplash.com" class="underline" rel="noopener noreferrer" target="_blank">Unsplash</a> images; the hero and infusion photos are still from the <a href="https://heltro.webflow.io" class="underline" rel="noopener noreferrer" target="_blank">Heltro</a> template (stock licensed to its author) and must be replaced before client hand-off or public launch.
   </div>
 
   <!-- Campaign ribbon (hidden by default) -->
@@ -156,7 +293,7 @@
       <a href="#home" class="flex items-center gap-2">
         <!-- SWIFT logo mark (teal) -->
         <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" fill="#159595"/>
+          <circle cx="24" cy="24" r="22" style="fill:rgb(var(--c-teal-500))"/>
           <path d="M31 14H20a6 6 0 0 0 0 12h8a6 6 0 0 1 0 12H15" stroke="white" stroke-width="4" stroke-linecap="round"/>
           <path d="M13 20l4-3v6l-4-3zM35 28l-4 3v-6l4 3z" fill="white"/>
         </svg>
@@ -167,13 +304,13 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-        <a href="#checkin" class="hover:text-teal-600" data-i18n="checkIn">Check-in</a>
+        <a href="#checkinForm" class="hover:text-teal-600" data-i18n="checkIn">Check-in</a>
         <a href="#wait" class="hover:text-teal-600" data-i18n="waitTimes">Wait Times</a>
-        <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" class="hover:text-teal-600" data-i18n="pricing">Pricing</a>
+        <a href="#pricing" class="hover:text-teal-600" data-i18n="pricing">Pricing</a>
         <a href="#services" class="hover:text-teal-600" data-i18n="services">Services</a>
         <a href="#doctors" class="hover:text-teal-600" data-i18n="doctors">Doctors</a>
-        <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('locationPanel'); return false;" class="hover:text-teal-600" data-i18n="location">Location</a>
-        <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" class="hover:text-teal-600" data-i18n="contact">Contact</a>
+        <a href="#location" class="hover:text-teal-600" data-i18n="location">Location</a>
+        <a href="#enquiries" class="hover:text-teal-600" data-i18n="contact">Contact</a>
       </nav>
 
       <div class="flex items-center gap-2">
@@ -181,50 +318,61 @@
           <span class="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
           <span>Wait <span id="headerWaitValue">~12 min</span></span>
         </a>
-        <button onclick="openBooking()" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">Book Now</button>
+        <button onclick="openBooking()" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-btn">Book Now</button>
         <button onclick="toggleMobileNav()" class="md:hidden p-2 text-slate-600" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       </div>
     </div>
     <!-- Mobile nav -->
     <div id="mobileNav" class="md:hidden hidden border-t border-slate-200 bg-white">
       <div class="px-4 py-3 grid grid-cols-2 gap-3 text-slate-700 text-sm">
-        <a href="#checkin" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Check-in</a>
+        <a href="#checkinForm" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Check-in</a>
         <a href="#wait" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-clock"/></svg>Wait Times</a>
         <a href="#pricing" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing</a>
         <a href="#services" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services</a>
         <a href="#doctors" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-doctor"/></svg>Doctors</a>
-        <a href="#beforeYouVisit" onclick="toggleMobileNav(); SWIFT.ui.openTab('locationPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
-        <a href="#checkin" onclick="toggleMobileNav(); SWIFT.ui.openTab('enquiriesPanel');" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold col-span-2 inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-mail"/></svg>Contact</a>
+        <a href="#location" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>Location</a>
+        <a href="#enquiries" onclick="toggleMobileNav()" class="bg-slate-50 hover:bg-teal-50 rounded-lg px-3 py-3 font-semibold col-span-2 inline-flex items-center gap-2"><svg width="16" height="16" aria-hidden="true"><use href="#i-mail"/></svg>Contact</a>
       </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section id="home" class="relative bg-gradient-to-br from-teal-600 to-teal-800 text-white overflow-hidden">
-    <div id="heroBg" aria-hidden="true" class="absolute inset-0 opacity-25 bg-cover bg-center"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-teal-600/85 to-teal-800/90" aria-hidden="true"></div>
-    <div class="relative max-w-6xl mx-auto px-4 py-12 sm:py-14">
-      <div class="grid md:grid-cols-2 gap-6 items-center min-h-[420px] md:min-h-[460px]">
+  <!-- Hero — Heltro uplift Phase 7: full-bleed photograph, tight-tracked
+       display headline, exactly ONE CTA (closes defect C10), glass quick-info
+       cards and the trust stats overlaid as white cards on the photo. -->
+  <section id="home" class="relative bg-teal-900 text-white overflow-hidden">
+    <div id="heroBg" aria-hidden="true" class="absolute inset-0 bg-cover bg-center"></div>
+    <!-- Scrim: flat base for global legibility + left bias behind the headline.
+         The photo dominates (opacity-25 wash removed). -->
+    <div class="absolute inset-0 bg-slate-900/55" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/30 to-slate-900/10" aria-hidden="true"></div>
+    <div class="relative max-w-6xl mx-auto px-4 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:pt-24 lg:pb-24">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div>
-          <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-4">Emergency Physician led · Walk-in</span>
-          <h1 id="heroHeadline" class="text-4xl sm:text-5xl font-extrabold leading-tight">Emergency? <span class="text-teal-200">Think SWIFT.</span></h1>
-          <p id="heroSubtext" class="mt-4 text-teal-50/90 text-lg max-w-md">
+          <span id="heroEyebrow" class="inline-block bg-white/15 text-teal-50 text-xs font-semibold px-3 py-1 rounded-full mb-5">Emergency Physician led · Walk-in</span>
+          <h1 id="heroHeadline" class="text-display font-extrabold">Emergency? <span class="text-teal-100">Think SWIFT.</span></h1>
+          <p id="heroSubtext" class="mt-5 text-teal-50/90 text-lg max-w-lg">
             Best-practice urgent care in a calm, modern environment. Minor emergencies — no appointment needed, just walk in.
           </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-teal-50">Request Appointment</button>
-            <button id="heroReserveCta" onclick="SWIFT.ui.openTab('checkinPanel'); document.getElementById('checkin').scrollIntoView({behavior:'smooth', block:'start'}); return false;" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Reserve my spot</button>
-            <a id="heroSecondaryCta" href="#wait" class="bg-teal-500/40 border border-white/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/60">Check Wait Times</a>
+          <!-- C10: one primary CTA per section — the solid button. Campaign
+               variants re-label it via campaign.apply; the previous reserve /
+               wait-times links are gone (apply() guards them with if (sCta)). -->
+          <div class="mt-8">
+            <button id="heroPrimaryCta" onclick="openBooking()" class="bg-white text-teal-700 font-semibold px-6 py-3 rounded-xl shadow-btn hover:bg-teal-50">Request Appointment</button>
+          </div>
+          <!-- Avatar-stack social proof — reuses D.doctors[].image -->
+          <div class="mt-8 flex items-center gap-3">
+            <div id="heroAvatars" class="flex -space-x-2.5 shrink-0"></div>
+            <p class="text-sm text-teal-50/90">Trusted by <span class="font-semibold text-white">20,000+</span> patients · <span class="font-semibold text-white">4.9★</span> Google rating</p>
           </div>
         </div>
 
-        <!-- Quick info cards -->
+        <!-- Quick info cards (glass over the photo) -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
             <div id="heroWaitIcon" class="text-teal-200"></div>
             <div class="mt-2 text-sm text-teal-100 flex items-center gap-1.5">
               <span>AI-predicted wait</span>
-              <svg id="heroWaitTrend" width="12" height="12" aria-hidden="true" class="text-teal-200"></svg>
+              <svg id="heroWaitTrend" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" class="text-teal-200"></svg>
             </div>
             <div id="heroWait" class="text-2xl font-bold flex items-center gap-2">
               <span id="heroWaitValue">~12 min</span>
@@ -244,7 +392,7 @@
             </div>
             <div class="mt-2 text-sm text-teal-100">We treat ages</div>
             <div class="text-2xl font-bold">3 months +</div>
-            <a href="#faq" class="mt-1 inline-block text-[11px] text-teal-200 underline">See who's eligible</a>
+            <a href="#faq-2" class="mt-1 inline-block text-[11px] text-teal-200 underline">See who's eligible</a>
           </div>
           <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
             <div class="text-teal-200">
@@ -256,35 +404,19 @@
         </div>
       </div>
 
-      <!-- AI symptom checker (Phase I1 / L1) — full-width bar -->
-      <div id="aiSymptomCard" class="mt-6 bg-white/10 backdrop-blur rounded-2xl p-4 sm:p-5 border border-white/15">
-        <form id="aiSymptomForm" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div class="flex items-center gap-2 text-teal-200 sm:shrink-0">
-            <svg width="22" height="22" aria-hidden="true"><use href="#i-chat"/></svg>
-            <span class="text-xs uppercase tracking-widest font-bold whitespace-nowrap">AI symptom check</span>
-          </div>
-          <input id="aiSymptomInput" type="text" placeholder="Describe symptoms — e.g. 'chest pain' or 'sprained ankle'" class="flex-1 px-3 py-2 rounded-lg text-slate-800 placeholder-slate-400 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400" />
-          <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-5 py-2 rounded-lg sm:shrink-0">Ask AI</button>
-        </form>
-        <div id="aiSymptomHint" class="mt-2 text-[11px] text-teal-100/80 sm:text-center">AI demo — not medical advice; call 000 in an emergency.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust bar (mobile-only strip — desktop gets the trust aside inside Doctors) -->
-  <section id="trust" class="bg-white border-b border-slate-200 lg:hidden">
-    <div class="max-w-6xl mx-auto px-4 py-5">
-      <div id="trustGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      <!-- Trust stats — moved from the former #trust strip; white cards
+           overlapping the photo (reuses D.trustStats + trustTemplate) -->
+      <div id="trustGrid" class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
     </div>
   </section>
 
   <!-- Intent-based entry -->
-  <section id="intents" class="max-w-6xl mx-auto px-4 py-12">
+  <section id="intents" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-2xl font-extrabold text-slate-800">What do you need today?</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">What do you need today?</h2>
       <p class="mt-2 text-slate-500">Pick a quick route — we'll take you straight there.</p>
     </div>
-    <div id="intentsGrid" class="mt-8 grid sm:grid-cols-3 gap-4"></div>
+    <div id="intentsGrid" class="mt-6 grid sm:grid-cols-3 gap-4"></div>
   </section>
 
   <!-- Get-care band — launcher (J3/J4/J7): only links to existing sections, no duplicated headings -->
@@ -294,44 +426,51 @@
       <a href="#checkinForm" class="inline-flex items-center gap-2 bg-white hover:bg-teal-100 text-teal-800 font-semibold text-sm px-4 py-2 rounded-xl border border-teal-200">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Reserve my spot
       </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" class="inline-flex items-center gap-2 bg-white hover:bg-teal-100 text-teal-800 font-semibold text-sm px-4 py-2 rounded-xl border border-teal-200">
-        <svg width="16" height="16" aria-hidden="true"><use href="#i-clock"/></svg>Can we treat this?
-      </a>
-      <button onclick="openBooking()" class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl">
+      <button onclick="openBooking()" class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl shadow-btn">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-clipboard"/></svg>Book online
       </button>
     </div>
   </section>
 
   <!-- Before-you-visit hub (G1) -->
-  <section id="beforeYouVisit" class="bg-white border-y border-slate-200" data-tabs-root>
-    <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+  <section id="beforeYouVisit" class="bg-white border-y border-slate-200 section-y" data-tabs-root>
+    <div class="max-w-6xl mx-auto px-4">
       <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Before you visit</h2>
-        <p class="mt-2 text-slate-500">Everything you need to plan your visit — pick a tab.</p>
+        <h2 class="text-h2 font-extrabold text-slate-800">Before you visit</h2>
+        <p class="mt-2 text-slate-500">Reserve your spot, check costs, and plan your visit.</p>
       </div>
-      <!-- Tab strip (N2: Location is now the 5th tab here — was previously in Patient hub) -->
+      <!-- Tab strip (T1: Location moved out to its own section — this hub is
+           strictly visit-prep: Check-in · Pricing · What to expect · Practical info.
+           Check-in moved in from its own standalone section, now the default tab) -->
       <div role="tablist" aria-label="Before you visit" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="triagePanel" aria-selected="true">Triage</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="pricingPanel" aria-selected="false" tabindex="-1">Pricing</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="journeyPanel" aria-selected="false" tabindex="-1">What to expect</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="amenitiesPanel" aria-selected="false" tabindex="-1">Practical info</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="locationPanel" aria-selected="false" tabindex="-1">Location</button>
+        <button id="tab-checkin" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-controls="checkinForm" aria-selected="true">Check-in</button>
+        <button id="tab-pricing" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="pricingPanel" aria-controls="pricing" aria-selected="false" tabindex="-1">Pricing</button>
+        <button id="tab-journey" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="journeyPanel" aria-controls="journey" aria-selected="false" tabindex="-1">What to expect</button>
+        <button id="tab-amenities" role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="amenitiesPanel" aria-controls="amenities" aria-selected="false" tabindex="-1">Practical info</button>
       </div>
 
-      <!-- Panels — id on the visible ones keeps #triage / #pricing / #journey / #amenities deep links working. -->
+      <!-- Panels — id on the visible ones keeps #checkinForm / #pricing / #journey / #amenities deep links working. -->
       <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
-        <div data-panel="triagePanel" id="triage" role="tabpanel">
-          <h3 class="text-lg font-extrabold text-slate-800">Can we treat this?</h3>
-          <p class="mt-1 text-sm text-slate-500">Answer 3 quick questions and we'll guide you.</p>
-          <div id="triageIntro" class="mt-5 bg-teal-50 border border-teal-200 rounded-2xl p-5 text-center">
-            <p class="text-slate-700">We'll ask 3 short questions about the patient's age, severity and what they need help with.</p>
-            <button onclick="SWIFT.triage.start()" class="mt-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Start triage</button>
+        <div data-panel="checkinPanel" id="checkinForm" role="tabpanel" aria-labelledby="tab-checkin">
+          <div class="max-w-3xl mx-auto">
+            <!-- Single source of truth for the check-in form. It ships as STATIC
+                 markup so it renders before app.js runs, survives a JS error, and
+                 is visible to crawlers — a <template> here left the default tab a
+                 blank box until init cloned it. SWIFT.init snapshots this
+                 innerHTML and SWIFT.forms.cancelQueue restores from that snapshot,
+                 so there is still exactly one copy of the markup. -->
+            <div id="checkinFormInner">
+              <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
+                <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
+                <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
+                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Add me to the queue</button>
+              </form>
+              <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
+            </div>
           </div>
-          <div id="triageQuestions" class="mt-5"></div>
         </div>
-        <div data-panel="pricingPanel" id="pricing" role="tabpanel" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">Pricing &amp; cost estimator</h3>
+        <div data-panel="pricingPanel" id="pricing" role="tabpanel" aria-labelledby="tab-pricing" class="hidden">
+          <h3 class="text-h3 font-light text-slate-800">Pricing &amp; cost estimator</h3>
           <p class="mt-1 text-sm text-slate-500">Quick estimate — exact costs depend on your treatment.</p>
           <form id="pricingForm" onsubmit="submitPricing(event)" class="mt-5 grid sm:grid-cols-2 gap-4 bg-white border border-slate-200 rounded-xl p-5">
             <label class="block">
@@ -358,12 +497,12 @@
                 <option value="no">No</option>
               </select>
             </label>
-            <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Calculate estimate</button>
+            <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Calculate estimate</button>
           </form>
           <div id="pricingResult" class="mt-5 hidden"></div>
         </div>
-        <div data-panel="journeyPanel" id="journey" role="tabpanel" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">What to expect · what to bring</h3>
+        <div data-panel="journeyPanel" id="journey" role="tabpanel" aria-labelledby="tab-journey" class="hidden">
+          <h3 class="text-h3 font-light text-slate-800">What to expect · what to bring</h3>
           <p class="mt-1 text-sm text-slate-500">Plan your visit in two minutes.</p>
           <div class="mt-5 grid md:grid-cols-2 gap-6">
             <div>
@@ -376,34 +515,39 @@
             </div>
           </div>
         </div>
-        <div data-panel="amenitiesPanel" id="amenities" role="tabpanel" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">Practical visit info</h3>
+        <div data-panel="amenitiesPanel" id="amenities" role="tabpanel" aria-labelledby="tab-amenities" class="hidden">
+          <h3 class="text-h3 font-light text-slate-800">Practical visit info</h3>
           <p class="mt-1 text-sm text-slate-500">Everything you need for a smooth visit.</p>
           <div id="amenitiesGrid" class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
         </div>
-        <div data-panel="locationPanel" id="location" role="tabpanel" class="hidden">
-          <h3 class="text-lg font-extrabold text-slate-800">Find us</h3>
-          <p class="mt-1 text-sm text-slate-500">Plan your trip — directions, parking and contact.</p>
-          <div class="mt-5 grid md:grid-cols-2 gap-6 items-stretch">
-            <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6 sm:p-8">
-              <dl class="space-y-3 text-slate-700 text-sm">
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
-                <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
-              </dl>
-              <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Location — its own block (T1: no longer filed under visit-prep tabs).
+       All #location deep links (nav, jump pill, campaigns) land here directly. -->
+  <section id="location" class="max-w-6xl mx-auto px-4 section-y">
+    <div class="text-center max-w-2xl mx-auto">
+      <h2 class="text-h2 font-extrabold text-slate-800">Find us</h2>
+      <p class="mt-2 text-slate-500">Directions, parking and contact.</p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-6 items-stretch">
+      <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6 sm:p-8">
+        <dl class="space-y-3 text-slate-700 text-sm">
+          <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>G38, 32 Civic Way, Rouse Hill NSW 2155</span></div>
+          <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Open daily 10am–10pm<br/><span class="text-xs text-slate-500">Last registration 9:00pm</span></span></div>
+          <div class="flex gap-2.5"><span class="text-teal-600 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:0288599099" class="hover:text-teal-700 font-semibold">(02) 8859 9099</a></div>
+        </dl>
+        <button onclick="getDirections()" class="mt-5 w-full bg-white text-teal-700 hover:bg-teal-100 font-semibold py-3 rounded-xl border border-teal-200">Open in Google Maps</button>
+      </div>
+      <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
+        <div class="absolute inset-0 grid place-items-center text-center p-6">
+          <div>
+            <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
+              <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
             </div>
-            <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[280px] relative">
-              <div class="absolute inset-0 grid place-items-center text-center p-6">
-                <div>
-                  <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
-                    <svg width="28" height="28" aria-hidden="true"><use href="#i-map"/></svg>
-                  </div>
-                  <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
-                  <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
-                </div>
-              </div>
-            </div>
+            <p class="mt-3 text-slate-500 text-sm">Google Maps embed placeholder<br/>(integration mocked for demo)</p>
+            <button onclick="getDirections()" class="mt-4 text-teal-600 font-semibold underline">Open directions</button>
           </div>
         </div>
       </div>
@@ -411,150 +555,75 @@
   </section>
 
   <!-- Wait times widget -->
-  <section id="wait" class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
-    <div class="bg-gradient-to-br from-slate-800 to-teal-900 text-white rounded-2xl p-5 sm:p-6">
+  <section id="wait" class="max-w-6xl mx-auto px-4 section-y">
+    <div class="bg-gradient-to-br from-slate-800 to-teal-900 text-white rounded-2xl p-4 sm:p-5">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-teal-500/20 grid place-items-center text-teal-200">
-            <svg width="20" height="20" aria-hidden="true"><use href="#i-clock"/></svg>
+          <div class="w-9 h-9 rounded-lg bg-teal-500/20 grid place-items-center text-teal-200">
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-clock"/></svg>
           </div>
           <div>
-            <h2 class="text-lg font-extrabold leading-tight">Live Wait Times</h2>
-            <p class="text-slate-300 text-xs">Mock NSW Health data · refreshes every minute</p>
+            <h2 class="text-h3 font-light leading-tight">Live Wait Times</h2>
+            <p class="text-slate-300 text-[11px]">Mock NSW Health data · refreshes every minute</p>
           </div>
         </div>
-        <button onclick="refreshWaitTimes()" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-sm">
+        <button onclick="refreshWaitTimes()" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs sm:text-sm">
           <svg id="refreshSpin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Refresh
         </button>
       </div>
-      <div id="waitList" class="mt-4 grid sm:grid-cols-2 gap-2"></div>
-      <p class="text-[11px] text-slate-400 mt-3">Updated <span id="waitUpdated">just now</span> · demo data, not real hospital figures.</p>
+      <div id="waitList" class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-2"></div>
+      <p class="text-[11px] text-slate-400 mt-2">Updated <span id="waitUpdated">just now</span> · demo data, not real hospital figures.</p>
     </div>
   </section>
 
   <!-- Services -->
-  <section id="services" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+  <section id="services" class="max-w-6xl mx-auto px-4 section-y">
     <div class="text-center max-w-2xl mx-auto">
-      <h2 class="text-3xl font-extrabold text-slate-800">Our Services</h2>
+      <h2 class="text-h2 font-extrabold text-slate-800">Our Services</h2>
       <p class="mt-3 text-slate-500">Purpose-built emergency care for non-life-threatening injuries and illness.</p>
+      <p class="mt-3 inline-flex items-start gap-2 text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-left">
+        <svg width="16" height="16" class="text-slate-400 shrink-0 mt-0.5" aria-hidden="true"><use href="#i-clipboard"/></svg>
+        <span>Cards marked <span class="font-semibold text-slate-600">Partner provider</span> are delivered on site by an external provider. Their fees differ from the $396 SWIFT facility fee — check the fees page before you attend. Radiology is provided by Imaging Specialists.</span>
+      </p>
     </div>
-    <div id="servicesGrid" class="mt-8 scroll-row"></div>
+    <div id="servicesGrid" class="mt-6 scroll-row lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0 gap-4"></div>
   </section>
 
-  <!-- Online check-in + Patient hub (M1) — one section with 5 tabs:
-       Check-in · Test results · Referrals · Enquiries · Location. -->
-  <section id="checkin" class="bg-white border-y border-slate-200" data-tabs-root>
-    <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-      <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Patient hub</h2>
-        <p class="mt-2 text-slate-500">Reserve your spot, view test results, send a referral or ask us a question.</p>
-      </div>
-      <!-- Tab strip (N2: Location moved to Before-you-visit; Check-in renamed to Reserve my spot) -->
-      <div role="tablist" aria-label="Patient hub" class="mt-6 inline-flex w-full sm:w-auto bg-slate-100 rounded-2xl p-1 gap-1 overflow-x-auto whitespace-nowrap">
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-teal-500 text-white" data-tab="checkinPanel" aria-selected="true">Reserve my spot</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="resultsPanel" aria-selected="false" tabindex="-1">Test results</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="referralsPanel" aria-selected="false" tabindex="-1">Referrals</button>
-        <button role="tab" class="tab-button flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-700" data-tab="enquiriesPanel" aria-selected="false" tabindex="-1">Enquiries</button>
-      </div>
+  <!-- Online check-in (M1 / T4): folded into the "Before you visit" hub above
+       as its default tab — one destination, one name. Enquiries live in the
+       Contact section below (T1). -->
 
-      <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
-        <div data-panel="checkinPanel" id="checkinForm" role="tabpanel">
-          <div class="max-w-3xl mx-auto">
-            <div id="checkinFormInner">
-              <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
-                <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
-                <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
-                <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
-              </form>
-              <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>
-            </div>
-          </div>
-        </div>
-        <div data-panel="resultsPanel" id="results" role="tabpanel" class="hidden">
-          <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl p-6 sm:p-8 text-center">
-            <div class="w-12 h-12 mx-auto rounded-full bg-teal-100 text-teal-700 grid place-items-center">
-              <svg width="24" height="24" aria-hidden="true"><use href="#i-scan" /></svg>
-            </div>
-            <h3 class="mt-3 text-2xl font-extrabold text-slate-800">Test &amp; imaging results</h3>
-            <p class="mt-2 text-slate-500 max-w-md mx-auto">Access your SWIFT results securely online. (Demo login below.)</p>
-            <button onclick="openResults()" class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">Open test results</button>
-            <p class="mt-3 text-xs text-slate-400">DEMO ONLY · sample data · use <code>demo</code> / <code>demo</code></p>
-          </div>
-        </div>
-        <div data-panel="referralsPanel" id="referrals" role="tabpanel" class="hidden">
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
-            <h3 class="text-2xl font-extrabold text-slate-800">Refer a patient</h3>
-            <p class="mt-2 text-slate-500 text-sm">GPs, specialists and WorkCover — send us a referral.</p>
-            <form onsubmit="submitReferral(event)" class="mt-5 space-y-3">
-              <input required placeholder="Your name" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-              <input required type="email" placeholder="Email" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-              <input required placeholder="Clinic / practice" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-              <textarea required placeholder="Referral details" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none"></textarea>
-              <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send referral</button>
-            </form>
-          </div>
-        </div>
-        <div data-panel="enquiriesPanel" id="enquiries" role="tabpanel" class="hidden">
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
-            <h3 class="text-2xl font-extrabold text-slate-800">Enquiries &amp; Bookings</h3>
-            <p class="mt-2 text-slate-500">Send us a message — we'll email you back. (Mock form for demo.)</p>
-            <form onsubmit="submitEnquiry(event)" class="mt-5 grid sm:grid-cols-2 gap-3">
-              <input required placeholder="Full name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-              <input required type="email" placeholder="Email" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
-              <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
-              <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
-              <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Send Enquiry</button>
-            </form>
-          </div>
-        </div>
-      </div>
+  <!-- Contact (T1: out of Patient hub). -->
+  <section id="enquiries" class="max-w-6xl mx-auto px-4 section-y">
+    <div class="text-center max-w-2xl mx-auto">
+      <h2 class="text-h2 font-extrabold text-slate-800">Contact us</h2>
+      <p class="mt-2 text-slate-500">Send us a message.</p>
     </div>
-  </section>
-
-  <!-- Promotions -->
-  <section class="max-w-6xl mx-auto px-4 py-8">
-    <div id="promoGrid" class="scroll-row"></div>
-  </section>
-
-  <!-- The previous standalone #locationMobile / #contact sections are now folded
-       into the Patient hub tabs above (L2). No duplicate content here. -->
-
-  <!-- N1: Jump bar relocated just before <footer> so its sticky containing block
-       extends to the end of the page, keeping the bar pinned to the viewport
-       bottom all the way through #faq. Was previously above #faq. -->
-
-  <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
-  <section id="faq" class="bg-white border-t border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-      <div class="text-left max-w-2xl">
-        <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
-        <h2 class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-800">Common questions</h2>
-        <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, location, and results. For anything urgent, call 000.</p>
+    <div class="mt-6 grid lg:grid-cols-2 gap-6 items-start">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+        <h3 class="text-h3 font-light text-slate-800">Enquiries &amp; Bookings</h3>
+        <p class="mt-2 text-slate-500">Send us a message — we'll email you back. (Mock form for demo.)</p>
+        <form onsubmit="submitEnquiry(event)" class="mt-5 grid sm:grid-cols-2 gap-3">
+          <input required placeholder="Full name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+          <input required type="email" placeholder="Email" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none" />
+          <input placeholder="Phone" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2" />
+          <textarea required placeholder="How can we help?" rows="4" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none sm:col-span-2"></textarea>
+          <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Send Enquiry</button>
+        </form>
       </div>
-      <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
-    </div>
-  </section>
-
-  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2/N3
-       Moved from mid-page to just above FAQ for a calmer pre-footer beat. -->
-  <section id="doctors" class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
-    <div class="text-left max-w-2xl">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Our Doctors</h2>
-      <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
-    </div>
-    <div class="mt-6 grid lg:grid-cols-[2fr,1fr] gap-6 items-stretch">
-      <!-- 3 doctors, 3-up on lg to fill evenly; stacks 1→2→3 across breakpoints. -->
-      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      <!-- Why-choose-SWIFT aside (N3) — stock imagery + qualitative differentiators.
-           No duplicate numeric trust stats. -->
+      <!-- Why-choose-SWIFT aside. Lives here rather than beside Doctors: it fills
+           the column left empty when the referral card was removed, and reads as
+           reassurance right where someone is deciding to make contact. Desktop
+           only: on mobile it has no column to fill and would add ~350px to a page
+           whose length is already the client's standing complaint. -->
       <aside id="whyChooseAside" class="hidden lg:flex bg-white border border-slate-200 rounded-2xl overflow-hidden flex-col">
         <div class="relative h-32 bg-gradient-to-br from-teal-600 to-teal-800">
           <!-- Inline SVG illustration (no external CDN / no licence risk) — clinician at the bedside. -->
           <svg viewBox="0 0 320 128" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
             <defs>
               <linearGradient id="wcBg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#0d9488"/>
-                <stop offset="100%" stop-color="#115e59"/>
+                <stop offset="0%" style="stop-color:rgb(var(--c-wc-grad-a))"/>
+                <stop offset="100%" style="stop-color:rgb(var(--c-wc-grad-b))"/>
               </linearGradient>
             </defs>
             <rect width="320" height="128" fill="url(#wcBg)"/>
@@ -579,7 +648,9 @@
               <rect x="252" y="46" width="34" height="24" rx="2"/>
             </g>
           </svg>
-          <div class="absolute bottom-2 left-3 text-xs font-semibold uppercase tracking-wider text-teal-50/90">Why choose SWIFT</div>
+          <!-- Scrim so the label stays legible over the illustration's light strokes. -->
+          <div class="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true"></div>
+          <div class="absolute bottom-2 left-3 text-xs font-semibold uppercase tracking-wider text-white">Why choose SWIFT</div>
         </div>
         <ul id="whyChooseList" class="p-6 space-y-3 text-sm text-slate-700 flex-1">
           <li class="flex gap-2"><span class="text-teal-500 mt-0.5 shrink-0"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span><span>Emergency Physician led — every shift.</span></li>
@@ -592,47 +663,95 @@
     </div>
   </section>
 
-  <!-- Sticky "jump to" chip bar (G4 / K3 / N1 / N5) — moved here so its containing
-       block spans to end of page, keeping it pinned to the viewport bottom
-       through #faq and into the footer.
-       N5: Mobile shows only the 4 essentials (Triage · Wait · Check-in · Location)
-       centered with no horizontal scroll; sm+ shows the full 9-pill row with
-       horizontal scroll fallback for narrow viewports. -->
+  <!-- Promotions -->
+  <section id="promotions" class="max-w-6xl mx-auto px-4 section-y" aria-labelledby="promotionsHeading">
+    <h2 id="promotionsHeading" class="text-h2 font-extrabold text-slate-800 mb-5">Current offers</h2>
+    <div id="promoGrid" class="scroll-row"></div>
+  </section>
+
+  <!-- Location now has its own section above; Contact lives in the
+       #enquiries section. No duplicate content here. -->
+
+  <!-- N1: Jump bar relocated just before <footer> so its sticky containing block
+       extends to the end of the page, keeping the bar pinned to the viewport
+       bottom all the way through #faq. Was previously above #faq. -->
+
+  <!-- FAQ (Phase I5) — visible section so AI answer-engines + humans can cite it. -->
+  <section id="faq" class="bg-white border-t border-slate-200 section-y">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-left max-w-2xl">
+        <div class="text-xs uppercase tracking-widest font-bold text-teal-700">FAQ</div>
+        <h2 class="mt-2 text-h2 font-extrabold text-slate-800">Common questions</h2>
+        <p class="mt-2 text-slate-500">Quick answers about appointments, costs, ages, wait times, and location. For anything urgent, call 000.</p>
+      </div>
+      <div id="faqList" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
+    </div>
+  </section>
+
+  <!-- Doctors + Why-choose SWIFT (paired on desktop) — J5/J6/K2/N3
+       Moved from mid-page to just above FAQ for a calmer pre-footer beat. -->
+  <section id="doctors" class="max-w-6xl mx-auto px-4 section-y">
+    <div class="text-left max-w-2xl">
+      <h2 class="text-h2 font-extrabold text-slate-800">Our Doctors</h2>
+      <p class="mt-2 text-slate-500">Experienced Emergency Physicians and specialists on your side.</p>
+    </div>
+    <!-- The Why-choose-SWIFT aside moved to the Contact section, where it fills
+         a column that was left empty when the referral card was removed. Doctors
+         now runs full width: 1 → 2 → 3 up. -->
+    <div class="mt-6">
+      <div id="doctorsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- Sticky "jump to" chip bar (G4 / K3 / N1 / N3–N6 / N10) — pills in page
+       order (N3). On phones only the core destinations show (N10);
+       Services, Contact, Promos, FAQ and Doctors return from md up
+       via .pill-extra, and the header menu covers them below that. -->
   <nav id="jumpBar" aria-label="Jump to section" class="sticky bottom-3 z-30 px-3 mb-3">
-    <div class="max-w-3xl mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-center sm:justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('triage'); return false;" data-jump-target="triage" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Triage
+    <!-- w-max makes the rail shrink-wrap to its pills so mx-auto centres it and
+         there is never dead space or a scroll stub; max-w-full keeps it inside
+         the viewport, with overflow-x-auto as a last-resort safety net (e.g.
+         large-text mode). -->
+    <div class="w-max max-w-full mx-auto bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-full px-2 py-2 flex gap-1.5 justify-start overflow-x-auto whitespace-nowrap text-xs sm:text-sm">
+      <a href="#checkinForm" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
       </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('pricing'); return false;" data-jump-target="pricing" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#pricing" data-jump-target="pricing" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-dollar"/></svg>Pricing
+      </a>
+      <a href="#journey" data-jump-target="journey" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-clipboard"/></svg>Expect
+      </a>
+      <a href="#amenities" data-jump-target="amenities" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-wheelchair"/></svg>Info
+      </a>
+      <a href="#location" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
       </a>
       <a href="#wait" data-jump-target="wait" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-clock"/></svg>Wait
       </a>
-      <a href="#services" data-jump-target="services" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#services" data-jump-target="services" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-stethoscope"/></svg>Services
       </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('checkinPanel'); return false;" data-jump-target="checkin" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>Check-in
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('resultsPanel'); return false;" data-jump-target="results" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Results
-      </a>
-      <a href="#beforeYouVisit" onclick="SWIFT.ui.openTab('locationPanel'); return false;" data-jump-target="location" class="jump-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
-        <svg width="14" height="14" aria-hidden="true"><use href="#i-map"/></svg>Location
-      </a>
-      <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" data-jump-target="enquiries" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#enquiries" data-jump-target="enquiries" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-mail"/></svg>Contact
       </a>
-      <a href="#faq" data-jump-target="faq" class="jump-pill hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+      <a href="#promotions" data-jump-target="promotions" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-flask"/></svg>Promos
+      </a>
+      <a href="#faq" data-jump-target="faq" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
         <svg width="14" height="14" aria-hidden="true"><use href="#i-chat"/></svg>FAQ
+      </a>
+      <a href="#doctors" data-jump-target="doctors" class="jump-pill pill-extra inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-slate-700 font-semibold border border-slate-200">
+        <svg width="14" height="14" aria-hidden="true"><use href="#i-doctor"/></svg>Doctors
       </a>
     </div>
   </nav>
 
   <!-- Footer -->
   <footer class="bg-teal-900 text-teal-100">
-    <div class="max-w-6xl mx-auto px-4 py-10 grid sm:grid-cols-3 gap-8">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid sm:grid-cols-3 gap-8">
       <div>
         <div class="font-extrabold text-white text-lg">SWIFT</div>
         <p class="text-sm text-teal-200/80 mt-2">Emergency Physician led specialist Emergency &amp; Urgent Care clinic.</p>
@@ -641,7 +760,7 @@
         <a href="#services" class="block hover:text-white">Services</a>
         <a href="#doctors" class="block hover:text-white">Our Doctors</a>
         <a href="#wait" class="block hover:text-white">Wait Times</a>
-        <a href="#checkin" onclick="SWIFT.ui.openTab('enquiriesPanel'); return false;" class="block hover:text-white">Contact</a>
+        <a href="#enquiries" class="block hover:text-white">Contact</a>
       </div>
       <div class="text-sm">
         <p>1300 ESWIFT / (02) 8859 9099</p>
@@ -673,14 +792,14 @@
   <div id="bookingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
     <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
       <button onclick="closeBooking()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600" aria-label="Close"><svg width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-      <h3 class="text-xl font-extrabold text-slate-800">Request Appointment</h3>
+      <h3 class="text-h3 font-light text-slate-800">Request Appointment</h3>
       <p class="text-sm text-slate-500 mt-1">Third-party booking is mocked for this demo.</p>
       <form onsubmit="submitBooking(event)" class="mt-5 space-y-3">
         <input required placeholder="Full name" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
         <input required type="tel" placeholder="Phone" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
         <select id="bookingService" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400 text-slate-600"></select>
         <input required type="date" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400 text-slate-600" />
-        <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Confirm Request</button>
+        <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-btn">Confirm Request</button>
       </form>
       <div id="bookingSuccess" class="hidden text-center py-6">
         <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-600 grid place-items-center">
@@ -695,24 +814,6 @@
 
   <!-- Toast -->
   <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg hidden"></div>
-
-  <!-- Test results modal -->
-  <div id="resultsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-lg p-6 relative">
-      <button onclick="closeResults()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600" aria-label="Close"><svg width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-      <h3 class="text-xl font-extrabold text-slate-800">Test &amp; imaging results</h3>
-      <p class="text-xs text-slate-400 mt-1">DEMO ONLY · sample data</p>
-      <div id="resultsLogin" class="mt-5">
-        <form onsubmit="submitResultsLogin(event)" class="space-y-3">
-          <input required id="resultsUser" placeholder="Username" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
-          <input required id="resultsPass" type="password" placeholder="Password" class="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-400" />
-          <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Sign in</button>
-          <p class="text-xs text-slate-400 text-center">Try <code>demo</code> / <code>demo</code></p>
-        </form>
-      </div>
-      <div id="resultsData" class="mt-5 hidden"></div>
-    </div>
-  </div>
 
   <!-- Accessibility popover -->
   <div id="a11yPanel" class="hidden fixed bottom-5 left-5 z-40 bg-white rounded-2xl shadow-2xl border border-slate-200 w-72 max-w-[92vw] p-4">

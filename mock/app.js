@@ -27,7 +27,6 @@
     ui: {},
     forms: {},
     campaign: {},
-    triage: {},
     a11y: {},
     ai: {},
     state: { queueNumber: D.queuePosition.currentInQueue, lastCampaignId: null, lang: "en", _baseline: null },
@@ -70,6 +69,7 @@
       phone: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>`,
       mail: `<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>`,
       map: `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
+      "chevron-down": `<polyline points="6 9 12 15 18 9"/>`,
     };
     const p = paths[name];
     if (!p) return "";
@@ -82,7 +82,9 @@
     const safeAlt = escapeHTML(alt || "");
     const safeUrl = escapeHTML(url);
     const fallback = `data:image/svg+xml;utf8,${encodeURIComponent(
-      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='#cffaf1'/><text x='2' y='1.8' text-anchor='middle' font-family='sans-serif' font-size='0.6' fill='#0f766e'>${safeAlt.replace(/[<>&]/g, '')}</text></svg>`
+      // A data URI can't read CSS vars — this literal stays hard-coded
+      // (Heltro neutrals: #F5F7F9 ground, #4C5F72 text).
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='#F5F7F9'/><text x='2' y='1.8' text-anchor='middle' font-family='sans-serif' font-size='0.6' fill='#4C5F72'>${safeAlt.replace(/[<>&]/g, '')}</text></svg>`
     )}`;
     return `<img src="${safeUrl}" alt="${safeAlt}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallback}';this.classList.add('img-fallback');" class="w-full h-full object-cover" />`;
   };
@@ -164,17 +166,6 @@
       });
       return;
     }
-
-    // Default: classic <details> accordion
-    el.innerHTML = items.map((item, i) => `
-      <details class="bg-slate-50 border border-slate-200 rounded-xl p-4 group" ${i === 0 && opts.openFirst ? "open" : ""}>
-        <summary class="cursor-pointer font-semibold text-slate-800 flex items-center justify-between gap-2 list-none min-h-[44px]">
-          <span class="flex items-center gap-2"><span class="text-teal-600">${SWIFT.ui.icon(item.icon, 20)}</span><span>${escapeHTML(item.title)}</span></span>
-          <span class="text-teal-600 group-open:rotate-180 transition-transform">${SWIFT.ui.icon("check", 18)}</span>
-        </summary>
-        <p class="mt-2 text-sm text-slate-600">${escapeHTML(item.body)}</p>
-      </details>
-    `).join("");
   };
 
   // ---------- Toast + Action DSL ----------
@@ -191,6 +182,10 @@
   SWIFT.ui.runAction = function (action, fallbackEl) {
     if (!action) return;
     if (action.href) {
+      if (/^https?:\/\//i.test(action.href)) {
+        window.open(action.href, '_blank', 'noopener');
+        return;
+      }
       const target = document.querySelector(action.href);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
@@ -200,7 +195,7 @@
       return;
     }
     if (action.action === "openCheckIn") {
-      const el = $("checkin");
+      const el = $("checkinForm");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
@@ -228,6 +223,16 @@
   SWIFT.ui.handleHash = function (hash) {
     const id = (hash || window.location.hash || "").replace(/^#/, "");
     if (!id) return false;
+    // FAQ detail deep-link (e.g. #faq-2) — open the specific question, then scroll to #faq.
+    if (/^faq-\d+$/.test(id)) {
+      const details = $(id);
+      if (details) details.open = true;
+      const faqSection = $("faq");
+      if (faqSection) {
+        faqSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        return true;
+      }
+    }
     const el = $(id);
     if (!el) return false;
     // 1) Hidden data-panel inside a tabs root? Activate the tab first.
@@ -243,7 +248,7 @@
   };
 
   // ---------- Tab controller for the "Before you visit" hub ----------
-  // A tab is identified by a panel id (e.g. "triagePanel"). Buttons sharing
+  // A tab is identified by a panel id (e.g. "pricingPanel"). Buttons sharing
   // data-tab="<id>" toggle their parent .tab-button group's active state and
   // reveal the matching [data-panel="<id>"] while hiding the others.
   SWIFT.ui.openTab = function (panelId) {
@@ -300,7 +305,7 @@
         : (pn === target);
       p.classList.toggle("hidden", !isActive);
     });
-    // Sync deep-link anchor id onto the active panel so #triage/#pricing/etc still resolve.
+    // Sync deep-link anchor id onto the active panel so #pricing/etc still resolve.
     const active = panels.find((p) => {
       const pn = p.getAttribute("data-panel") || "";
       return inputHasPanelSuffix ? pn === rawId : (pn === rawId || pn === target);
@@ -314,22 +319,32 @@
     const treatments = (s.treatments || []).map((t) => `<li class="text-sm text-slate-600 flex gap-2"><span class="text-teal-500 mt-0.5">${SWIFT.ui.icon("check", 16)}</span><span>${escapeHTML(t)}</span></li>`).join("");
     // Phase I4: AI picked badge — shown when the active campaign features this service.
     const aiBadge = `<span data-ai-badge="service" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
+    // Partner-delivered services (physio, infusion, both radiology lines) are marked
+    // so patients aren't left assuming SWIFT provides and bills them directly.
+    // Deliberately slate, not teal — it must read as a qualifier, not a promotion.
+    const partnerBadge = s.partner
+      ? `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-slate-200 align-middle ml-2">Partner provider</span>`
+      : "";
+    const partnerNote = s.partner
+      ? `<p class="mt-2 text-xs text-slate-500">Delivered at SWIFT by ${escapeHTML(s.partnerName || "a partner provider")}${s.partnerName ? "" : ""}.</p>`
+      : "";
     return `
-      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-md">
-        <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
+      <div data-id="${escapeHTML(s.name)}" data-service="${escapeHTML(s.name)}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-lg">
+        <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(s.image, s.imageAlt || s.name)}<div class="absolute top-3 left-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>${aiBadge}</div>
         <div class="p-6">
-          <h3 class="text-xl font-extrabold text-slate-800">${escapeHTML(s.name)}</h3>
+          <h3 class="text-h3 font-light text-slate-800">${escapeHTML(s.name)}${partnerBadge}</h3>
           <p class="text-sm text-teal-600 font-semibold mt-1">${escapeHTML(s.cost)}</p>
+          ${partnerNote}
           <p class="mt-3 text-slate-600">${escapeHTML(s.summary)}</p>
           <ul class="mt-3 space-y-1.5">${treatments}</ul>
-          <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Book this service</button>
+          <button onclick="SWIFT.ui.openBooking('${escapeHTML(s.name).replace(/'/g, "\\'")}')" class="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow-btn">Book this service</button>
         </div>
       </div>`;
   }
 
   function doctorTemplate(d) {
     return `
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden transition hover:shadow-lg">
         <div class="aspect-[4/3] bg-teal-50 relative">${SWIFT.ui.img(d.image, d.imageAlt || d.name)}<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-teal-700 text-[10px] font-semibold px-2 py-1 rounded-full">Representative</div></div>
         <div class="p-6">
           <div class="flex items-center gap-3">
@@ -362,11 +377,11 @@
   function promoTemplate(p) {
     const aiBadge = `<span data-ai-badge="promo" class="hidden absolute top-3 right-3 bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full shadow">AI picked</span>`;
     return `
-      <div data-promo-id="${escapeHTML(p.id || "")}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition relative">
+      <div data-promo-id="${escapeHTML(p.id || "")}" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition relative">
         <div class="aspect-[16/9] bg-teal-50 relative">${SWIFT.ui.img(p.image, p.imageAlt || p.title)}${aiBadge}</div>
         <div class="p-6">
           <div class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">${escapeHTML(p.badge)}</div>
-          <h3 class="mt-3 text-xl font-extrabold text-slate-800">${escapeHTML(p.title)}</h3>
+          <h3 class="mt-3 text-h3 font-light text-slate-800">${escapeHTML(p.title)}</h3>
           <p class="mt-2 text-slate-600">${escapeHTML(p.body)}</p>
         </div>
       </div>`;
@@ -374,7 +389,7 @@
 
   function trustTemplate(s) {
     return `
-      <div class="text-center p-4 bg-white rounded-2xl border border-slate-200">
+      <div class="text-center p-4 bg-white rounded-2xl shadow">
         <div class="w-10 h-10 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(s.icon, 22)}</div>
         <div class="mt-2 text-2xl sm:text-3xl font-extrabold text-teal-700">${escapeHTML(s.value)}</div>
         <div class="mt-1 text-sm font-semibold text-slate-700">${escapeHTML(s.label)}</div>
@@ -382,25 +397,11 @@
       </div>`;
   }
 
-  // Compact horizontal layout used in the Doctors aside panel (desktop only).
-  function trustRowTemplate(s) {
-    return `
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center shrink-0">${SWIFT.ui.icon(s.icon, 18)}</div>
-        <div class="min-w-0">
-          <div class="text-lg font-extrabold text-teal-700 leading-tight">${escapeHTML(s.value)}</div>
-          <div class="text-xs font-semibold text-slate-700">${escapeHTML(s.label)}</div>
-          <div class="text-[11px] text-slate-400">${escapeHTML(s.sub || "")}</div>
-        </div>
-      </div>`;
-  }
-
-
   function intentTemplate(i) {
     const label = i.action && (i.action.label || i.action.ctaLabel) || "Go";
     const onclick = `SWIFT.ui.runAction(${JSON.stringify(i.action || {}).replace(/"/g, "&quot;")})`;
     return `
-      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md hover:border-teal-300 transition group">
+      <button onclick='${onclick}' class="text-left bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-teal-300 transition group">
         <div class="w-12 h-12 rounded-full bg-teal-50 text-teal-700 grid place-items-center group-hover:bg-teal-100 transition">${SWIFT.ui.icon(i.icon, 24)}</div>
         <div class="mt-3 text-lg font-extrabold text-slate-800">${escapeHTML(i.title)}</div>
         <div class="mt-1 text-sm text-slate-500">${escapeHTML(i.sub)}</div>
@@ -413,34 +414,6 @@
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
         <div class="w-10 h-10 mx-auto rounded-full bg-white text-teal-700 grid place-items-center">${SWIFT.ui.icon(a.icon, 22)}</div>
         <div class="mt-2 text-sm font-semibold text-slate-700">${escapeHTML(a.label)}</div>
-      </div>`;
-  }
-
-  function triageQuestionTemplate(q, idx, total) {
-    const options = q.options.map((o, i) => `
-      <button data-qid="${escapeHTML(q.id)}" data-oi="${i}" class="triage-option w-full text-left bg-white hover:bg-teal-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700">${escapeHTML(o.label)}</button>
-    `).join("");
-    return `
-      <div class="triage-card hidden bg-teal-50 border border-teal-200 rounded-2xl p-6" data-triage-q="${escapeHTML(q.id)}">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs uppercase tracking-wider text-teal-700 font-semibold">Question ${idx + 1} of ${total}</span>
-          <button onclick="SWIFT.triage.reset()" class="text-xs text-teal-700 underline">Start over</button>
-        </div>
-        <p class="text-lg font-extrabold text-slate-800">${escapeHTML(q.text)}</p>
-        <div class="mt-4 space-y-2">${options}</div>
-      </div>`;
-  }
-
-  function triageOutcomeTemplate(o, key) {
-    const onclick = `SWIFT.ui.runAction(${JSON.stringify(o.cta || {}).replace(/"/g, "&quot;")})`;
-    const iconName = o.icon || "check";
-    return `
-      <div class="triage-card hidden bg-white border-2 border-teal-300 rounded-2xl p-6 text-center" data-triage-outcome="${escapeHTML(key)}">
-        <div class="w-14 h-14 mx-auto rounded-full bg-teal-50 text-teal-700 grid place-items-center">${SWIFT.ui.icon(iconName, 28)}</div>
-        <h3 class="mt-3 text-2xl font-extrabold text-slate-800">${escapeHTML(o.title)}</h3>
-        <p class="mt-2 text-slate-600">${escapeHTML(o.body)}</p>
-        <button onclick='${onclick}' class="mt-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">${escapeHTML(o.cta.label)}</button>
-        <div class="mt-3"><button onclick="SWIFT.triage.reset()" class="text-teal-700 underline text-sm">Start over</button></div>
       </div>`;
   }
 
@@ -472,10 +445,18 @@
   };
 
   SWIFT.render.renderTrust = function () {
-    // J6: render the numeric trust bar once, into the canonical #trust strip
-    // near the hero. The Doctors aside now hosts qualitative differentiators
-    // (no duplicate numbers).
+    // J6: render the numeric trust bar into #trustGrid — moved into the hero
+    // in the Heltro uplift, where the white cards overlap the photo.
     SWIFT.render.renderStatGrid("trustGrid", D.trustStats, trustTemplate);
+  };
+
+  // Hero avatar-stack social proof (Phase 7) — reuses D.doctors[].image.
+  SWIFT.render.renderHeroAvatars = function () {
+    const el = $("heroAvatars");
+    if (!el || !Array.isArray(D.doctors)) return;
+    el.innerHTML = D.doctors.map((d) =>
+      `<img src="${escapeHTML(d.image)}" alt="${escapeHTML(d.imageAlt || d.name)}" width="36" height="36" loading="lazy" decoding="async" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/70" />`
+    ).join("");
   };
 
   SWIFT.render.renderIntents = function () {
@@ -494,34 +475,18 @@
   SWIFT.render.populateQueueServiceSelect = function () {
     const sel = $("queueService");
     if (!sel) return;
+    // The option label carries the partner qualifier too — a patient picking a
+    // service from a bare dropdown otherwise has no way to know it isn't SWIFT's.
     sel.innerHTML = `<option value="">— Choose service —</option>` +
-      D.services.map((s) => `<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)}</option>`).join("");
+      D.services.map((s) => `<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)}${s.partner ? " (partner provider)" : ""}</option>`).join("");
   };
 
   SWIFT.render.populateBookingServiceSelect = function (prefill) {
     const sel = $("bookingService");
     if (!sel) return;
     sel.innerHTML = `<option value="">— Choose service —</option>` +
-      D.services.map((s) => `<option value="${escapeHTML(s.name)}" ${prefill === s.name ? "selected" : ""}>${escapeHTML(s.name)}</option>`).join("") +
+      D.services.map((s) => `<option value="${escapeHTML(s.name)}" ${prefill === s.name ? "selected" : ""}>${escapeHTML(s.name)}${s.partner ? " (partner provider)" : ""}</option>`).join("") +
       `<option value="General enquiry">General enquiry</option>`;
-  };
-
-  SWIFT.render.renderTriageCards = function () {
-    const container = $("triageQuestions");
-    if (!container) return;
-    const total = D.triageQuestions.length;
-    const qCards = D.triageQuestions.map((q, i) => triageQuestionTemplate(q, i, total)).join("");
-    const outcomeKeys = Object.keys(D.triageOutcomes);
-    const outcomeCards = outcomeKeys.map((k) => triageOutcomeTemplate(D.triageOutcomes[k], k)).join("");
-    container.innerHTML = qCards + outcomeCards;
-    // Attach delegated click for options
-    container.addEventListener("click", function (e) {
-      const opt = e.target.closest(".triage-option");
-      if (!opt) return;
-      const qid = opt.getAttribute("data-qid");
-      const oi = parseInt(opt.getAttribute("data-oi"), 10);
-      SWIFT.triage.answer(qid, oi);
-    });
   };
 
   // ---------- UI handlers (called by inline onclick) ----------
@@ -638,23 +603,6 @@
     log.scrollTop = log.scrollHeight;
   };
 
-  SWIFT.ui.openResults = function () {
-    const m = $("resultsModal");
-    if (!m) return;
-    m.classList.remove("hidden");
-    m.classList.add("flex");
-    $("resultsLogin").classList.remove("hidden");
-    $("resultsData").classList.add("hidden");
-    $("resultsData").innerHTML = "";
-  };
-
-  SWIFT.ui.closeResults = function () {
-    const m = $("resultsModal");
-    if (!m) return;
-    m.classList.add("hidden");
-    m.classList.remove("flex");
-  };
-
   // ---------- Form handlers ----------
 
   SWIFT.forms.submitEnquiry = function (e) {
@@ -680,15 +628,6 @@
     const success = $("bookingSuccess");
     if (success) success.classList.remove("hidden");
     SWIFT.ui.toast("Appointment requested!");
-  };
-
-  SWIFT.forms.submitReferral = function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const payload = Array.from(form.elements).filter((el) => el.tagName !== "BUTTON").map((el) => el.value);
-    console.log("[SWIFT demo] referral:", payload);
-    SWIFT.ui.toast("Referral sent — we'll be in touch.");
-    form.reset();
   };
 
   SWIFT.forms.submitQueue = function (e) {
@@ -720,15 +659,12 @@
   SWIFT.forms.cancelQueue = function () {
     SWIFT.state.queueNumber = Math.max(D.queuePosition.currentInQueue, SWIFT.state.queueNumber - 1);
     SWIFT.ui.toast("Your place was cancelled.");
-    // Restore the form inside the panel's inner slot.
+    // Restore the form from the snapshot SWIFT.init took of the static markup
+    // (same source, so there is no second copy to drift).
     const container = $("checkinFormInner") || $("checkinForm");
-    container.innerHTML = `
-      <form onsubmit="submitQueue(event)" class="grid sm:grid-cols-2 gap-4">
-        <input required id="queueName" placeholder="Your name" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none bg-white" />
-        <select required id="queueService" class="border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400 outline-none text-slate-600 bg-white"></select>
-        <button class="sm:col-span-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-xl">Add me to the queue</button>
-      </form>
-      <p class="text-xs text-slate-400 mt-3 text-center">Demo only — no real queue, no real wait.</p>`;
+    if (container && SWIFT.state._checkinFormHTML) {
+      container.innerHTML = SWIFT.state._checkinFormHTML;
+    }
     SWIFT.render.populateQueueServiceSelect();
   };
 
@@ -740,9 +676,14 @@
     let scenarioId;
     if (workcover === "yes") scenarioId = "workcover";
     else if (medicare === "yes") scenarioId = insurance === "yes" ? "insured" : "medicareOnly";
-    else scenarioId = "uninsured";
+    // C13: private cover is no longer ignored when Medicare is absent.
+    else scenarioId = insurance === "yes" ? "privateNoMedicare" : "uninsured";
     const scenario = D.pricingScenarios.items.find((x) => x.id === scenarioId);
     const result = $("pricingResult");
+    // C13: no Medicare rebate line for WorkCover — the visit is billed
+    // directly to the insurer, so itemising a rebate under a $0 total is wrong.
+    const medicareLine = medicare === "yes" && scenarioId !== "workcover" ? `
+      <div class="flex justify-between"><dt>Medicare rebate</dt><dd class="font-semibold">− $${D.pricingScenarios.medicareRebate.toFixed(2)}</dd></div>` : "";
     result.classList.remove("hidden");
     result.innerHTML = `
       <div class="bg-teal-50 border border-teal-200 rounded-2xl p-6">
@@ -753,7 +694,7 @@
         <hr class="my-4 border-teal-200" />
         <dl class="space-y-1 text-sm text-slate-700">
           <div class="flex justify-between"><dt>Facility fee</dt><dd class="font-semibold">$${D.pricingScenarios.facilityFee}</dd></div>
-          <div class="flex justify-between"><dt>Medicare rebate</dt><dd class="font-semibold">− $${D.pricingScenarios.medicareRebate.toFixed(2)}</dd></div>
+          ${medicareLine}
         </dl>
         <button onclick="SWIFT.forms.resetPricing()" class="mt-5 text-teal-700 underline text-sm">Try another scenario</button>
       </div>`;
@@ -763,77 +704,6 @@
     $("pricingForm").reset();
     $("pricingResult").classList.add("hidden");
     $("pricingResult").innerHTML = "";
-  };
-
-  SWIFT.forms.submitResultsLogin = function (e) {
-    e.preventDefault();
-    const u = $("resultsUser").value.trim();
-    const p = $("resultsPass").value;
-    const creds = D.testResultsSample.login;
-    if (u !== creds.demoUser || p !== creds.demoPass) {
-      SWIFT.ui.toast("Invalid demo credentials — try demo / demo");
-      return;
-    }
-    const rows = D.testResultsSample.results.map((r) => `
-      <tr class="border-b border-slate-200 last:border-0">
-        <td class="py-3 pr-3 text-sm text-slate-700">${escapeHTML(r.date)}</td>
-        <td class="py-3 pr-3 text-sm font-semibold text-slate-800">${escapeHTML(r.test)}</td>
-        <td class="py-3 pr-3 text-sm text-slate-600">${escapeHTML(r.result)}</td>
-        <td class="py-3 text-sm text-teal-700">${escapeHTML(r.status)}</td>
-      </tr>
-    `).join("");
-    $("resultsLogin").classList.add("hidden");
-    const data = $("resultsData");
-    data.classList.remove("hidden");
-    data.innerHTML = `
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-xs uppercase tracking-wider text-slate-400 border-b border-slate-200">
-              <th class="py-2 pr-3">Date</th><th class="py-2 pr-3">Test</th><th class="py-2 pr-3">Result</th><th class="py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <p class="mt-4 text-xs text-slate-400">Sample data only — real portal would link to your records.</p>`;
-  };
-
-  // ---------- Triage ----------
-
-  SWIFT.triage.start = function () {
-    $("triageIntro").classList.add("hidden");
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    SWIFT.triage._showQuestion(D.triageQuestions[0].id);
-  };
-
-  SWIFT.triage.reset = function () {
-    $("triageIntro").classList.remove("hidden");
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-  };
-
-  SWIFT.triage.answer = function (qid, optionIndex) {
-    const q = D.triageQuestions.find((x) => x.id === qid);
-    if (!q) return;
-    const opt = q.options[optionIndex];
-    if (!opt) return;
-    if (opt.outcome) {
-      SWIFT.triage._showOutcome(opt.outcome);
-    } else if (opt.next) {
-      SWIFT.triage._showQuestion(opt.next);
-    }
-  };
-
-  SWIFT.triage._showQuestion = function (qid) {
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    const card = document.querySelector(`[data-triage-q="${qid}"]`);
-    if (card) card.classList.remove("hidden");
-  };
-
-  SWIFT.triage._showOutcome = function (key) {
-    $$("#triageQuestions .triage-card").forEach((c) => c.classList.add("hidden"));
-    const card = document.querySelector(`[data-triage-outcome="${key}"]`);
-    if (card) card.classList.remove("hidden");
   };
 
   // ---------- Campaign ----------
@@ -882,17 +752,17 @@
   };
 
   SWIFT.campaign._applySections = function (hideArr) {
-    // Restore everything first (idempotent for the default campaign).
-    const known = ["intents", "promo", "results", "referrals", "amenities", "doctors"];
+    // Restore only real page sections first (idempotent for the default campaign).
+    // Tab panels are controlled by the tab system, not by this helper.
+    const known = ['intents', 'promotions', 'doctors', 'trust', 'getCare', 'wait', 'services', 'faq'];
     known.forEach(function (k) {
-      const sec = $("section-" + k) || $(k) || document.getElementById(k);
-      if (sec && sec.classList) sec.classList.remove("hidden");
+      const sec = $(k) || document.getElementById(k);
+      if (sec && sec.classList) sec.classList.remove('hidden');
     });
     if (!Array.isArray(hideArr) || !hideArr.length) return;
     hideArr.forEach(function (k) {
-      // Try #k, then any descendant with id="k".
       const sec = $(k) || document.getElementById(k);
-      if (sec && sec.classList) sec.classList.add("hidden");
+      if (sec && sec.classList) sec.classList.add('hidden');
     });
   };
 
@@ -916,27 +786,6 @@
         }
       }
     }
-  };
-
-  SWIFT.campaign._applyTriagePreset = function (preset) {
-    if (!preset || !preset.answer || !preset.option) return;
-    // Defer to next tick so DOM (question cards) is ready.
-    setTimeout(function () {
-      try {
-        if (typeof SWIFT.triage !== "object" || !SWIFT.triage) return;
-        if (typeof SWIFT.triage.start === "function") SWIFT.triage.start();
-        // Find the question card by data-triage-q="<answer>" and click the option button.
-        const q = document.querySelector('[data-triage-q="' + preset.answer + '"]');
-        if (!q) return;
-        const btns = q.querySelectorAll('button');
-        for (let i = 0; i < btns.length; i++) {
-          if ((btns[i].textContent || "").trim() === preset.option) {
-            btns[i].click();
-            break;
-          }
-        }
-      } catch (e) { /* no-op */ }
-    }, 0);
   };
 
   SWIFT.campaign._applyPricingPreset = function (preset) {
@@ -1031,7 +880,6 @@
     SWIFT.campaign._applySections(c.hideSections);
     if (c.bookingService) SWIFT.campaign._applyBookingPrefill(c.bookingService);
     if (c.checkinService) SWIFT.campaign._applyBookingPrefill(c.checkinService);
-    SWIFT.campaign._applyTriagePreset(c.triagePreset);
     SWIFT.campaign._applyPricingPreset(c.pricingPreset);
 
     // Phase I4: stamp badges on the matching service + promo cards (one-shot DOM pass).
@@ -1174,42 +1022,9 @@
 
   // ---------- Phase I: AI features (mocked) ----------
 
-  // Shared disclaimer used by I1 (symptom checker) and I2 (chat concierge).
+  // Shared disclaimer used by the chat concierge.
   SWIFT.ai.disclaimer = function () {
     return "AI demo — not medical advice; call 000 in an emergency.";
-  };
-
-  // ---- I1 — AI symptom checker ------------------------------------------
-  // Maps free-text symptoms to existing triage outcomes (walkin / book / call000).
-  // Reuses the existing SWIFT.triage._showOutcome() — no new template.
-  SWIFT.ai.checkSymptoms = function (text) {
-    const rules = D.aiSymptomRules;
-    const t = (text || "").trim();
-    if (!t) {
-      return { outcome: null, reply: "Try typing symptoms like 'fever' or 'sprained ankle'." };
-    }
-    if (rules.emergencies.some(function (r) { return r.pattern.test(t); })) return { outcome: "call000" };
-    if (rules.injuries.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
-    if (rules.illness.some(function (r) { return r.pattern.test(t); })) return { outcome: "walkin" };
-    if (rules.book.some(function (r) { return r.pattern.test(t); })) return { outcome: "book" };
-    return { outcome: null, reply: rules.fallback };
-  };
-
-  SWIFT.ai.runSymptomChecker = function (e) {
-    if (e && typeof e.preventDefault === "function") e.preventDefault();
-    const input = $("aiSymptomInput");
-    if (!input) return;
-    const result = SWIFT.ai.checkSymptoms(input.value);
-    if (!result.outcome) {
-      SWIFT.ui.toast(result.reply || D.aiSymptomRules.fallback);
-      return;
-    }
-    // Open the triage tab (already default-open) so the existing outcome card is visible.
-    SWIFT.ui.openTab("triage");
-    const intro = $("triageIntro");
-    if (intro) intro.classList.add("hidden");
-    if (typeof SWIFT.triage._showOutcome === "function") SWIFT.triage._showOutcome(result.outcome);
-    SWIFT.ui.toast(SWIFT.ai.disclaimer());
   };
 
   // ---- I2 — grounded AI concierge ---------------------------------------
@@ -1263,10 +1078,10 @@
     spark.innerHTML = '<polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />';
     const dir = SWIFT.ai.waitTrendDirection();
     const arrowGlyph = dir === "up"
-      ? '<polyline points="6 9 12 3 18 9"/>'
+      ? '<polyline points="6 9 12 3 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
       : dir === "down"
-      ? '<polyline points="6 15 12 21 18 15"/>'
-      : '<line x1="6" x2="18" y1="12" y2="12"/>';
+      ? '<polyline points="6 15 12 21 18 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      : '<line x1="6" x2="18" y1="12" y2="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
     arrow.innerHTML = arrowGlyph;
     arrow.setAttribute("aria-label", "Trend " + dir);
   };
@@ -1356,9 +1171,9 @@
   SWIFT.ai.renderFaq = function () {
     const root = $("faqList");
     if (!root || !Array.isArray(D.faq)) return;
-    root.innerHTML = D.faq.map(function (f) {
+    root.innerHTML = D.faq.map(function (f, i) {
       return [
-        '<details class="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-teal-200 transition">',
+        '<details id="faq-' + i + '" class="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-teal-200 transition">',
           '<summary class="cursor-pointer list-none flex items-center justify-between gap-2">',
             '<span class="font-semibold text-slate-800 text-sm">' + escapeHTML(f.q) + '</span>',
             '<span class="text-teal-600 shrink-0 group-open:rotate-180 transition-transform">' + SWIFT.ui.icon("chevron-down", 18) + '</span>',
@@ -1371,63 +1186,78 @@
 
   // ---------- Init ----------
 
-  // ---- Phase K3 — jump-bar scroll-spy -----------------------------
-  // Map `data-jump-target` values to either a section id or a tab-panel id.
-  // For tab-panel targets (triage, pricing) we watch the parent `[data-tabs-root]`.
-  // For section ids we watch the section directly.
+  // ---- Phase K3 — jump-bar scroll-spy (single winner) ----------------
+  // The previous IntersectionObserver lit every target intersecting a band,
+  // so two pills lit at once at every section boundary. This scroll-driven
+  // pass picks exactly one winner: the last target whose top has crossed the
+  // reading line (30% of the viewport). Hidden tab panels are skipped via
+  // offsetParent, so only the open tab's pill can light.
   SWIFT.ui.initJumpSpy = function () {
-    const pills = document.querySelectorAll('[data-jump-target]');
-    if (!pills.length || typeof IntersectionObserver === "undefined") return;
+    const pills = [...document.querySelectorAll('[data-jump-target]')];
+    if (!pills.length) return;
 
-    const resolveTarget = function (key) {
-      // Map panel-style keys to their owning section.
-      // N2: Location moved from Patient hub (#checkin) into Before-you-visit
-      // (#beforeYouVisit). enquiries + results stay inside #checkin.
-      if (key === "triage" || key === "pricing" || key === "location") return "beforeYouVisit";
-      if (key === "enquiries" || key === "results") return "checkin";
-      return key;
+    const map = {
+      checkin: 'checkinForm', pricing: 'pricing', journey: 'journey',
+      amenities: 'amenities', location: 'location', wait: 'wait',
+      services: 'services', enquiries: 'enquiries',
+      promotions: 'promotions', faq: 'faq', doctors: 'doctors',
     };
 
-    const active = new Set();
-    const apply = function () {
-      pills.forEach(function (pill) {
-        if (active.has(pill.getAttribute("data-jump-target"))) {
-          pill.classList.add("is-active");
-        } else {
-          pill.classList.remove("is-active");
-        }
+    const targets = pills
+      .map(p => ({ pill: p, el: document.getElementById(map[p.dataset.jumpTarget] || p.dataset.jumpTarget) }))
+      .filter(t => t.el);
+
+    let queued = false;
+    const update = function () {
+      queued = false;
+      const line = window.innerHeight * 0.3;   // the "reading line"
+      let best = null, bestTop = -Infinity;
+      targets.forEach(function (t) {
+        if (t.el.offsetParent === null) return;      // hidden tab panel — skip
+        const top = t.el.getBoundingClientRect().top;
+        if (top <= line && top > bestTop) { bestTop = top; best = t.pill; }
       });
+      targets.forEach(t => t.pill.classList.toggle('is-active', t.pill === best));
     };
 
-    const observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        const id = e.target.id;
-        if (!id) return;
-        // Section is active when its top is within the top half of the viewport.
-        if (e.isIntersecting && e.intersectionRatio > 0) {
-          pills.forEach(function (pill) {
-            const key = pill.getAttribute("data-jump-target");
-            if (resolveTarget(key) === id) active.add(key);
-          });
-        } else {
-          pills.forEach(function (pill) {
-            const key = pill.getAttribute("data-jump-target");
-            if (resolveTarget(key) === id) active.delete(key);
-          });
-        }
-      });
-      apply();
-    }, { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.01, 0.5] });
+    const schedule = function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    };
 
-    pills.forEach(function (pill) {
-      const key = pill.getAttribute("data-jump-target");
-      const id = resolveTarget(key);
-      const target = document.getElementById(id);
-      if (target) observer.observe(target);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('click', function (e) {   // tab switches change visibility
+      if (e.target.closest('.tab-button')) schedule();
     });
+    update();
   };
 
   SWIFT.init = function () {
+    // Fixed bottom chrome (mobile action bar → jump bar → FAB → panels) is
+    // offset from the *measured* action-bar height instead of hand-tuned px,
+    // so font changes can't collide the stack. See the ≤767px ladder in the
+    // inline stylesheet, which reads --action-bar-h.
+    const measureChrome = function () {
+      const bar = $("mobileActionBar");
+      document.documentElement.style.setProperty(
+        "--action-bar-h", ((bar && bar.offsetHeight) || 0) + "px"
+      );
+    };
+    measureChrome();
+    window.addEventListener("resize", measureChrome);
+    // Re-measure once web fonts land (font swap changes the bar's height).
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(measureChrome);
+    }
+
+    // Check-in form ships as static markup in index.html so it renders before
+    // this script runs. Snapshot it here so SWIFT.forms.cancelQueue can restore
+    // the pristine form after a queue ticket replaces it — one markup, no drift.
+    const checkinSlot = $("checkinFormInner");
+    if (checkinSlot) SWIFT.state._checkinFormHTML = checkinSlot.innerHTML;
+
     // Snapshot the original services/intents ordering so campaign re-orders can be undone.
     SWIFT.state._baseline = {
       services: D.services.slice(),
@@ -1444,22 +1274,16 @@
     window.sendChat = SWIFT.ui.sendChat;
     window.submitEnquiry = SWIFT.forms.submitEnquiry;
     window.submitBooking = SWIFT.forms.submitBooking;
-    window.submitReferral = SWIFT.forms.submitReferral;
     window.submitQueue = SWIFT.forms.submitQueue;
     window.submitPricing = SWIFT.forms.submitPricing;
-    window.submitResultsLogin = SWIFT.forms.submitResultsLogin;
-    window.openResults = SWIFT.ui.openResults;
-    window.closeResults = SWIFT.ui.closeResults;
 
     // Esc closes any open modal / popover
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape") return;
       const m1 = $("bookingModal");
-      const m2 = $("resultsModal");
       const m3 = $("chatPanel");
       const p = $("a11yPanel");
       if (m1 && !m1.classList.contains("hidden")) SWIFT.ui.closeBooking();
-      if (m2 && !m2.classList.contains("hidden")) SWIFT.ui.closeResults();
       if (p && !p.classList.contains("hidden")) p.classList.add("hidden");
       if (m3 && !m3.classList.contains("hidden")) SWIFT.ui.toggleChat();
     });
@@ -1472,6 +1296,7 @@
     SWIFT.a11y._apply(SWIFT.a11y.load());
 
     // Render data-driven sections
+    SWIFT.render.renderHeroAvatars();
     SWIFT.render.renderTrust();
     SWIFT.render.renderIntents();
     SWIFT.render.renderDoctors();
@@ -1480,7 +1305,6 @@
     SWIFT.render.renderAmenities();
     SWIFT.render.renderJourney();
     SWIFT.render.populateQueueServiceSelect();
-    SWIFT.render.renderTriageCards();
     // Services rendered again by campaign.apply() to support highlight; render default first so highlight can be added
     SWIFT.render.renderServices(null);
 
@@ -1488,12 +1312,22 @@
     SWIFT.ai.renderJsonLd();
     SWIFT.ai.renderFaq();
     SWIFT.ai.renderWaitTrend();
-    // Hook the AI symptom-checker form
-    const aiForm = $("aiSymptomForm");
-    if (aiForm) aiForm.onsubmit = SWIFT.ai.runSymptomChecker;
 
     // Phase K3 — jump-bar scroll-spy
     SWIFT.ui.initJumpSpy();
+
+    // T5 — overflow affordance for tab strips that clip on small screens:
+    // a right-edge fade shows only while there is still more to scroll.
+    $$('[role="tablist"]').forEach(function (ts) {
+      const update = function () {
+        const overflows = ts.scrollWidth > ts.clientWidth + 2;
+        const atEnd = ts.scrollLeft + ts.clientWidth >= ts.scrollWidth - 4;
+        ts.classList.toggle("can-scroll", overflows && !atEnd);
+      };
+      ts.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    });
 
     // Wire the "Before you visit" tab buttons (delegated so dynamically
     // inserted campaigns still work).
@@ -1517,7 +1351,7 @@
         SWIFT.ui.openTab(target.getAttribute("data-tab"));
       }
     });
-    // Default-open the first tab so deep-link #triage/#pricing/#journey/#amenities
+    // Default-open the first tab so deep-link #pricing/#journey/#amenities
     // still scroll-resolve to the right pane.
     const firstTab = document.querySelector(".tab-button");
     if (firstTab) SWIFT.ui.openTab(firstTab.getAttribute("data-tab"));
