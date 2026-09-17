@@ -1,0 +1,93 @@
+name: Deploy to Azure Static Web Apps
+
+# main                    -> production (the default environment)
+# feature/refactor-heltro -> staging    (a persistent named environment)
+#
+# Two inputs decide which environment a deploy lands in. Getting either wrong
+# can send feature-branch code to production:
+#
+#   production_branch     Marks main as production. WITHOUT it, a push from ANY
+#                         tracked branch deploys to production.
+#   deployment_environment  Names the environment. Must be [0-9a-zA-Z], max 16
+#                         chars. "feature/refactor-heltro" is 23 chars and has a
+#                         slash, and an invalid name can silently fall through to
+#                         production — so the branch name is NEVER used as the
+#                         environment name here. It is hardcoded to "staging".
+#
+# deployment_environment is also ignored on pull_request events (the PR number
+# replaces it), so this workflow is driven by push only.
+
+on:
+  push:
+    branches: [main, feature/refactor-heltro]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build static site
+        # Only the page and its mock data are published. The repo root also
+        # holds design-system docs, tokens and tooling.
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r mock _site/
+          rm -f _site/index.html.bak
+          echo "--- _site/ ---"
+          ls -la _site/
+
+      - name: Deploy to production
+        id: prod
+        if: github.ref_name == 'main'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SWIFT_DEMO }}
+          action: "upload"
+          app_location: "/_site"   # already built above
+          output_location: ""      # no framework build output
+          skip_app_build: true     # do not let Oryx re-detect a platform
+          production_branch: "main"
+
+      - name: Deploy to staging
+        id: staging
+        if: github.ref_name == 'feature/refactor-heltro'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SWIFT_DEMO }}
+          action: "upload"
+          app_location: "/_site"
+          output_location: ""
+          skip_app_build: true
+          production_branch: "main"
+          deployment_environment: "staging"
+
+      - name: Smoke test
+        # Whichever deploy ran reports its own URL, so this needs no hardcoded
+        # hostname. Asserting on real markup matters: a fresh SWA serves a
+        # placeholder that also returns HTTP 200.
+        run: |
+          url="${{ steps.prod.outputs.static_web_app_url || steps.staging.outputs.static_web_app_url }}"
+          if [ -z "$url" ]; then
+            echo "ERROR: no static_web_app_url output — no deploy step ran."
+            exit 1
+          fi
+          echo "GET $url"
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+            body=$(curl -s "$url" || echo "")
+            echo "attempt $i -> HTTP $code, $(printf '%s' "$body" | wc -c | tr -d ' ') bytes"
+            if [ "$code" = "200" ] && printf '%s' "$body" | grep -q "SWIFT Emergency"; then
+              echo "OK: serving the real page"
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "ERROR: $url did not serve the real page after 60s"
+          exit 1
