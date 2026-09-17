@@ -6,16 +6,19 @@ name: Deploy to Azure Static Web Apps
 # Two inputs decide which environment a deploy lands in. Getting either wrong
 # can send feature-branch code to production:
 #
-#   production_branch     Marks main as production. WITHOUT it, a push from ANY
-#                         tracked branch deploys to production.
-#   deployment_environment  Names the environment. Must be [0-9a-zA-Z], max 16
-#                         chars. "feature/refactor-heltro" is 23 chars and has a
-#                         slash, and an invalid name can silently fall through to
-#                         production — so the branch name is NEVER used as the
-#                         environment name here. It is hardcoded to "staging".
+#   production_branch       Marks main as production. WITHOUT it, a push from
+#                           ANY tracked branch deploys to production.
+#   deployment_environment  Names the environment, and takes precedence over
+#                           production_branch. Blank means production.
 #
-# deployment_environment is also ignored on pull_request events (the PR number
-# replaces it), so this workflow is driven by push only.
+# The environment name is the literal "staging" and NEVER the branch name.
+# Names must be [0-9a-zA-Z] and at most 16 characters; "feature/refactor-heltro"
+# is 23 characters and contains a slash. An invalid name is not reliably
+# rejected — Azure/static-web-apps#1062 shows a deploy print the name error and
+# then land on PRODUCTION anyway. The smoke test guards against that below.
+#
+# deployment_environment is ignored on pull_request events (the PR number
+# replaces it), so this is push-driven only.
 
 on:
   push:
@@ -24,6 +27,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: swa-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -36,12 +43,13 @@ jobs:
         # Only the page and its mock data are published. The repo root also
         # holds design-system docs, tokens and tooling.
         run: |
+          set -euo pipefail
+          rm -rf _site
           mkdir -p _site
           cp index.html _site/
           cp -r mock _site/
-          rm -f _site/index.html.bak
           echo "--- _site/ ---"
-          ls -la _site/
+          ls -la _site/ _site/mock/
 
       - name: Deploy to production
         id: prod
@@ -54,6 +62,7 @@ jobs:
           output_location: ""      # no framework build output
           skip_app_build: true     # do not let Oryx re-detect a platform
           production_branch: "main"
+          # deployment_environment deliberately omitted: blank = production.
 
       - name: Deploy to staging
         id: staging
@@ -69,25 +78,57 @@ jobs:
           deployment_environment: "staging"
 
       - name: Smoke test
-        # Whichever deploy ran reports its own URL, so this needs no hardcoded
-        # hostname. Asserting on real markup matters: a fresh SWA serves a
-        # placeholder that also returns HTTP 200.
+        # Whichever deploy ran reports its own URL, so no hostname is hardcoded.
+        env:
+          SITE_URL: ${{ steps.prod.outputs.static_web_app_url || steps.staging.outputs.static_web_app_url }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          url="${{ steps.prod.outputs.static_web_app_url || steps.staging.outputs.static_web_app_url }}"
+          set -uo pipefail
+
+          url="${SITE_URL%/}"
           if [ -z "$url" ]; then
             echo "ERROR: no static_web_app_url output — no deploy step ran."
             exit 1
           fi
-          echo "GET $url"
-          for i in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
-            body=$(curl -s "$url" || echo "")
-            echo "attempt $i -> HTTP $code, $(printf '%s' "$body" | wc -c | tr -d ' ') bytes"
-            if [ "$code" = "200" ] && printf '%s' "$body" | grep -q "SWIFT Emergency"; then
-              echo "OK: serving the real page"
-              exit 0
-            fi
-            sleep 6
-          done
-          echo "ERROR: $url did not serve the real page after 60s"
-          exit 1
+          echo "Testing $url"
+
+          # Guard for Azure/static-web-apps#1062: if deployment_environment is
+          # ignored, a branch push silently overwrites PRODUCTION. A staging
+          # deploy must land on a -staging.* host; if it doesn't, fail loudly
+          # rather than let a passing test hide production being clobbered.
+          if [ "$REF_NAME" != "main" ]; then
+            case "$url" in
+              *-staging.*) ;;
+              *) echo "ERROR: expected a -staging.* host, got $url"
+                 echo "The branch deploy may have overwritten production."
+                 exit 1 ;;
+            esac
+          fi
+
+          # HTTP 200 alone proves nothing: a never-deployed SWA serves a
+          # placeholder that also returns 200. Assert on rendered content.
+          check() {
+            local u="$1" marker="$2" label="$3" i code
+            for i in $(seq 1 10); do
+              code=$(curl -sS --max-time 20 -o /tmp/body -w '%{http_code}' "$u" 2>/dev/null || echo 000)
+              if [ "$code" = "200" ] && grep -qF -- "$marker" /tmp/body; then
+                echo "OK   $label (HTTP $code, $(wc -c </tmp/body | tr -d ' ') bytes)"
+                return 0
+              fi
+              echo "wait $label: attempt $i -> HTTP $code"
+              sleep 6
+            done
+            echo "FAIL $label: '$marker' absent from $u"
+            return 1
+          }
+
+          fail=0
+          # "Think SWIFT" is in the hero <h1>, i.e. rendered body markup. A
+          # <head>-only marker would still pass on a page that renders nothing.
+          check "$url/"             "Think SWIFT"       "index.html"   || fail=1
+          # The body is built by mock/, so a deploy that lost the mock folder
+          # would serve a blank page. Verify the assets as well.
+          check "$url/mock/data.js" "window.SWIFT_DATA" "mock/data.js" || fail=1
+          check "$url/mock/app.js"  "SWIFT_DATA"        "mock/app.js"  || fail=1
+
+          exit "$fail"
